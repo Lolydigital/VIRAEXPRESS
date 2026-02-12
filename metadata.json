@@ -1,0 +1,8 @@
+{
+  "name": "ViraExpress - Viral Content Generator",
+  "description": "A SaaS application to generate viral TikTok ideas and prompts for talking objects using the power of Gemini AI.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
