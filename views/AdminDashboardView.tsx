@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { UserProfile, Translation, SubscriptionPlan } from '../types';
-import { 
-  Users, TrendingUp, DollarSign, Settings, Search, 
+import {
+  Users, TrendingUp, DollarSign, Settings, Search,
   UserX, ShieldCheck, CreditCard, ArrowLeft,
   Trash2, Mail, Phone, Plus, X, Lock, RefreshCcw,
   CheckCircle2, AlertCircle, Database, Cpu, Zap, Copy, ExternalLink, Rocket
@@ -23,7 +23,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ user, t,
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
-  
+
   const [newUserEmail, setNewUserEmail] = useState('');
   const [newUserPass, setNewUserPass] = useState('123456');
   const [newUserPlan, setNewUserPlan] = useState<SubscriptionPlan>('Pro');
@@ -44,10 +44,11 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ user, t,
     const { data, error } = await supabase.from('profiles').select('id').limit(1);
     const dbOk = !error;
     const envOk = !!(import.meta as any).env?.VITE_SUPABASE_URL;
-    
+    const aiOk = !!(import.meta as any).env?.VITE_GOOGLE_API_KEY;
+
     setSystemStatus({
       database: dbOk ? 'ok' : 'error',
-      ai: 'ok',
+      ai: aiOk ? 'ok' : 'error',
       env: envOk ? 'ok' : 'error'
     });
   };
@@ -137,71 +138,71 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ user, t,
       <main className="max-w-7xl mx-auto px-8 mt-12 space-y-12">
         {/* Guia de Deploy Vercel - O "MASTIGADO" */}
         <section className="bg-indigo-600/5 border border-indigo-500/20 rounded-[3rem] p-10 relative overflow-hidden">
-           <div className="absolute top-0 right-0 p-10 opacity-10">
-              <Rocket className="w-40 h-40 text-indigo-500" />
-           </div>
-           <div className="relative z-10 space-y-8">
-              <div className="flex items-center gap-4">
-                 <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center"><Rocket className="w-6 h-6 text-white" /></div>
-                 <div>
-                    <h3 className="text-xl font-black text-white uppercase italic tracking-tighter">Guia de Deploy Vercel</h3>
-                    <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Siga estas etapas para colocar seu site no ar</p>
-                 </div>
+          <div className="absolute top-0 right-0 p-10 opacity-10">
+            <Rocket className="w-40 h-40 text-indigo-500" />
+          </div>
+          <div className="relative z-10 space-y-8">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center"><Rocket className="w-6 h-6 text-white" /></div>
+              <div>
+                <h3 className="text-xl font-black text-white uppercase italic tracking-tighter">Guia de Deploy Vercel</h3>
+                <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Siga estas etapas para colocar seu site no ar</p>
               </div>
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                 {envVars.map((env) => (
-                    <div key={env.key} className="bg-black/40 border border-white/5 p-6 rounded-[2rem] space-y-4">
-                       <div>
-                          <p className="text-[10px] font-black text-gray-500 uppercase">{env.desc}</p>
-                          <p className="text-sm font-bold text-white font-mono">{env.key}</p>
-                       </div>
-                       <button 
-                        onClick={() => handleCopy(env.key, env.key)}
-                        className="w-full py-3 bg-white/5 hover:bg-white/10 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
-                       >
-                         {copiedKey === env.key ? <CheckCircle2 className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                         {copiedKey === env.key ? 'COPIADO!' : 'COPIAR CHAVE'}
-                       </button>
-                    </div>
-                 ))}
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {envVars.map((env) => (
+                <div key={env.key} className="bg-black/40 border border-white/5 p-6 rounded-[2rem] space-y-4">
+                  <div>
+                    <p className="text-[10px] font-black text-gray-500 uppercase">{env.desc}</p>
+                    <p className="text-sm font-bold text-white font-mono">{env.key}</p>
+                  </div>
+                  <button
+                    onClick={() => handleCopy(env.key, env.key)}
+                    className="w-full py-3 bg-white/5 hover:bg-white/10 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                  >
+                    {copiedKey === env.key ? <CheckCircle2 className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                    {copiedKey === env.key ? 'COPIADO!' : 'COPIAR CHAVE'}
+                  </button>
+                </div>
+              ))}
+            </div>
 
-              <div className="flex flex-col md:flex-row gap-4">
-                 <a href="https://vercel.com/new" target="_blank" className="flex-1 bg-white text-indigo-900 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest text-center flex items-center justify-center gap-2 hover:scale-105 transition-all">
-                    ABRIR VERCEL <ExternalLink className="w-4 h-4" />
-                 </a>
-                 <div className="flex-1 bg-indigo-600/20 border border-indigo-500/30 px-6 py-4 rounded-2xl flex items-center gap-3">
-                    <AlertCircle className="w-5 h-5 text-indigo-400" />
-                    <p className="text-[9px] font-bold text-indigo-100 leading-tight uppercase">
-                       DICA: No painel da Vercel, cole estas chaves em "Environment Variables" antes do Deploy.
-                    </p>
-                 </div>
+            <div className="flex flex-col md:flex-row gap-4">
+              <a href="https://vercel.com/new" target="_blank" className="flex-1 bg-white text-indigo-900 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest text-center flex items-center justify-center gap-2 hover:scale-105 transition-all">
+                ABRIR VERCEL <ExternalLink className="w-4 h-4" />
+              </a>
+              <div className="flex-1 bg-indigo-600/20 border border-indigo-500/30 px-6 py-4 rounded-2xl flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 text-indigo-400" />
+                <p className="text-[9px] font-bold text-indigo-100 leading-tight uppercase">
+                  DICA: No painel da Vercel, cole estas chaves em "Environment Variables" antes do Deploy.
+                </p>
               </div>
-           </div>
+            </div>
+          </div>
         </section>
 
         {/* Status e Lista de Alunos (Mantido e Melhorado) */}
         <section className="grid grid-cols-1 md:grid-cols-4 gap-6">
-           <div className="bg-[#1E293B]/60 border border-white/10 p-6 rounded-[2rem] flex items-center gap-4">
-              <div className={`p-3 rounded-xl bg-white/5 ${systemStatus.database === 'ok' ? 'text-emerald-400' : 'text-red-400'}`}><Database className="w-6 h-6" /></div>
-              <div>
-                <p className="text-[10px] font-black text-gray-500 uppercase">Banco de Dados</p>
-                <p className="text-xs font-bold text-white uppercase">{systemStatus.database === 'ok' ? 'Conectado' : 'Erro'}</p>
-              </div>
-           </div>
-           {/* ... Resto dos cards ... */}
+          <div className="bg-[#1E293B]/60 border border-white/10 p-6 rounded-[2rem] flex items-center gap-4">
+            <div className={`p-3 rounded-xl bg-white/5 ${systemStatus.database === 'ok' ? 'text-emerald-400' : 'text-red-400'}`}><Database className="w-6 h-6" /></div>
+            <div>
+              <p className="text-[10px] font-black text-gray-500 uppercase">Banco de Dados</p>
+              <p className="text-xs font-bold text-white uppercase">{systemStatus.database === 'ok' ? 'Conectado' : 'Erro'}</p>
+            </div>
+          </div>
+          {/* ... Resto dos cards ... */}
         </section>
 
         <section className="bg-white/5 border border-white/10 rounded-[3rem] overflow-hidden glass-card">
           <div className="p-8 border-b border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-black/20">
-             <h3 className="text-xl font-black text-white italic uppercase tracking-tighter flex items-center gap-3">
-               <ShieldCheck className="w-6 h-6 text-indigo-400" /> LISTA DE ALUNOS ATIVOS
-             </h3>
-             <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                <input type="text" placeholder="Pesquisar e-mail..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-12 pr-6 py-4 bg-black/40 border border-white/10 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full md:w-80 transition-all" />
-             </div>
+            <h3 className="text-xl font-black text-white italic uppercase tracking-tighter flex items-center gap-3">
+              <ShieldCheck className="w-6 h-6 text-indigo-400" /> LISTA DE ALUNOS ATIVOS
+            </h3>
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <input type="text" placeholder="Pesquisar e-mail..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-12 pr-6 py-4 bg-black/40 border border-white/10 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full md:w-80 transition-all" />
+            </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
@@ -244,24 +245,24 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ user, t,
       {/* Modal Novo Aluno (Mesmo anterior) */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/90 backdrop-blur-md">
-           <div className="bg-[#1E293B] border border-white/10 rounded-[3rem] w-full max-w-md p-10 space-y-8 shadow-2xl animate-in zoom-in duration-300">
-              <div className="flex justify-between items-center">
-                <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter">Ativar Aluno</h3>
-                <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-white/5 rounded-full text-gray-500"><X className="w-6 h-6" /></button>
+          <div className="bg-[#1E293B] border border-white/10 rounded-[3rem] w-full max-w-md p-10 space-y-8 shadow-2xl animate-in zoom-in duration-300">
+            <div className="flex justify-between items-center">
+              <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter">Ativar Aluno</h3>
+              <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-white/5 rounded-full text-gray-500"><X className="w-6 h-6" /></button>
+            </div>
+            <form onSubmit={handleCreateUser} className="space-y-6">
+              <input type="email" required value={newUserEmail} onChange={(e) => setNewUserEmail(e.target.value)} className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl text-sm" placeholder="E-mail do aluno" />
+              <input type="text" required value={newUserPass} onChange={(e) => setNewUserPass(e.target.value)} className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl text-sm" placeholder="Senha" />
+              <div className="grid grid-cols-2 gap-3">
+                {['Pro', 'Elite'].map(p => (
+                  <button key={p} type="button" onClick={() => setNewUserPlan(p as SubscriptionPlan)} className={`py-4 rounded-2xl border text-[10px] font-black uppercase ${newUserPlan === p ? 'bg-indigo-600 border-indigo-400' : 'bg-black/40 border-white/10'}`}>PLANO {p}</button>
+                ))}
               </div>
-              <form onSubmit={handleCreateUser} className="space-y-6">
-                <input type="email" required value={newUserEmail} onChange={(e) => setNewUserEmail(e.target.value)} className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl text-sm" placeholder="E-mail do aluno" />
-                <input type="text" required value={newUserPass} onChange={(e) => setNewUserPass(e.target.value)} className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl text-sm" placeholder="Senha" />
-                <div className="grid grid-cols-2 gap-3">
-                  {['Pro', 'Elite'].map(p => (
-                    <button key={p} type="button" onClick={() => setNewUserPlan(p as SubscriptionPlan)} className={`py-4 rounded-2xl border text-[10px] font-black uppercase ${newUserPlan === p ? 'bg-indigo-600 border-indigo-400' : 'bg-black/40 border-white/10'}`}>PLANO {p}</button>
-                  ))}
-                </div>
-                <button disabled={isCreating} className="w-full py-6 bg-indigo-600 text-white font-black rounded-[2rem] shadow-2xl">
-                  {isCreating ? <RefreshCcw className="w-5 h-5 animate-spin mx-auto" /> : 'LIBERAR ACESSO'}
-                </button>
-              </form>
-           </div>
+              <button disabled={isCreating} className="w-full py-6 bg-indigo-600 text-white font-black rounded-[2rem] shadow-2xl">
+                {isCreating ? <RefreshCcw className="w-5 h-5 animate-spin mx-auto" /> : 'LIBERAR ACESSO'}
+              </button>
+            </form>
+          </div>
         </div>
       )}
     </div>

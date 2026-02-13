@@ -54,7 +54,7 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
       });
     } catch (err: any) {
       console.error(err);
-      alert("Erro ao gerar roteiro viral: " + (err.message || "Tente novamente em instantes."));
+      alert("Tivemos um problema ao gerar a estrutura. Tente novamente em instantes.");
     } finally {
       setLoading(false);
       setRefining(false);
