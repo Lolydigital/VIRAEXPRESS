@@ -22,7 +22,7 @@ RULES:
   try {
     const ai = getAI();
     const result = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-1.5-pro",
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: {
         temperature: 1,
@@ -62,7 +62,7 @@ export const discoverTrends = async (niche: string, lang: Language): Promise<Ins
   try {
     const ai = getAI();
     const result = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-1.5-pro",
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: {
         temperature: 0.7,
@@ -179,7 +179,7 @@ MISSION: Create viral narratives for "Vira Express".
   try {
     const ai = getAI();
     const result = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-1.5-pro",
       contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
       config: {
         temperature: 0.8,
@@ -202,7 +202,7 @@ export const generateActualImage = async (imagePrompt: string, ratio: AspectRati
   try {
     const ai = getAI();
     const result = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-1.5-pro",
       contents: [{ role: 'user', parts: [{ text: `Generate a high quality 3D image base for: ${imagePrompt}` }] }],
     });
 
