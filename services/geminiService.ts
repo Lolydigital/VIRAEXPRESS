@@ -1,16 +1,57 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ViralIdea, PromptSet, Language, AspectRatio, GenerationMode, Persona, InspirationVideo, SubscriptionPlan } from "../types";
 
-// Force redeploy - v1.0.3 - Updated to Gemini 2.0 Flash & v1 API
+// Force redeploy - v1.0.5 - Added 30s Timeout and Telemetry
 const getAI = () => {
-  const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
+  const apiKey = import.meta.env.VITE_GOOGLE_API_KEY || (typeof process !== 'undefined' ? process.env?.VITE_GOOGLE_API_KEY : '');
+
   if (!apiKey) {
+    console.error("DEBUG: VITE_GOOGLE_API_KEY is undefined.");
     throw new Error("API Key ausente. Configure VITE_GOOGLE_API_KEY no Vercel.");
   }
+
   return new GoogleGenAI({ apiKey, apiVersion: 'v1' });
 };
 
+// Watchdog Timer Helper (30 seconds)
+const withTimeout = <T>(promise: Promise<T>, taskName: string, timeoutMs = 30000): Promise<T> => {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`Timeout: Chamada IA (${taskName}) excedeu ${timeoutMs / 1000}s`)), timeoutMs)
+    )
+  ]);
+};
+
+// Simple Caching Helper
+const getCache = <T>(key: string): T | null => {
+  try {
+    const cached = localStorage.getItem(`vira_cache_${key}`);
+    if (cached) {
+      const { data, expiry } = JSON.parse(cached);
+      if (expiry > Date.now()) return data;
+      localStorage.removeItem(`vira_cache_${key}`);
+    }
+  } catch (e) {
+    console.error("Cache read error:", e);
+  }
+  return null;
+};
+
+const setCache = (key: string, data: any, ttlHours = 24) => {
+  try {
+    const expiry = Date.now() + (ttlHours * 60 * 60 * 1000);
+    localStorage.setItem(`vira_cache_${key}`, JSON.stringify({ data, expiry }));
+  } catch (e) {
+    console.error("Cache write error:", e);
+  }
+};
+
 export const generateIdeas = async (niche: string, lang: Language): Promise<ViralIdea[]> => {
+  const cacheKey = `ideas_${niche}_${lang}`;
+  const cached = getCache<ViralIdea[]>(cacheKey);
+  if (cached) return cached;
+
   const languageNames = { PT: 'Portuguese (Brazil)', EN: 'English', ES: 'Spanish' };
 
   const prompt = `Act as the Chief Strategist of "Vira Express".
@@ -22,27 +63,36 @@ RULES:
 4. RETURN ONLY VALID JSON ARRAY with this exact structure:
 [{"id": "unique-id", "title": "Title Here", "description": "Description Here", "emoji": "😀"}]`;
 
+  console.log(`DEBUG: [Ideas] Iniciando chamada Gemini para "${niche}"...`);
+
   try {
     const ai = getAI();
-    const result = await ai.models.generateContent({
+    const result = await withTimeout(ai.models.generateContent({
       model: "gemini-2.0-flash",
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: {
         temperature: 1,
         maxOutputTokens: 2048
       },
-    });
+    }), "Ideas");
 
     const text = (result.text || '').replace(/```json/g, '').replace(/```/g, '').trim();
     if (!text) throw new Error("IA retornou resposta vazia");
-    return JSON.parse(text);
+    const ideas = JSON.parse(text);
+    setCache(cacheKey, ideas);
+    console.log(`DEBUG: [Ideas] Sucesso para "${niche}"`);
+    return ideas;
   } catch (error: any) {
-    console.error("Error generating ideas:", error);
+    console.error(`DEBUG: [Ideas] Erro para "${niche}":`, error.message);
     throw error;
   }
 };
 
 export const discoverTrends = async (niche: string, lang: Language): Promise<InspirationVideo[]> => {
+  const cacheKey = `trends_${niche}_${lang}`;
+  const cached = getCache<InspirationVideo[]>(cacheKey);
+  if (cached) return cached;
+
   const languageNames = { PT: 'Portuguese (Brazil)', EN: 'English', ES: 'Spanish' };
 
   const prompt = `As a TikTok trend analyst, identify 3 viral video concepts for "Talking Objects" for the niche: "${niche}".
@@ -51,26 +101,31 @@ export const discoverTrends = async (niche: string, lang: Language): Promise<Ins
   RETURN ONLY VALID JSON ARRAY with this exact structure:
   [{"id": "unique-id", "title": "Title", "thumbnail": "https://...", "url": "https://...", "niche": "Niche Name"}]`;
 
+  console.log(`DEBUG: [Trends] Iniciando chamada Gemini para "${niche}"...`);
+
   try {
     const ai = getAI();
-    const result = await ai.models.generateContent({
+    const result = await withTimeout(ai.models.generateContent({
       model: "gemini-2.0-flash",
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: {
         temperature: 0.7,
         maxOutputTokens: 1024
       }
-    });
+    }), "Trends");
 
     const text = (result.text || '').replace(/```json/g, '').replace(/```/g, '').trim();
     if (!text) return [];
     const trends = JSON.parse(text);
-    return trends.map((t: any) => ({
+    const finalTrends = trends.map((t: any) => ({
       ...t,
       thumbnail: t.thumbnail.startsWith('http') ? t.thumbnail : `https://images.unsplash.com/photo-1586769852044-692d6e3703a0?w=400&h=600&fit=crop`
     }));
-  } catch (error) {
-    console.error("Error discovering trends:", error);
+    setCache(cacheKey, finalTrends);
+    console.log(`DEBUG: [Trends] Sucesso para "${niche}"`);
+    return finalTrends;
+  } catch (error: any) {
+    console.error(`DEBUG: [Trends] Erro para "${niche}":`, error.message);
     return [];
   }
 };
@@ -87,7 +142,6 @@ export const generatePrompts = async (
   plan?: SubscriptionPlan
 ): Promise<PromptSet> => {
   const languageNames = { PT: 'Portuguese (Brazil)', EN: 'English', ES: 'Spanish' };
-
   const objectCount = plan === 'Free' ? 3 : 10;
 
   const systemInstruction = `Act as a Storytelling Director and Animation Scriptwriter 2026.
@@ -102,68 +156,52 @@ MISSION: Create viral narratives for "Vira Express".
 8. 🧩 QUANTITY: Generate EXACTLY ${objectCount} objects in the "objetos" array.`;
 
   const userPrompt = refinementCommand
-    ? `ADJUSTMENT: "${refinementCommand}". PREVIOUS CONTEXT: ${JSON.stringify(previousResult)}. GENERATE EXACTLY ${objectCount} OBJECTS.
+    ? `ADJUSTMENT: "${refinementCommand}". PREVIOUS CONTEXT: ${JSON.stringify(previousResult)}. GENERATE EXACTLY ${objectCount} OBJECTS.`
+    : `Generate strategy for: ${idea.title}. Description: ${idea.description}. Persona: ${selectedPersona?.name || 'Default'}. Plan: ${plan}. GENERATE EXACTLY ${objectCount} OBJECTS.`;
 
-RETURN ONLY VALID JSON with this exact structure:
-{
-  "sequencia_storytelling": "string",
-  "objetos": [{"id": "string", "title": "string", "persona": "string", "imagePrompt": "string (in English)"}],
-  "roteiro_unificado": [{"time": "string", "speaker": "string", "text": "string", "emotion": "string"}],
-  "videoPrompt_Tecnico": "string (in English)",
-  "watermark_instruction": "string",
-  "viral_score": {"total": number, "hook": number, "retention": number, "cta": number, "feedback": "string"}
-}
+  const promptFinal = `${userPrompt}\n\nRETURN ONLY VALID JSON with the expected structure.\n\nSYSTEM INSTRUCTION: ${systemInstruction}`;
 
-SYSTEM INSTRUCTION: ${systemInstruction}`
-    : `Generate strategy for: ${idea.title}. Description: ${idea.description}. Persona: ${selectedPersona?.name || 'Default'}. Plan: ${plan}. GENERATE EXACTLY ${objectCount} OBJECTS.
-
-RETURN ONLY VALID JSON with this exact structure:
-{
-  "sequencia_storytelling": "string",
-  "objetos": [{"id": "string", "title": "string", "persona": "string", "imagePrompt": "string (in English)"}],
-  "roteiro_unificado": [{"time": "string", "speaker": "string", "text": "string", "emotion": "string"}],
-  "videoPrompt_Tecnico": "string (in English)",
-  "watermark_instruction": "string",
-  "viral_score": {"total": number, "hook": number, "retention": number, "cta": number, "feedback": "string"}
-}
-
-SYSTEM INSTRUCTION: ${systemInstruction}`;
+  console.log(`DEBUG: [Prompts] Iniciando chamada Gemini para "${idea.title}"...`);
 
   try {
     const ai = getAI();
-    const result = await ai.models.generateContent({
+    const result = await withTimeout(ai.models.generateContent({
       model: "gemini-2.0-flash",
-      contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+      contents: [{ role: 'user', parts: [{ text: promptFinal }] }],
       config: {
         temperature: 0.8,
         maxOutputTokens: 4096
       },
-    });
+    }), "Prompts");
 
     const text = (result.text || '').replace(/```json/g, '').replace(/```/g, '').trim();
     if (!text) throw new Error("IA retornou resposta vazia");
+    console.log(`DEBUG: [Prompts] Sucesso para "${idea.title}"`);
     return JSON.parse(text);
-  } catch (error) {
-    console.error("Error generating prompts:", error);
+  } catch (error: any) {
+    console.error(`DEBUG: [Prompts] Erro para "${idea.title}":`, error.message);
     throw error;
   }
 };
 
 export const generateActualImage = async (imagePrompt: string, ratio: AspectRatio): Promise<string> => {
+  console.log(`DEBUG: [Image] Iniciando geração de imagem...`);
   try {
     const ai = getAI();
-    const result = await ai.models.generateContent({
+    const result = await withTimeout(ai.models.generateContent({
       model: "gemini-2.0-flash",
       contents: [{ role: 'user', parts: [{ text: `Generate a high quality 3D image base for: ${imagePrompt}` }] }],
-    });
+    }), "Image");
 
     const data = result.data;
     if (data) {
+      console.log(`DEBUG: [Image] Sucesso (Base64)`);
       return `data:image/png;base64,${data}`;
     }
+    console.log(`DEBUG: [Image] Sucesso (Unsplash Fallback)`);
     return `https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80`;
-  } catch (error) {
-    console.error("Image generation error:", error);
+  } catch (error: any) {
+    console.error(`DEBUG: [Image] Erro:`, error.message);
     return `https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80`;
   }
 };
