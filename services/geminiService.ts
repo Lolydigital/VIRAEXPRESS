@@ -10,7 +10,7 @@ const getAI = () => {
   const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
   if (!apiKey) {
     console.error("VITE_GOOGLE_API_KEY não está definida!");
-    throw new Error("API Key ausente no Vercel. Configure VITE_GOOGLE_API_KEY nas Settings.");
+    throw new Error("API Key ausente no Vercel. Certifique-se de que o nome é EXATAMENTE: VITE_GOOGLE_API_KEY");
   }
   return new GoogleGenAI({ apiKey });
 };

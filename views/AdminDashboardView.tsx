@@ -112,7 +112,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ user, t,
   };
 
   const envVars = [
-    { key: 'API_KEY', value: 'Sua chave do Gemini', desc: 'Pegue no Google AI Studio' },
+    { key: 'VITE_GOOGLE_API_KEY', value: 'Sua chave do Gemini', desc: 'Pegue no Google AI Studio (OBRIGATÓRIO PREFIXO VITE_)' },
     { key: 'VITE_SUPABASE_URL', value: (import.meta as any).env?.VITE_SUPABASE_URL || 'Pendente', desc: 'URL do seu Supabase' },
     { key: 'VITE_SUPABASE_ANON_KEY', value: (import.meta as any).env?.VITE_SUPABASE_ANON_KEY || 'Pendente', desc: 'Chave Anon do Supabase' }
   ];
