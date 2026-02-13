@@ -1,13 +1,13 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ViralIdea, PromptSet, Language, AspectRatio, GenerationMode, Persona, InspirationVideo, SubscriptionPlan } from "../types";
 
-// Force redeploy - v1.0.2 - Fixed 404 and Model issues
+// Force redeploy - v1.0.3 - Updated to Gemini 2.0 Flash & v1 API
 const getAI = () => {
-  const apiKey = import.meta.env.VITE_GOOGLE_API_KEY || 'AIzaSyB_AJhr0G-RrxETsOSQyFH5ZvvQXsinsXs';
+  const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
   if (!apiKey) {
-    throw new Error("API Key ausente. Configure VITE_GOOGLE_API_KEY.");
+    throw new Error("API Key ausente. Configure VITE_GOOGLE_API_KEY no Vercel.");
   }
-  return new GoogleGenAI({ apiKey, apiVersion: 'v1beta' });
+  return new GoogleGenAI({ apiKey, apiVersion: 'v1' });
 };
 
 export const generateIdeas = async (niche: string, lang: Language): Promise<ViralIdea[]> => {
@@ -25,7 +25,7 @@ RULES:
   try {
     const ai = getAI();
     const result = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.0-flash",
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: {
         temperature: 1,
@@ -54,7 +54,7 @@ export const discoverTrends = async (niche: string, lang: Language): Promise<Ins
   try {
     const ai = getAI();
     const result = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.0-flash",
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: {
         temperature: 0.7,
@@ -132,7 +132,7 @@ SYSTEM INSTRUCTION: ${systemInstruction}`;
   try {
     const ai = getAI();
     const result = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.0-flash",
       contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
       config: {
         temperature: 0.8,
@@ -153,7 +153,7 @@ export const generateActualImage = async (imagePrompt: string, ratio: AspectRati
   try {
     const ai = getAI();
     const result = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.0-flash",
       contents: [{ role: 'user', parts: [{ text: `Generate a high quality 3D image base for: ${imagePrompt}` }] }],
     });
 
