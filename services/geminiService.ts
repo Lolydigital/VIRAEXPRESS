@@ -7,10 +7,10 @@ import { ViralIdea, PromptSet, Language, AspectRatio, GenerationMode, Persona, I
 // Para este protótipo funcional, usamos a env direta centralizada.
 
 const getAI = () => {
-  const apiKey = import.meta.env.VITE_GOOGLE_API_KEY || 'AIzaSyB_AJhr0G-RrxETsOSQyFH5ZvvQXsinsXs';
+  const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
   if (!apiKey) {
     console.error("VITE_GOOGLE_API_KEY não está definida!");
-    throw new Error("API Key ausente. Configure VITE_GOOGLE_API_KEY.");
+    throw new Error("API Key ausente no Vercel. Configure VITE_GOOGLE_API_KEY nas Settings.");
   }
   return new GoogleGenAI({ apiKey });
 };
