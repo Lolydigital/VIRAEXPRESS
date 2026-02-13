@@ -43,8 +43,8 @@ RULES:
       },
     });
 
-    const text = result.response.text();
-    if (!text) throw new Error("Resposta da IA vazia");
+    const text = result.text;
+    if (!text) throw new Error("IA retornou resposta vazia");
     return JSON.parse(text);
   } catch (error: any) {
     console.error("Error generating ideas:", error);
@@ -84,7 +84,7 @@ export const discoverTrends = async (niche: string, lang: Language): Promise<Ins
       }
     });
 
-    const text = result.response.text();
+    const text = result.text;
     if (!text) return [];
     const trends = JSON.parse(text);
     return trends.map((t: any) => ({
@@ -189,8 +189,8 @@ MISSION: Create viral narratives for "Vira Express".
       },
     });
 
-    const text = result.response.text();
-    if (!text) throw new Error("Empty response from AI");
+    const text = result.text;
+    if (!text) throw new Error("IA retornou resposta vazia");
     return JSON.parse(text);
   } catch (error) {
     console.error("Error generating prompts:", error);
@@ -206,13 +206,9 @@ export const generateActualImage = async (imagePrompt: string, ratio: AspectRati
       contents: [{ role: 'user', parts: [{ text: `Generate a high quality 3D image base for: ${imagePrompt}` }] }],
     });
 
-    const parts = result.response.candidates?.[0]?.content?.parts;
-    if (parts) {
-      for (const part of parts) {
-        if (part.inlineData) {
-          return `data:image/png;base64,${part.inlineData.data}`;
-        }
-      }
+    const data = result.data;
+    if (data) {
+      return `data:image/png;base64,${data}`;
     }
     return `https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80`;
   } catch (error) {
