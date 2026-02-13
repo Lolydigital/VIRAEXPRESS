@@ -14,7 +14,7 @@ const App: React.FC = () => {
     const saved = localStorage.getItem('activeUser');
     return saved ? JSON.parse(saved) : null;
   });
-  
+
   const [language, setLanguage] = useState<Language>(() => {
     return (localStorage.getItem('lang') as Language) || 'PT';
   });
@@ -123,7 +123,7 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/" element={user ? <Navigate to="/dashboard" /> : <LoginView onLogin={handleLogin} language={language} setLanguage={setLanguage} t={t} />} />
           <Route path="/dashboard" element={user ? <DashboardView user={user} t={t} language={language} setLanguage={setLanguage} onLogout={handleLogout} history={history} isHistoryLoading={isHistoryLoading} onDeleteHistory={deleteFromHistory} /> : <Navigate to="/" />} />
-          <Route path="/prompts/:id" element={user ? <PromptDetailView t={t} language={language} onSave={saveToHistory} onConsumeCredit={() => updateCredits(1)} /> : <Navigate to="/" />} />
+          <Route path="/prompts/:id" element={user ? <PromptDetailView user={user} t={t} language={language} onSave={saveToHistory} onConsumeCredit={() => updateCredits(1)} /> : <Navigate to="/" />} />
           <Route path="/admin" element={user?.role === 'admin' ? <AdminDashboardView user={user} t={t} onLogout={handleLogout} /> : <Navigate to="/dashboard" />} />
         </Routes>
       </div>

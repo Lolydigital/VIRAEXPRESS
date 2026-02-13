@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Translation, Language, ViralIdea, PromptSet, AspectRatio, Persona } from '../types';
+import { Translation, Language, ViralIdea, PromptSet, AspectRatio, Persona, UserProfile } from '../types';
 import {
   ArrowLeft, Copy, CheckCircle, ExternalLink, ImageIcon, RefreshCcw,
   Zap, Sparkles, Smile, Tv, Send,
@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { generatePrompts, generateActualImage } from '../services/geminiService';
 
-export const PromptDetailView: React.FC<{ t: Translation; language: Language; onSave: (idea: ViralIdea) => Promise<void>; onConsumeCredit: () => void }> = ({ t, language, onSave, onConsumeCredit }) => {
+export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; language: Language; onSave: (idea: ViralIdea) => Promise<void>; onConsumeCredit: () => void }> = ({ user, t, language, onSave, onConsumeCredit }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { idea, aspectRatio, imageInput, persona, restoredPrompts } = location.state || {};
@@ -46,7 +46,7 @@ export const PromptDetailView: React.FC<{ t: Translation; language: Language; on
     }
 
     try {
-      const pResult = await generatePrompts(idea, language, aspectRatio as AspectRatio, 'viral', imageInput, refinement, prompts || undefined, persona);
+      const pResult = await generatePrompts(idea, language, aspectRatio as AspectRatio, 'viral', imageInput, refinement, prompts || undefined, persona, user.plan);
       setPrompts(pResult);
 
       pResult.objetos.forEach(async (obj) => {

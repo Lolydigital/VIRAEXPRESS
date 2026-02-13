@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { ViralIdea, PromptSet, Language, AspectRatio, GenerationMode, Persona, InspirationVideo } from "../types";
+import { ViralIdea, PromptSet, Language, AspectRatio, GenerationMode, Persona, InspirationVideo, SubscriptionPlan } from "../types";
 
 // LÓGICA DE SEGURANÇA:
 // Em produção, o frontend chamaria uma Supabase Edge Function.
@@ -111,16 +111,14 @@ export const generatePrompts = async (
   imageInput?: string,
   refinementCommand?: string,
   previousResult?: PromptSet,
-  selectedPersona?: Persona
+  selectedPersona?: Persona,
+  plan?: SubscriptionPlan
 ): Promise<PromptSet> => {
   const ai = getAI();
   const languageNames = { PT: 'Portuguese (Brazil)', EN: 'English', ES: 'Spanish' };
   const parts: any[] = [];
-  if (imageInput) {
-    parts.push({
-      inlineData: { data: imageInput.split(',')[1] || imageInput, mimeType: 'image/jpeg' }
-    });
-  }
+
+  const objectCount = plan === 'Free' ? 3 : 10;
 
   const systemInstruction = `Act as a Storytelling Director and Animation Scriptwriter 2026.
 MISSION: Create viral narratives for "Vira Express".
@@ -128,9 +126,10 @@ MISSION: Create viral narratives for "Vira Express".
 2. 🎭 LOGIC A-B-A: Conflict, Resolution, CTA (Call to Action).
 3. 📊 VIRAL SCORE: Analyze the script and give 0-100 scores for Hook, Retention, and CTA.
 4. 🌐 TECHNICAL LANGUAGE: The "imagePrompt" and "videoPrompt_Tecnico" fields MUST BE IN ENGLISH.
-5. 🎨 IMAGE STYLE: Pixar Style, cinematic lighting, 8k.
-6. 🎬 VIDEO PROMPT: Master Prompt for VEO 3 describing action and physics.
-7. 📝 CONTENT LANGUAGE: All user-facing text MUST BE IN ${languageNames[lang]}.`;
+5. 🎨 IMAGE STYLE: Pixar Animation Style, cinematic lighting, 8k, hyper-detailed textures.
+6. 🎬 VIDEO PROMPT: Master Prompt for VEO 3 describing action, physics, and cinematography in English.
+7. 📝 CONTENT LANGUAGE: All user-facing text (title, description, script, feedback) MUST BE IN ${languageNames[lang]}.
+8. 🧩 QUANTITY: Generate EXACTLY ${objectCount} objects in the "objetos" array.`;
 
   const PromptSetSchema = {
     type: Type.OBJECT,
@@ -138,6 +137,8 @@ MISSION: Create viral narratives for "Vira Express".
       sequencia_storytelling: { type: Type.STRING },
       objetos: {
         type: Type.ARRAY,
+        minItems: objectCount,
+        maxItems: objectCount,
         items: {
           type: Type.OBJECT,
           properties: {
@@ -180,8 +181,8 @@ MISSION: Create viral narratives for "Vira Express".
   };
 
   let userPrompt = refinementCommand
-    ? `ADJUSTMENT: "${refinementCommand}". PREVIOUS CONTEXT: ${JSON.stringify(previousResult)}.`
-    : `Generate strategy for: ${idea.title}. Description: ${idea.description}. Persona: ${selectedPersona?.name || 'Default'}.`;
+    ? `ADJUSTMENT: "${refinementCommand}". PREVIOUS CONTEXT: ${JSON.stringify(previousResult)}. GENERATE EXACTLY ${objectCount} OBJECTS.`
+    : `Generate strategy for: ${idea.title}. Description: ${idea.description}. Persona: ${selectedPersona?.name || 'Default'}. Plan: ${plan}. GENERATE EXACTLY ${objectCount} OBJECTS.`;
 
   parts.push({ text: userPrompt });
 
