@@ -189,45 +189,48 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
         <div className="w-24"></div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 md:px-6 mt-8 md:mt-12 space-y-12 pb-48">
+      <main className="max-w-6xl mx-auto px-4 md:px-6 mt-8 md:mt-12 space-y-12 pb-64">
         <div className="text-center space-y-3">
-          <h1 className="text-3xl md:text-5xl font-black text-white italic uppercase tracking-tighter leading-none">{t.strategyReady}</h1>
+          <h2 className="text-gray-500 text-[10px] md:text-[12px] font-black uppercase tracking-[0.4em] mb-4">A FILHA DO DESESPERO</h2>
+          <h1 className="text-4xl md:text-6xl font-black text-white italic uppercase tracking-tighter leading-none flex items-center justify-center gap-4">
+            ESTRUTURA VIRAL <CheckCircle className="w-10 h-10 text-emerald-500" />
+          </h1>
           <p className="text-gray-500 text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] md:tracking-[0.5em]">{t.readySubtitle}</p>
         </div>
 
         {/* TERMÔMETRO DE VIRALIZAÇÃO */}
         {prompts?.viral_score && (
-          <section className="bg-gradient-to-br from-[#1E293B]/80 to-[#0F172A]/80 border border-white/10 rounded-[2rem] md:rounded-[3rem] p-6 md:p-10 shadow-2xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/10 rounded-full blur-[80px] -mr-32 -mt-32"></div>
+          <section className="bg-gradient-to-br from-[#1E293B]/80 to-[#0F172A]/80 border border-white/10 rounded-[2.5rem] md:rounded-[3.5rem] p-8 md:p-12 shadow-2xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-600/10 rounded-full blur-[100px] -mr-40 -mt-40"></div>
 
-            <div className="relative z-10 space-y-8">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-600/20 shrink-0">
-                    <BarChart3 className="w-6 h-6 text-white" />
+            <div className="relative z-10 space-y-10">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+                <div className="flex items-center gap-5">
+                  <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-2xl shadow-indigo-600/30 shrink-0">
+                    <BarChart3 className="w-8 h-8 text-white" />
                   </div>
                   <div className="text-left">
-                    <h3 className="text-lg md:text-xl font-black text-white italic uppercase tracking-tighter">{t.viralScoreTitle}</h3>
-                    <p className="text-[9px] md:text-[10px] font-black text-indigo-400 uppercase tracking-widest leading-none">Análise de IA Nível 2026</p>
+                    <h3 className="text-xl md:text-2xl font-black text-white italic uppercase tracking-tighter">{t.viralScoreTitle}</h3>
+                    <p className="text-[10px] md:text-[11px] font-black text-indigo-400 uppercase tracking-widest leading-none">Análise de IA Nível 2026</p>
                   </div>
                 </div>
-                <div className="text-5xl md:text-6xl font-black text-white italic tracking-tighter text-right">
-                  {prompts.viral_score.total}<span className="text-indigo-500 text-2xl md:text-3xl">/100</span>
+                <div className="text-6xl md:text-7xl font-black text-white italic tracking-tighter text-right">
+                  {prompts.viral_score.total}<span className="text-indigo-500 text-3xl md:text-4xl">/100</span>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
                 {[
-                  { label: t.hookLabel, value: prompts.viral_score.hook, color: 'from-indigo-500 to-indigo-300' },
-                  { label: t.retentionLabel, value: prompts.viral_score.retention, color: 'from-purple-500 to-purple-300' },
-                  { label: t.ctaLabel, value: prompts.viral_score.cta, color: 'from-cyan-500 to-cyan-300' },
+                  { label: t.hookLabel, value: prompts.viral_score.hook, color: 'from-indigo-600 to-indigo-400' },
+                  { label: t.retentionLabel, value: prompts.viral_score.retention, color: 'from-purple-600 to-purple-400' },
+                  { label: t.ctaLabel, value: prompts.viral_score.cta, color: 'from-cyan-600 to-cyan-400' },
                 ].map((stat, i) => (
-                  <div key={i} className="space-y-3">
+                  <div key={i} className="space-y-4">
                     <div className="flex justify-between items-end px-1">
-                      <span className="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest leading-none">{stat.label}</span>
-                      <span className="text-base md:text-lg font-black text-white italic leading-none">{stat.value}%</span>
+                      <span className="text-[10px] md:text-[11px] font-black text-gray-500 uppercase tracking-widest leading-none">{stat.label}</span>
+                      <span className="text-xl md:text-2xl font-black text-white italic leading-none">{stat.value}%</span>
                     </div>
-                    <div className="h-2.5 md:h-3 bg-white/5 rounded-full overflow-hidden border border-white/5 p-[2px]">
+                    <div className="h-4 md:h-5 bg-white/5 rounded-full overflow-hidden border border-white/5 p-[3px]">
                       <div
                         className={`h-full rounded-full bg-gradient-to-r ${stat.color} transition-all duration-1000 ease-out`}
                         style={{ width: `${stat.value}%` }}
@@ -237,12 +240,12 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
                 ))}
               </div>
 
-              <div className="bg-black/40 border border-white/5 rounded-2xl md:rounded-[2rem] p-5 md:p-6 space-y-3">
-                <div className="flex items-center gap-2 text-indigo-400">
-                  <Info className="w-4 h-4" />
-                  <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest">{t.feedbackLabel}</span>
+              <div className="bg-black/40 border border-white/5 rounded-[2rem] p-6 md:p-8 space-y-4">
+                <div className="flex items-center gap-3 text-indigo-400">
+                  <Info className="w-5 h-5" />
+                  <span className="text-[10px] md:text-[11px] font-black uppercase tracking-widest">{t.feedbackLabel}</span>
                 </div>
-                <p className="text-xs md:text-sm text-gray-300 font-medium leading-relaxed italic text-left">
+                <p className="text-sm md:text-base text-gray-300 font-medium leading-relaxed italic text-left">
                   "{prompts.viral_score.feedback}"
                 </p>
               </div>
@@ -251,14 +254,14 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
         )}
 
         {/* PERSONALIZAR MARCA DE PROTEÇÃO */}
-        <section className="bg-[#1E293B]/60 border border-white/10 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 space-y-6">
-          <div className="flex items-center gap-3">
-            <ShieldCheck className="w-5 h-5 text-indigo-400" />
-            <h3 className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-indigo-300 shrink-0">{t.watermarkTitle}</h3>
+        <section className="bg-[#1E293B]/60 border border-white/10 rounded-[2.5rem] p-8 md:p-10 space-y-8">
+          <div className="flex items-center gap-4">
+            <ShieldCheck className="w-6 h-6 text-indigo-400" />
+            <h3 className="text-[10px] md:text-[12px] font-black uppercase tracking-widest text-indigo-300 shrink-0">{t.watermarkTitle}</h3>
           </div>
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="flex-1 relative group">
+              <AtSign className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-indigo-400 transition-colors" />
               <input
                 type="text"
                 placeholder={t.watermarkPlaceholder}
@@ -267,7 +270,7 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
                   const val = e.target.value.startsWith('@') ? e.target.value : `@${e.target.value}`;
                   setUserHandle(val);
                 }}
-                className="w-full pl-11 pr-4 py-4 bg-black/40 border border-white/10 rounded-2xl text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-white"
+                className="w-full pl-14 pr-6 py-5 bg-black/50 border border-white/10 rounded-2xl text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-white transition-all"
               />
             </div>
             <button
@@ -276,7 +279,7 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
                   if (generatedImages[obj.id]) applyWatermark(obj.id, generatedImages[obj.id]);
                 });
               }}
-              className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20 active:scale-95 shrink-0"
+              className="px-10 py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl text-[12px] uppercase tracking-widest transition-all shadow-2xl shadow-indigo-600/30 active:scale-95 shrink-0"
             >
               {t.applyHandle}
             </button>
@@ -284,48 +287,48 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
         </section>
 
         {/* 1️⃣ IMAGE PROMPTS */}
-        <section className="space-y-6">
-          <div className="flex items-center gap-4">
-            <div className="bg-indigo-600 text-white w-10 h-10 rounded-xl flex items-center justify-center font-black text-xl italic shadow-lg shadow-indigo-600/20 shrink-0">1</div>
-            <h3 className="text-xl md:text-2xl font-black text-white uppercase italic tracking-tighter shrink-0">{t.imagePromptTitle}</h3>
+        <section className="space-y-8">
+          <div className="flex items-center gap-6">
+            <div className="bg-indigo-600 text-white w-12 h-12 rounded-2xl flex items-center justify-center font-black text-2xl italic shadow-2xl shadow-indigo-600/30 shrink-0">1</div>
+            <h3 className="text-2xl md:text-3xl font-black text-white uppercase italic tracking-tighter shrink-0">{t.imagePromptTitle}</h3>
             <div className="h-px flex-1 bg-white/10 hidden md:block"></div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
             {prompts?.objetos.map((obj) => (
-              <div key={obj.id} className="bg-white/5 border border-white/10 rounded-[2.5rem] overflow-hidden group hover:border-indigo-500/30 transition-all flex flex-col">
-                <div className="p-6 border-b border-white/10 bg-black/20 space-y-4">
+              <div key={obj.id} className="bg-[#1E293B]/60 border border-white/10 rounded-[3rem] overflow-hidden group hover:border-indigo-500/50 transition-all flex flex-col shadow-2xl">
+                <div className="p-8 border-b border-white/10 bg-black/20 space-y-6">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse shrink-0"></div>
-                      <span className="text-[9px] md:text-[10px] font-black text-indigo-400 uppercase tracking-widest">{obj.persona}</span>
+                    <div className="flex items-center gap-3">
+                      <div className="w-3 h-3 rounded-full bg-indigo-500 animate-pulse shrink-0"></div>
+                      <span className="text-[10px] md:text-[11px] font-black text-indigo-400 uppercase tracking-widest">{obj.persona}</span>
                     </div>
-                    <div className="flex gap-2">
-                      <button onClick={() => downloadImage(obj.id)} className="p-2.5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-emerald-400 transition-all">
+                    <div className="flex gap-3">
+                      <button onClick={() => downloadImage(obj.id)} className="p-3 hover:bg-white/10 rounded-xl text-gray-400 hover:text-emerald-400 transition-all border border-white/5">
                         <DownloadCloud className="w-5 h-5" />
                       </button>
-                      <button onClick={() => handleCopy(obj.imagePrompt, obj.id)} className="p-2.5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all">
+                      <button onClick={() => handleCopy(obj.imagePrompt, obj.id)} className="p-3 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all border border-white/5">
                         {copied === obj.id ? <CheckCircle className="w-5 h-5 text-emerald-400" /> : <Copy className="w-5 h-5" />}
                       </button>
                     </div>
                   </div>
-                  <div className="p-4 bg-black/40 rounded-2xl border border-white/5 group-hover:border-indigo-500/20 transition-all">
-                    <p className="text-[10px] font-medium font-mono text-gray-400 line-clamp-2 italic leading-relaxed text-left">{obj.imagePrompt}</p>
+                  <div className="p-5 bg-black/50 rounded-2xl border border-white/5 group-hover:border-indigo-500/30 transition-all">
+                    <p className="text-[11px] md:text-[12px] font-medium font-mono text-gray-400 line-clamp-3 italic leading-relaxed text-left">{obj.imagePrompt}</p>
                   </div>
                 </div>
                 <div className={`relative bg-black flex items-center justify-center overflow-hidden flex-1 ${aspectRatio === '9:16' ? 'aspect-[9/16]' : 'aspect-[16/9]'}`}>
                   {generatingImages[obj.id] ? (
                     <div className="flex flex-col items-center gap-4">
-                      <RefreshCcw className="w-12 h-12 text-indigo-500 animate-spin" />
-                      <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest animate-pulse">{t.loading}</span>
+                      <div className="w-16 h-16 border-4 border-indigo-600/20 border-t-indigo-600 rounded-full animate-spin"></div>
+                      <span className="text-[11px] font-black text-indigo-400 uppercase tracking-widest animate-pulse">{t.loading}</span>
                     </div>
                   ) : (
                     <>
                       {generatedImages[obj.id] ? (
                         <img src={watermarkedImages[obj.id] || generatedImages[obj.id]} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt={obj.title} />
                       ) : (
-                        <div className="flex flex-col items-center gap-4 text-center px-10">
-                          <ImageIcon className="w-16 h-16 text-gray-800" />
-                          <button onClick={() => handleImageGen(obj.id, obj.imagePrompt)} className="px-6 py-3 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all">Retry Generation</button>
+                        <div className="flex flex-col items-center gap-6 text-center px-12 opacity-40 group-hover:opacity-100 transition-opacity">
+                          <ImageIcon className="w-20 h-20 text-indigo-500/30" />
+                          <button onClick={() => handleImageGen(obj.id, obj.imagePrompt)} className="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all">{t.loading === 'Free' ? 'Retry generation' : 'Gerar Imagem'}</button>
                         </div>
                       )}
                     </>
@@ -337,31 +340,35 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
         </section>
 
         {/* 2️⃣ SCRIPT */}
-        <section className="space-y-6">
-          <div className="flex items-center gap-4">
-            <div className="bg-indigo-600 text-white w-10 h-10 rounded-xl flex items-center justify-center font-black text-xl italic shadow-lg shadow-indigo-600/20 shrink-0">2</div>
-            <h3 className="text-xl md:text-2xl font-black text-white uppercase italic tracking-tighter shrink-0">{t.scriptTitle}</h3>
+        <section className="space-y-8">
+          <div className="flex items-center gap-6">
+            <div className="bg-indigo-600 text-white w-12 h-12 rounded-2xl flex items-center justify-center font-black text-2xl italic shadow-2xl shadow-indigo-600/30 shrink-0">2</div>
+            <h3 className="text-2xl md:text-3xl font-black text-white uppercase italic tracking-tighter shrink-0">{t.scriptTitle}</h3>
             <div className="h-px flex-1 bg-white/10 hidden md:block"></div>
           </div>
-          <div className="bg-[#1E293B]/60 border border-white/10 rounded-[2.5rem] md:rounded-[3rem] p-6 md:p-10 space-y-6">
-            <div className="space-y-4">
+          <div className="bg-[#1E293B]/40 border border-white/10 rounded-[3rem] p-8 md:p-12 space-y-10">
+            <div className="space-y-8">
               {prompts?.roteiro_unificado.map((line, idx) => (
-                <div key={idx} className="flex flex-col md:flex-row gap-4 items-start group">
-                  <div className="flex-1 w-full bg-black/40 p-5 rounded-2xl border border-white/5 relative hover:border-indigo-500/30 transition-all group/card">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="px-3 py-1 bg-indigo-600/20 border border-indigo-500/30 rounded-full">
-                        <span className="text-[9px] font-black text-indigo-400">{line.time}</span>
+                <div key={idx} className="flex gap-6 items-start group">
+                  <div className="w-16 h-16 rounded-full bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center shrink-0 mt-1 shadow-inner relative group-hover:scale-110 transition-transform">
+                    <div className="absolute inset-0 bg-indigo-500/10 rounded-full animate-pulse"></div>
+                    <span className="text-3xl relative z-10">{line.speaker.includes('☕') ? '☕' : line.speaker.includes('💸') ? '💸' : line.speaker.includes('💊') ? '💊' : '🎬'}</span>
+                  </div>
+                  <div className="flex-1 bg-black/40 p-6 rounded-3xl border border-white/5 relative hover:border-indigo-500/30 transition-all group/card shadow-xl">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="px-4 py-1.5 bg-indigo-600/20 border border-indigo-500/30 rounded-full">
+                        <span className="text-[10px] md:text-[11px] font-black text-indigo-400">{line.time}</span>
                       </div>
-                      <span className="text-[8px] font-black text-gray-600 uppercase tracking-widest">SCENE {idx + 1}</span>
+                      <span className="text-[9px] font-black text-gray-600 uppercase tracking-[0.2em]">CENA {idx + 1}</span>
                     </div>
-                    <p className="text-gray-200 text-sm md:text-base font-medium leading-relaxed italic text-left">"{line.text}"</p>
-                    <div className="mt-4 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Smile className="w-4 h-4 text-indigo-400" />
-                        <span className="text-[9px] font-black uppercase tracking-widest text-indigo-500">{line.emotion}</span>
+                    <p className="text-gray-100 text-base md:text-lg font-medium leading-relaxed italic text-left">"{line.text}"</p>
+                    <div className="mt-6 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 rounded-full bg-indigo-400 animate-ping"></div>
+                        <span className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-indigo-500/80">{line.emotion}</span>
                       </div>
-                      <button onClick={() => handleCopy(line.text, `script-${idx}`)} className="p-2 bg-white/5 rounded-xl transition-all hover:bg-white/10">
-                        {copied === `script-${idx}` ? <CheckCircle className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-gray-500" />}
+                      <button onClick={() => handleCopy(line.text, `script-${idx}`)} className="p-3 bg-white/5 rounded-2xl transition-all hover:bg-white/10 border border-white/5">
+                        {copied === `script-${idx}` ? <CheckCircle className="w-5 h-5 text-emerald-400" /> : <Copy className="w-5 h-5 text-gray-500" />}
                       </button>
                     </div>
                   </div>
@@ -372,138 +379,145 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
         </section>
 
         {/* 3️⃣ MASTER PROMPT */}
-        <section className="space-y-6">
-          <div className="flex items-center gap-4">
-            <div className="bg-indigo-600 text-white w-10 h-10 rounded-xl flex items-center justify-center font-black text-xl italic shadow-lg shadow-indigo-600/20 shrink-0">3</div>
-            <h3 className="text-xl md:text-2xl font-black text-white uppercase italic tracking-tighter shrink-0">{t.videoPromptTitle}</h3>
+        <section className="space-y-8">
+          <div className="flex items-center gap-6">
+            <div className="bg-indigo-600 text-white w-12 h-12 rounded-2xl flex items-center justify-center font-black text-2xl italic shadow-2xl shadow-indigo-600/30 shrink-0">3</div>
+            <h3 className="text-2xl md:text-3xl font-black text-white uppercase italic tracking-tighter shrink-0">{t.videoPromptTitle}</h3>
             <div className="h-px flex-1 bg-white/10 hidden md:block"></div>
           </div>
-          <div className="bg-gradient-to-br from-indigo-900 via-indigo-800 to-indigo-950 border border-white/20 rounded-[2.5rem] md:rounded-[3rem] p-8 md:p-16 text-center space-y-10 shadow-[0_30px_100px_rgba(79,70,229,0.3)] relative overflow-hidden">
+          <div className="bg-gradient-to-br from-indigo-700 via-indigo-600 to-indigo-900 border border-white/20 rounded-[3rem] md:rounded-[4rem] p-10 md:p-20 text-center space-y-12 shadow-[0_40px_120px_rgba(79,70,229,0.4)] relative overflow-hidden group">
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
-            <div className="max-w-3xl mx-auto space-y-8 relative z-10">
-              <div className="bg-black/50 backdrop-blur-2xl p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-white/10 shadow-inner">
-                <p className="text-xs md:text-sm font-mono text-indigo-100 leading-relaxed italic text-center">{prompts?.videoPrompt_Tecnico}</p>
+            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-black/20 to-transparent"></div>
+
+            <div className="max-w-4xl mx-auto space-y-12 relative z-10">
+              <div className="bg-black/60 backdrop-blur-3xl p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] border border-white/10 shadow-2xl relative">
+                <div className="absolute -top-4 -left-4 w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center shadow-2xl rotate-12">
+                  <Video className="w-6 h-6 text-white" />
+                </div>
+                <p className="text-sm md:text-lg font-mono text-indigo-100 leading-relaxed italic text-center selection:bg-indigo-500/50">{prompts?.videoPrompt_Tecnico}</p>
               </div>
               <button
                 onClick={() => handleCopy(prompts?.videoPrompt_Tecnico || '', 'veo')}
-                className="py-6 px-12 bg-white text-indigo-950 font-black rounded-3xl text-sm md:text-base uppercase tracking-widest hover:scale-105 transition-all shadow-2xl flex items-center gap-4 mx-auto active:scale-95 group"
+                className="py-7 px-16 bg-white text-indigo-950 font-black rounded-[2rem] text-sm md:text-lg uppercase tracking-[0.2em] hover:scale-105 transition-all shadow-[0_20px_50px_rgba(255,255,255,0.2)] flex items-center gap-6 mx-auto active:scale-95 group/btn"
               >
-                {copied === 'veo' ? <CheckCircle className="w-6 h-6" /> : <Copy className="w-6 h-6" />}
-                {t.copyVideoPrompt || "COPIAR MASTER PROMPT (VEO 3)"}
+                {copied === 'veo' ? <CheckCircle className="w-8 h-8 text-emerald-600" /> : <Copy className="w-8 h-8 group-hover/btn:rotate-6 transition-transform" />}
+                {t.copyVideoPrompt || "COPIAR MASTER PROMPT"}
               </button>
             </div>
           </div>
         </section>
 
         {/* REFINAR ESTRATÉGIA */}
-        <section className="bg-[#1E293B]/60 border border-indigo-500/20 rounded-[2.5rem] p-6 md:p-10 space-y-6">
-          <div className="flex items-center gap-3">
-            <Sparkles className="w-5 h-5 text-indigo-400" />
-            <h3 className="text-[10px] font-black uppercase tracking-widest text-indigo-300">{t.refineTitle}</h3>
+        <section className="bg-[#1E293B]/60 border border-indigo-500/20 rounded-[3rem] p-8 md:p-12 space-y-8 shadow-inner">
+          <div className="flex items-center gap-4">
+            <Sparkles className="w-6 h-6 text-indigo-400" />
+            <h3 className="text-[11px] md:text-[13px] font-black uppercase tracking-[0.3em] text-indigo-300">{t.refineTitle}</h3>
           </div>
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col md:flex-row gap-6">
             <input
               type="text"
               placeholder={t.refinePlaceholder}
               value={refinementText}
               onChange={(e) => setRefinementText(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleRefine()}
-              className="flex-1 bg-black/40 border border-white/10 rounded-2xl px-6 py-5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white"
+              className="flex-1 bg-black/60 border border-white/10 rounded-2xl px-8 py-6 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white shadow-xl transition-all"
             />
             <button
               onClick={handleRefine}
               disabled={refining || !refinementText.trim()}
-              className="px-10 py-5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-black rounded-2xl transition-all flex items-center justify-center gap-3 shadow-xl shadow-indigo-600/20 active:scale-95 shrink-0"
+              className="px-12 py-6 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-black rounded-2xl transition-all flex items-center justify-center gap-4 shadow-2xl shadow-indigo-600/30 active:scale-95 shrink-0"
             >
-              {refining ? <RefreshCcw className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-              <span className="text-[10px] uppercase tracking-widest">{t.adjust}</span>
+              {refining ? <RefreshCcw className="w-6 h-6 animate-spin" /> : <Send className="w-6 h-6" />}
+              <span className="text-[12px] uppercase tracking-widest">{t.adjust}</span>
             </button>
           </div>
         </section>
 
         {/* FLUXO DE MONTAGEM */}
-        <section className="bg-[#1E293B]/40 border border-white/10 rounded-[2.5rem] md:rounded-[3rem] p-8 md:p-12 space-y-10">
-          <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 text-center opacity-80">{t.flowTitle}</h3>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+        <section className="bg-black/20 border border-white/5 rounded-[3.5rem] p-10 md:p-16 space-y-12">
+          <h3 className="text-[11px] md:text-[13px] font-black uppercase tracking-[0.5em] text-indigo-400 text-center opacity-70 italic">{t.flowTitle}</h3>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10">
             {[
-              { step: '1', title: t.stepImage, desc: t.stepImageDesc, icon: <ImageIcon className="w-6 h-6" /> },
-              { step: '2', title: t.stepVideo, desc: t.stepVideoDesc, icon: <Tv className="w-6 h-6" /> },
-              { step: '3', title: t.stepAudio, desc: t.stepAudioDesc, icon: <Scissors className="w-6 h-6" /> },
-              { step: '4', title: t.stepRemove, desc: t.stepRemoveDesc, icon: <Droplets className="w-6 h-6" /> },
+              { step: '1', title: t.stepImage, desc: t.stepImageDesc, icon: <ImageIcon className="w-8 h-8" /> },
+              { step: '2', title: t.stepVideo, desc: t.stepVideoDesc, icon: <Tv className="w-8 h-8" /> },
+              { step: '3', title: t.stepAudio, desc: t.stepAudioDesc, icon: <Scissors className="w-8 h-8" /> },
+              { step: '4', title: t.stepRemove, desc: t.stepRemoveDesc, icon: <Droplets className="w-8 h-8" /> },
             ].map(item => (
-              <div key={item.step} className="bg-black/30 p-6 md:p-8 rounded-[2rem] border border-white/5 text-center space-y-4 hover:border-indigo-500/30 transition-all flex flex-col items-center">
-                <div className="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-xl shadow-indigo-600/20 mb-2">
+              <div key={item.step} className="bg-white/5 p-8 md:p-10 rounded-[2.5rem] border border-white/5 text-center space-y-6 hover:border-indigo-500/30 transition-all flex flex-col items-center group shadow-xl">
+                <div className="w-20 h-20 bg-indigo-600 rounded-[2rem] flex items-center justify-center shadow-2xl shadow-indigo-600/30 mb-2 group-hover:scale-110 transition-transform">
                   {item.icon}
                 </div>
-                <h4 className="text-[11px] font-black uppercase text-white tracking-widest leading-none">{item.title}</h4>
-                <p className="text-[9px] text-gray-500 font-bold uppercase leading-relaxed">{item.desc}</p>
+                <div className="space-y-2">
+                  <h4 className="text-[13px] font-black uppercase text-white tracking-widest leading-none">{item.title}</h4>
+                  <p className="text-[10px] text-gray-500 font-bold uppercase leading-relaxed tracking-tighter opacity-70 group-hover:opacity-100 transition-opacity">{item.desc}</p>
+                </div>
               </div>
             ))}
           </div>
         </section>
 
         {/* MEU VÍDEO PRONTO */}
-        <section className="bg-white/5 border border-white/10 rounded-[2.5rem] md:rounded-[3rem] p-8 md:p-12 space-y-10">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="text-center md:text-left space-y-2">
-              <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter">{t.myVideoTitle}</h3>
-              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em]">{t.myVideoSubtitle}</p>
+        <section className="bg-white/5 border border-white/10 rounded-[3rem] md:rounded-[4rem] p-10 md:p-16 space-y-12">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-10">
+            <div className="text-center md:text-left space-y-3">
+              <h3 className="text-3xl font-black text-white italic uppercase tracking-tighter">{t.myVideoTitle}</h3>
+              <p className="text-[11px] text-gray-500 font-bold uppercase tracking-[0.3em]">{t.myVideoSubtitle}</p>
             </div>
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-500 text-white px-10 py-5 rounded-2xl flex items-center justify-center gap-4 text-[11px] font-black uppercase tracking-widest transition-all shadow-xl shadow-indigo-600/20 active:scale-95 group"
+              className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-500 text-white px-12 py-6 rounded-[2rem] flex items-center justify-center gap-5 text-[12px] font-black uppercase tracking-widest transition-all shadow-2xl shadow-indigo-600/30 active:scale-95 group"
             >
-              <Upload className="w-6 h-6 group-hover:-translate-y-1 transition-transform" /> {t.uploadVideo}
+              <Upload className="w-7 h-7 group-hover:-translate-y-1 transition-transform" /> {t.uploadVideo}
             </button>
             <input type="file" ref={fileInputRef} className="hidden" accept="video/*" onChange={handleVideoUpload} />
           </div>
           {finalVideo ? (
-            <div className="relative group rounded-[2.5rem] md:rounded-[3rem] overflow-hidden border border-white/10 aspect-video bg-black max-w-3xl mx-auto shadow-2xl">
+            <div className="relative group rounded-[3rem] md:rounded-[3.5rem] overflow-hidden border border-white/10 aspect-video bg-black max-w-4xl mx-auto shadow-2xl">
               <video src={finalVideo} controls className="w-full h-full" />
               <button
                 onClick={() => setFinalVideo(null)}
-                className="absolute top-6 right-6 p-5 bg-red-600 text-white rounded-full shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110"
+                className="absolute top-8 right-8 p-6 bg-red-600/80 backdrop-blur-md text-white rounded-full shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110 hover:bg-red-600"
               >
-                <Trash2 className="w-6 h-6" />
+                <Trash2 className="w-7 h-7" />
               </button>
             </div>
           ) : (
-            <div className="border-2 border-dashed border-white/10 rounded-[2.5rem] md:rounded-[3rem] p-24 flex flex-col items-center justify-center text-center space-y-6 bg-black/20 group hover:border-indigo-500/30 transition-all cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-              <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-indigo-600/10 transition-all">
-                <Video className="w-10 h-10 text-gray-800 group-hover:text-indigo-500 transition-all" />
+            <div className="border-2 border-dashed border-white/10 rounded-[3rem] md:rounded-[3.5rem] p-32 flex flex-col items-center justify-center text-center space-y-8 bg-black/40 group hover:border-indigo-500/50 transition-all cursor-pointer shadow-inner" onClick={() => fileInputRef.current?.click()}>
+              <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-indigo-600 transition-all shadow-2xl">
+                <Video className="w-10 h-10 text-gray-800 group-hover:text-white transition-all transform group-hover:rotate-12" />
               </div>
-              <p className="text-gray-600 text-[10px] font-black uppercase tracking-[0.3em]">{t.noVideo}</p>
+              <p className="text-gray-600 text-[12px] font-black uppercase tracking-[0.4em] italic group-hover:text-indigo-400 transition-colors">{t.noVideo}</p>
             </div>
           )}
         </section>
 
         {/* FLOATING FOOTER */}
-        <div className="fixed bottom-0 md:bottom-8 left-1/2 -translate-x-1/2 w-full max-w-4xl px-4 pb-6 md:pb-0 z-[100] space-y-6">
-          <div className="flex justify-center items-center gap-3">
+        <div className="fixed bottom-0 md:bottom-10 left-1/2 -translate-x-1/2 w-full max-w-5xl px-6 pb-8 md:pb-0 z-[100] space-y-8">
+          <div className="flex justify-center items-center gap-4 bg-black/40 backdrop-blur-3xl border border-white/10 p-4 rounded-[2.5rem] md:rounded-[3rem] shadow-2xl w-max mx-auto">
             {flowTools.map(tool => (
               <a
                 key={tool.name}
                 href={tool.url}
                 target="_blank"
                 rel="noreferrer"
-                className={`w-12 h-12 md:w-16 md:h-16 ${tool.color} backdrop-blur-3xl border border-white/20 rounded-2xl md:rounded-[1.5rem] flex items-center justify-center hover:scale-110 transition-all group shadow-2xl`}
+                className={`w-14 h-14 md:w-20 md:h-20 ${tool.color} backdrop-blur-3xl border border-white/20 rounded-[1.5rem] md:rounded-[2rem] flex items-center justify-center hover:scale-125 transition-all group shadow-2xl hover:z-10`}
                 title={tool.name}
               >
-                <div className="scale-75 md:scale-100">{tool.icon}</div>
+                <div className="scale-90 md:scale-125 group-hover:rotate-6 transition-transform">{tool.icon}</div>
               </a>
             ))}
           </div>
-          <div className="bg-[#1E293B]/80 backdrop-blur-3xl border border-white/10 p-3 md:p-4 rounded-3xl md:rounded-full flex gap-3 md:gap-4 shadow-[0_25px_80px_rgba(0,0,0,1)]">
-            <button onClick={() => navigate('/dashboard')} className="flex-1 py-4 md:py-5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full font-black text-[9px] md:text-[11px] uppercase tracking-widest text-white transition-all active:scale-95">
+          <div className="bg-[#1E293B]/90 backdrop-blur-3xl border border-white/20 p-4 md:p-6 rounded-[2.5rem] md:rounded-full flex gap-4 md:gap-6 shadow-[0_40px_100px_rgba(0,0,0,1)] ring-1 ring-white/10">
+            <button onClick={() => navigate('/dashboard')} className="flex-1 py-5 md:py-6 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full font-black text-[10px] md:text-[13px] uppercase tracking-[0.2em] text-white transition-all active:scale-95 shadow-lg">
               {t.dashboardButton}
             </button>
             <button
               onClick={saveAction}
               disabled={isSaving}
-              className={`flex-[2] py-4 md:py-5 rounded-full font-black text-[9px] md:text-[11px] uppercase tracking-widest text-white transition-all flex items-center justify-center gap-2 ${isSaved ? 'bg-emerald-600' : 'bg-indigo-600 hover:bg-indigo-500 shadow-[0_10px_40px_rgba(79,70,229,0.5)]'
-                } disabled:opacity-70 active:scale-95`}
+              className={`flex-[2] py-5 md:py-6 rounded-full font-black text-[10px] md:text-[13px] uppercase tracking-[0.2em] text-white transition-all flex items-center justify-center gap-4 ${isSaved ? 'bg-emerald-600' : 'bg-indigo-600 hover:bg-indigo-500 shadow-[0_15px_50px_rgba(79,70,229,0.5)]'
+                } disabled:opacity-70 active:scale-95 border border-white/10`}
             >
-              {isSaving ? <RefreshCcw className="w-5 h-5 animate-spin" /> : isSaved ? `✅ ${t.success}` : t.saveToHistoryButton}
+              {isSaving ? <RefreshCcw className="w-6 h-6 animate-spin" /> : isSaved ? <><CheckCircle className="w-6 h-6" /> {t.success}</> : t.saveToHistoryButton}
             </button>
           </div>
         </div>
