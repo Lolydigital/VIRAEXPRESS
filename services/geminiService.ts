@@ -49,14 +49,15 @@ const callGeminiREST = async (model: string, prompt: string, taskName: string, c
     }
 
     const result = await response.json();
+    console.log(`DEBUG: [${taskName}] Resposta JSON bruta:`, result);
     const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!text) {
-      console.error(`DEBUG: [${taskName}] Resposta sem conteúdo:`, result);
+      console.error(`DEBUG: [${taskName}] Resposta sem conteúdo (candidates vazio ou parts ausente):`, result);
       throw new Error("IA retornou resposta sem conteúdo");
     }
 
-    console.log(`DEBUG: [${taskName}] Sucesso`);
+    console.log(`DEBUG: [${taskName}] Sucesso (Texto extraído)`);
     return text;
   } catch (error: any) {
     console.error(`DEBUG: [${taskName}] Falha na chamada:`, error.message);
@@ -110,9 +111,14 @@ RULES:
       maxOutputTokens: 2048
     });
 
-    const text = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+    console.log(`DEBUG: [Ideas] Texto limpo para parsing:`, text.substring(0, 100) + "...");
     const ideas = JSON.parse(text);
+    if (!Array.isArray(ideas)) {
+      console.error(`DEBUG: [Ideas] Resultado não é um array!`, ideas);
+      throw new Error("IA não retornou um formato de lista válido");
+    }
     setCache(cacheKey, ideas);
+    console.log(`DEBUG: [Ideas] Array parsed com ${ideas.length} itens`);
     return ideas;
   } catch (error: any) {
     throw error;

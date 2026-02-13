@@ -83,13 +83,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
 
     try {
       const finalNiche = method === 'list' ? selectedNiche : customNiche;
+      console.log(`DEBUG: [Dashboard] Chamando generateIdeas para niche: ${finalNiche}`);
       const result = await generateIdeas(finalNiche || 'viral talking objects', language);
+      console.log(`DEBUG: [Dashboard] Resultado recebido:`, result);
+
       if (result && Array.isArray(result)) {
         if (isMore) {
-          setIdeas(prev => [...prev, ...result]);
+          setIdeas(prev => {
+            const newIdeas = [...prev, ...result];
+            console.log(`DEBUG: [Dashboard] setIdeas (More) executado. Total: ${newIdeas.length}`);
+            return newIdeas;
+          });
         } else {
           setIdeas(result);
+          console.log(`DEBUG: [Dashboard] setIdeas executado. Total: ${result.length}`);
         }
+      } else {
+        console.warn(`DEBUG: [Dashboard] Resultado inválido (não é array):`, result);
       }
     } catch (error: any) {
       console.error("Erro ao gerar ideias:", error);
