@@ -7,7 +7,7 @@ import { ViralIdea, PromptSet, Language, AspectRatio, GenerationMode, Persona, I
 // Para este protótipo funcional, usamos a env direta centralizada.
 
 const getAI = () => {
-  const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
+  const apiKey = import.meta.env.VITE_GOOGLE_API_KEY || 'AIzaSyB_AJhr0G-RrxETsOSQyFH5ZvvQXsinsXs';
   if (!apiKey) {
     console.error("VITE_GOOGLE_API_KEY não está definida!");
     throw new Error("API Key ausente. Configure VITE_GOOGLE_API_KEY.");
@@ -50,11 +50,11 @@ RULES:
     });
 
     const text = response.text;
-    if (!text) return [];
+    if (!text) throw new Error("Resposta da IA vazia");
     return JSON.parse(text);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error generating ideas:", error);
-    return [];
+    throw error;
   }
 };
 

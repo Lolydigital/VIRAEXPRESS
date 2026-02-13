@@ -52,8 +52,9 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
       pResult.objetos.forEach(async (obj) => {
         handleImageGen(obj.id, obj.imagePrompt);
       });
-    } catch (e) {
-      console.error(e);
+    } catch (err: any) {
+      console.error(err);
+      alert("Erro ao gerar roteiro viral: " + (err.message || "Tente novamente em instantes."));
     } finally {
       setLoading(false);
       setRefining(false);
