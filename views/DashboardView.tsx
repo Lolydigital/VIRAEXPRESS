@@ -106,6 +106,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
       setErrorMessage("Tivemos um problema ao conectar com a IA. Verifique sua chave API no Vercel.");
       setErrorModalOpen(true);
     } finally {
+      console.log(`DEBUG: [Dashboard] handleGenerate concluído (finally). Resetando loading.`);
       setLoading(false);
       setLoadingMore(false);
     }

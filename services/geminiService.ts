@@ -111,6 +111,7 @@ RULES:
       maxOutputTokens: 2048
     });
 
+    const text = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
     console.log(`DEBUG: [Ideas] Texto limpo para parsing:`, text.substring(0, 100) + "...");
     const ideas = JSON.parse(text);
     if (!Array.isArray(ideas)) {
