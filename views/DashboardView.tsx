@@ -69,6 +69,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
       return;
     }
 
+    // Prevent duplicate calls
+    if (loading || loadingMore) {
+      console.warn('Generation already in progress, ignoring duplicate request');
+      return;
+    }
+
     if (isMore) setLoadingMore(true);
     else {
       setLoading(true);

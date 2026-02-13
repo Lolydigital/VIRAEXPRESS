@@ -42,6 +42,12 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
       return;
     }
 
+    // Prevent duplicate calls
+    if (loading || refining) {
+      console.warn('Content generation already in progress, ignoring duplicate request');
+      return;
+    }
+
     if (refinement) setRefining(true);
     else {
       setLoading(true);
@@ -66,6 +72,10 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
   };
 
   const handleRefine = () => {
+    if (refining || loading) {
+      console.warn('Refinement already in progress, ignoring duplicate request');
+      return;
+    }
     if (refinementText.trim()) {
       loadContent(refinementText);
       setRefinementText('');
