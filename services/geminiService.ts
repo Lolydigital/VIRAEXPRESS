@@ -1,13 +1,13 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ViralIdea, PromptSet, Language, AspectRatio, GenerationMode, Persona, InspirationVideo, SubscriptionPlan } from "../types";
 
-// Force redeploy - v1.0.1
+// Force redeploy - v1.0.2 - Fixed 404 and Model issues
 const getAI = () => {
   const apiKey = import.meta.env.VITE_GOOGLE_API_KEY || 'AIzaSyB_AJhr0G-RrxETsOSQyFH5ZvvQXsinsXs';
   if (!apiKey) {
     throw new Error("API Key ausente. Configure VITE_GOOGLE_API_KEY.");
   }
-  return new GoogleGenAI({ apiKey, apiVersion: 'v1' });
+  return new GoogleGenAI({ apiKey, apiVersion: 'v1beta' });
 };
 
 export const generateIdeas = async (niche: string, lang: Language): Promise<ViralIdea[]> => {
@@ -25,7 +25,7 @@ RULES:
   try {
     const ai = getAI();
     const result = await ai.models.generateContent({
-      model: "gemini-1.5-pro",
+      model: "gemini-1.5-flash",
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: {
         temperature: 1,
@@ -54,7 +54,7 @@ export const discoverTrends = async (niche: string, lang: Language): Promise<Ins
   try {
     const ai = getAI();
     const result = await ai.models.generateContent({
-      model: "gemini-1.5-pro",
+      model: "gemini-1.5-flash",
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: {
         temperature: 0.7,
@@ -101,55 +101,6 @@ MISSION: Create viral narratives for "Vira Express".
 7. 📝 CONTENT LANGUAGE: All user-facing text (title, description, script, feedback) MUST BE IN ${languageNames[lang]}.
 8. 🧩 QUANTITY: Generate EXACTLY ${objectCount} objects in the "objetos" array.`;
 
-  const PromptSetSchema = {
-    type: Type.OBJECT,
-    properties: {
-      sequencia_storytelling: { type: Type.STRING },
-      objetos: {
-        type: Type.ARRAY,
-        minItems: objectCount,
-        maxItems: objectCount,
-        items: {
-          type: Type.OBJECT,
-          properties: {
-            id: { type: Type.STRING },
-            title: { type: Type.STRING },
-            persona: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING },
-          },
-          required: ["id", "title", "persona", "imagePrompt"]
-        }
-      },
-      roteiro_unificado: {
-        type: Type.ARRAY,
-        items: {
-          type: Type.OBJECT,
-          properties: {
-            time: { type: Type.STRING },
-            speaker: { type: Type.STRING },
-            text: { type: Type.STRING },
-            emotion: { type: Type.STRING },
-          },
-          required: ["time", "speaker", "text", "emotion"]
-        }
-      },
-      videoPrompt_Tecnico: { type: Type.STRING },
-      watermark_instruction: { type: Type.STRING },
-      viral_score: {
-        type: Type.OBJECT,
-        properties: {
-          total: { type: Type.NUMBER },
-          hook: { type: Type.NUMBER },
-          retention: { type: Type.NUMBER },
-          cta: { type: Type.NUMBER },
-          feedback: { type: Type.STRING },
-        },
-        required: ["total", "hook", "retention", "cta", "feedback"]
-      }
-    },
-    required: ["sequencia_storytelling", "objetos", "roteiro_unificado", "videoPrompt_Tecnico", "watermark_instruction", "viral_score"]
-  };
-
   const userPrompt = refinementCommand
     ? `ADJUSTMENT: "${refinementCommand}". PREVIOUS CONTEXT: ${JSON.stringify(previousResult)}. GENERATE EXACTLY ${objectCount} OBJECTS.
 
@@ -181,7 +132,7 @@ SYSTEM INSTRUCTION: ${systemInstruction}`;
   try {
     const ai = getAI();
     const result = await ai.models.generateContent({
-      model: "gemini-1.5-pro",
+      model: "gemini-1.5-flash",
       contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
       config: {
         temperature: 0.8,
@@ -202,7 +153,7 @@ export const generateActualImage = async (imagePrompt: string, ratio: AspectRati
   try {
     const ai = getAI();
     const result = await ai.models.generateContent({
-      model: "gemini-1.5-pro",
+      model: "gemini-1.5-flash",
       contents: [{ role: 'user', parts: [{ text: `Generate a high quality 3D image base for: ${imagePrompt}` }] }],
     });
 
