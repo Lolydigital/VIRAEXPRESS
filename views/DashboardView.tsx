@@ -85,7 +85,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
       }
     } catch (error: any) {
       console.error("Erro ao gerar ideias:", error);
-      alert("Tivemos um problema ao conectar com a IA. Tente novamente em instantes.");
+      // alert("Tivemos um problema ao conectar com a IA. Tente novamente em instantes.");
     } finally {
       setLoading(false);
       setLoadingMore(false);
