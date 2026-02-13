@@ -233,57 +233,67 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
         </div>
 
         <aside className="lg:col-span-4 space-y-8">
-          {/* Seção MURAL (Restaurada) */}
-          <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 space-y-6">
-            <div className="flex items-center justify-between">
+          {/* Seção MURAL (Restaurada e Responsiva) */}
+          <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-6 md:p-8 space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400 flex items-center gap-2">
                 <Tv className="w-4 h-4" /> {t.muralTitle}
               </h3>
-              <button
-                onClick={() => handleDiscoverTrends()}
-                disabled={muralLoading || (!muralSearch && !selectedNiche)}
-                className="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-[10px] uppercase font-black tracking-widest flex items-center gap-2 disabled:opacity-50"
-              >
-                {muralLoading ? <RefreshCcw className="w-3 h-3 animate-spin" /> : <><Sparkles className="w-3 h-3" /> {t.discover || 'AI Discover'}</>}
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setTrends([]);
+                    handleDiscoverTrends();
+                  }}
+                  disabled={muralLoading || (!muralSearch && !selectedNiche)}
+                  className="flex-1 md:flex-none px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-[10px] uppercase font-black tracking-widest flex items-center justify-center gap-2 disabled:opacity-50 transition-all shadow-lg shadow-indigo-600/20"
+                >
+                  {muralLoading ? <RefreshCcw className="w-3 h-3 animate-spin" /> : <><Sparkles className="w-3 h-3" /> {t.discover || 'AI DISCOVER'}</>}
+                </button>
+              </div>
             </div>
-            <p className="text-[10px] text-gray-400">{t.muralSubtitle}</p>
+
+            <p className="text-[10px] text-gray-500 leading-relaxed uppercase tracking-widest">{t.muralSubtitle}</p>
 
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
               <input
                 type="text"
-                placeholder={t.searchMural || "Busque um nicho..."}
+                placeholder={t.searchMural || "Busque seu nicho..."}
                 value={muralSearch}
                 onChange={(e) => setMuralSearch(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleDiscoverTrends()}
-                className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-xs text-white focus:outline-none focus:border-indigo-500 transition-all"
+                className="w-full bg-black/40 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-xs text-white focus:outline-none focus:border-indigo-500/50 transition-all font-medium"
               />
             </div>
 
-            <div className="space-y-3 max-h-[500px] overflow-y-auto custom-scrollbar pr-2">
-              <div className="grid grid-cols-2 gap-3">
-                {/* AI Trends Results */}
-                {trends.map((trend) => (
+            <div className="space-y-4 max-h-[600px] overflow-y-auto custom-scrollbar pr-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* AI Trends Results (if any) */}
+                {trends.length > 0 && trends.map((trend) => (
                   <a
                     key={trend.id}
                     href={trend.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-indigo-900/40 to-black border border-indigo-500/30 hover:border-indigo-400 transition-all p-3 flex flex-col gap-2 hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/20 col-span-2 md:col-span-1"
+                    className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-900/40 to-black border border-indigo-500/30 hover:border-indigo-400 transition-all p-4 flex flex-col gap-3 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/20 col-span-1 sm:col-span-2"
                   >
-                    <div className="absolute top-2 right-2 bg-indigo-600 text-white text-[8px] font-black px-2 py-1 rounded-md uppercase tracking-wider">VIRAL AI</div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-12 h-16 bg-gray-800 rounded-lg bg-cover bg-center shrink-0" style={{ backgroundImage: `url(${trend.thumbnail})` }}></div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-[10px] font-bold text-white leading-tight mb-1 line-clamp-2">{trend.title}</h4>
-                        <p className="text-[9px] text-gray-400 line-clamp-2">{trend.niche}</p>
+                    <div className="absolute top-3 right-3 bg-indigo-600 text-white text-[8px] font-black px-2 py-1 rounded-md uppercase tracking-wider animate-pulse">VIRAL AI ✨</div>
+                    <div className="flex items-start gap-4">
+                      <div className="w-16 h-20 bg-gray-800 rounded-xl bg-cover bg-center shrink-0 border border-white/5" style={{ backgroundImage: `url(${trend.thumbnail})` }}></div>
+                      <div className="flex-1 min-w-0 pt-1">
+                        <h4 className="text-xs font-black text-white leading-tight mb-2 line-clamp-2 uppercase italic tracking-tighter">{trend.title}</h4>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[9px] text-indigo-400 font-bold uppercase">{trend.niche}</span>
+                          <div className="w-1 h-1 bg-white/20 rounded-full"></div>
+                          <span className="text-[9px] text-gray-500 font-bold uppercase">TikTok Trend</span>
+                        </div>
                       </div>
                     </div>
                   </a>
                 ))}
 
-                {/* Pre-defined Niches filtered */}
+                {/* Pre-defined Niches (The Library) */}
                 {t.niches
                   .filter(n => n.toLowerCase().includes(muralSearch.toLowerCase()))
                   .map((niche, idx) => (
@@ -292,36 +302,37 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
                       href={`https://www.tiktok.com/search?q=${encodeURIComponent('vídeos virais objetos falantes ' + niche)}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-gray-900 to-black border border-white/5 hover:border-indigo-500/50 transition-all p-4 flex flex-col items-center text-center gap-3 hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/10"
+                      className="group relative overflow-hidden rounded-2xl bg-[#1E293B]/40 border border-white/5 hover:border-indigo-500/50 transition-all p-5 flex flex-col items-center text-center gap-4 hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/10"
                     >
-                      <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                        <Play className="w-4 h-4 text-indigo-400 group-hover:text-white" />
+                      <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all transform group-hover:rotate-6 shadow-inner">
+                        <Play className="w-5 h-5 text-indigo-400 group-hover:text-white" />
                       </div>
 
-                      <span className="text-[10px] font-bold text-gray-200 group-hover:text-white leading-tight">{niche}</span>
-
-                      <div className="text-[8px] text-gray-600 uppercase tracking-widest mt-auto group-hover:text-indigo-300">
-                        TikTok
+                      <div className="space-y-1">
+                        <span className="block text-[10px] font-black text-white group-hover:text-indigo-300 leading-tight uppercase tracking-tight">{niche}</span>
+                        <span className="block text-[8px] text-gray-600 font-bold uppercase tracking-widest">TikTok Library</span>
                       </div>
                     </a>
                   ))}
 
-                {/* Custom Search Card (Fallback) */}
+                {/* Custom Search Fallback */}
                 {muralSearch && trends.length === 0 && !muralLoading && (
                   <a
                     href={`https://www.tiktok.com/search?q=${encodeURIComponent('vídeos virais objetos falantes ' + muralSearch)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-indigo-900/50 to-purple-900/50 border border-indigo-500/30 hover:border-indigo-400 transition-all p-4 flex flex-col items-center text-center gap-3 hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/20 col-span-2"
+                    className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-900/50 to-purple-900/50 border border-indigo-500/30 hover:border-indigo-400 transition-all p-6 flex flex-col items-center text-center gap-4 hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/20 col-span-1 sm:col-span-2"
                   >
-                    <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center group-hover:bg-indigo-500 group-hover:text-white transition-colors">
-                      <Search className="w-4 h-4 text-indigo-300 group-hover:text-white" />
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 flex items-center justify-center group-hover:bg-indigo-500 group-hover:text-white transition-all">
+                      <Search className="w-5 h-5 text-indigo-300 group-hover:text-white" />
                     </div>
-                    <span className="text-xs font-bold text-indigo-100 group-hover:text-white leading-tight">
-                      Buscar "{muralSearch}" no TikTok
-                    </span>
-                    <div className="text-[8px] text-indigo-300 uppercase tracking-widest mt-auto">
-                      Pesquisar Nicho Novo
+                    <div className="space-y-1">
+                      <span className="block text-xs font-black text-white leading-tight uppercase tracking-tighter italic">
+                        Buscar "{muralSearch}" no TikTok
+                      </span>
+                      <span className="block text-[8px] text-indigo-300 font-bold uppercase tracking-[0.2em]">
+                        Pesquisar Nicho Novo
+                      </span>
                     </div>
                   </a>
                 )}
@@ -330,33 +341,41 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
           </div>
 
           {/* Histórico */}
-          <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 space-y-6">
+          <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-6 md:p-8 space-y-6">
             <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400 flex items-center gap-2">
               <Clock className="w-4 h-4" /> {t.historyTitle}
             </h3>
-            <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+            <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
               {isHistoryLoading ? (
-                <div className="flex flex-col items-center gap-3 py-8">
-                  <RefreshCcw className="w-6 h-6 text-indigo-500 animate-spin" />
-                  <span className="text-[9px] font-black text-gray-600 uppercase">Sincronizando...</span>
+                <div className="flex flex-col items-center gap-3 py-10">
+                  <RefreshCcw className="w-8 h-8 text-indigo-500 animate-spin" />
+                  <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">Sincronizando Banco de Dados...</span>
                 </div>
               ) : history.length === 0 ? (
-                <p className="text-gray-600 text-[10px] font-bold uppercase text-center py-8">{t.noHistory}</p>
+                <div className="py-12 text-center bg-black/20 rounded-3xl border border-dashed border-white/5">
+                  <Clock className="w-8 h-8 text-gray-700 mx-auto mb-4" />
+                  <p className="text-gray-600 text-[10px] font-black uppercase tracking-widest">{t.noHistory}</p>
+                </div>
               ) : (
-                history.map((item) => (
-                  <div key={item.id} className="group relative bg-black/30 border border-white/5 rounded-2xl p-4 hover:border-indigo-500/50 transition-all">
-                    <div className="flex items-center gap-4 cursor-pointer" onClick={() => restoreFromHistory(item)}>
-                      <div className="text-2xl">{item.emoji}</div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[10px] font-black text-white truncate uppercase">{item.title}</p>
-                        <p className="text-[8px] text-gray-500 font-bold uppercase">{item.timestamp ? new Date(item.timestamp).toLocaleDateString() : ''}</p>
+                <div className="grid grid-cols-1 gap-4">
+                  {history.map((item) => (
+                    <div key={item.id} className="group relative bg-[#1E293B]/40 border border-white/5 rounded-2xl p-4 hover:border-indigo-500/50 transition-all shadow-lg hover:shadow-indigo-500/5">
+                      <div className="flex items-center gap-4 cursor-pointer" onClick={() => restoreFromHistory(item)}>
+                        <div className="text-3xl p-3 bg-black/40 rounded-xl group-hover:scale-110 transition-transform">{item.emoji}</div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[10px] font-black text-white truncate uppercase italic tracking-tighter">{item.title}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-[8px] text-indigo-400 font-bold uppercase tracking-widest bg-indigo-500/10 px-2 py-0.5 rounded">Salvo</span>
+                            <p className="text-[8px] text-gray-500 font-bold uppercase tracking-widest">{item.timestamp ? new Date(item.timestamp).toLocaleDateString() : ''}</p>
+                          </div>
+                        </div>
                       </div>
+                      <button onClick={(e) => { e.stopPropagation(); onDeleteHistory(item.id); }} className="absolute top-2 right-2 p-2 text-gray-700 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100 bg-white/5 rounded-lg">
+                        <Trash2 className="w-3 h-3" />
+                      </button>
                     </div>
-                    <button onClick={() => onDeleteHistory(item.id)} className="absolute top-2 right-2 p-2 text-gray-700 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
-                      <Trash2 className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))
+                  ))}
+                </div>
               )}
             </div>
           </div>
@@ -368,9 +387,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
         href="https://wa.me/seu-numero"
         target="_blank"
         rel="noreferrer"
-        className="fixed bottom-32 right-8 w-16 h-16 bg-green-600 text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-all z-50 animate-bounce"
+        className="fixed bottom-32 md:bottom-12 right-6 md:right-12 w-16 h-16 bg-green-600 text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-all z-50 animate-bounce group"
       >
         <MessageCircle className="w-8 h-8" />
+        <span className="absolute right-20 bg-green-600 text-white text-[10px] font-black px-4 py-2 rounded-xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest shadow-xl pointer-events-none">Suporte 24h</span>
       </a>
     </div>
   );

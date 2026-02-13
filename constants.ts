@@ -1,4 +1,3 @@
-
 import { Translation, Language, Persona, InspirationVideo } from './types';
 
 export const INSPIRATION_VIDEOS: InspirationVideo[] = [
@@ -219,20 +218,20 @@ export const TRANSLATIONS: Record<Language, Translation> = {
     personas: PERSONAS_ES,
     strategyReady: 'ESTRUCTURA VIRAL ✅',
     readySubtitle: 'Listo para ejecución imediata',
-    viralScoreTitle: 'Termómetro de Viralización',
+    viralScoreTitle: 'Termómetro de Viralização',
     hookLabel: 'Gancho',
     retentionLabel: 'Retención',
     ctaLabel: 'CTA',
     feedbackLabel: 'Feedback Técnico',
-    watermarkTitle: 'Personalizar Marca de Protección',
+    watermarkTitle: 'Personalizar Marca de Proteção',
     watermarkPlaceholder: '@TuHandle',
     applyHandle: 'Aplicar en @Handle',
     imagePromptTitle: '1️⃣ PROMPT IMAGEN (PIXAR STYLE)',
     scriptTitle: '2️⃣ GUIÓN (JERGA 2025/26)',
     videoPromptTitle: '3️⃣ MASTER PROMPT VEO 3 (VIDEO)',
     copyVideoPrompt: 'COPIAR PROMPT DE VIDEO',
-    refineTitle: 'Refinar Estrategia',
-    refinePlaceholder: 'Ej: Haz el guión más corto...',
+    refineTitle: 'Refinar Estratégia',
+    refinePlaceholder: 'Ej: Haz el guión mais curto...',
     adjust: 'Ajustar',
     flowTitle: 'Flujo de Montaje Sugerido',
     myVideoTitle: 'MI VIDEO LISTO',
@@ -248,7 +247,7 @@ export const TRANSLATIONS: Record<Language, Translation> = {
     stepRemove: 'LOGO OFF',
     stepImageDesc: 'Genera en Gemini usando los prompts de arriba.',
     stepVideoDesc: 'Anima en VEO 3 con el Master Prompt.',
-    stepAudioDesc: 'Graba el guión en CapCut con la voz del personaje.',
+    stepAudioDesc: 'Graba el guión en CapCut con la voz del personagem.',
     stepRemoveDesc: 'Si hay marca de agua de IA, quítala con el link de abajo.'
   }
 };

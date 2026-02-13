@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Language } from '../types';
 
@@ -21,9 +20,8 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ current, onS
         <button
           key={l.id}
           onClick={() => onSelect(l.id)}
-          className={`text-2xl transition-transform hover:scale-125 ${
-            current === l.id ? 'grayscale-0 scale-110' : 'grayscale opacity-70'
-          }`}
+          className={`text-2xl transition-transform hover:scale-125 ${current === l.id ? 'grayscale-0 scale-110' : 'grayscale opacity-70'
+            }`}
           title={l.id}
         >
           {l.flag}
