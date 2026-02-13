@@ -1,22 +1,15 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { ViralIdea, PromptSet, Language, AspectRatio, GenerationMode, Persona, InspirationVideo, SubscriptionPlan } from "../types";
 
-// LÓGICA DE SEGURANÇA:
-// Em produção, o frontend chamaria uma Supabase Edge Function.
-// Para este protótipo funcional, usamos a env direta centralizada.
-
 const getAI = () => {
-  const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
+  const apiKey = import.meta.env.VITE_GOOGLE_API_KEY || 'AIzaSyB_AJhr0G-RrxETsOSQyFH5ZvvQXsinsXs';
   if (!apiKey) {
-    console.error("VITE_GOOGLE_API_KEY não está definida!");
     throw new Error("API Key ausente no Vercel. Certifique-se de que o nome é EXATAMENTE: VITE_GOOGLE_API_KEY");
   }
   return new GoogleGenAI({ apiKey });
 };
 
 export const generateIdeas = async (niche: string, lang: Language): Promise<ViralIdea[]> => {
-  const ai = getAI();
   const languageNames = { PT: 'Portuguese (Brazil)', EN: 'English', ES: 'Spanish' };
 
   const prompt = `Act as the Chief Strategist of "Vira Express".
@@ -27,7 +20,8 @@ RULES:
 3. OUTPUT LANGUAGE: You MUST provide the "title" and "description" in ${languageNames[lang]}. This is a hard requirement.`;
 
   try {
-    const response = await ai.models.generateContent({
+    const ai = getAI();
+    const result = await ai.models.generateContent({
       model: "gemini-1.5-flash",
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: {
@@ -49,7 +43,7 @@ RULES:
       },
     });
 
-    const text = response.text;
+    const text = result.response.text();
     if (!text) throw new Error("Resposta da IA vazia");
     return JSON.parse(text);
   } catch (error: any) {
@@ -59,7 +53,6 @@ RULES:
 };
 
 export const discoverTrends = async (niche: string, lang: Language): Promise<InspirationVideo[]> => {
-  const ai = getAI();
   const languageNames = { PT: 'Portuguese (Brazil)', EN: 'English', ES: 'Spanish' };
 
   const prompt = `As a TikTok trend analyst, identify 3 viral video concepts for "Talking Objects" for the niche: "${niche}".
@@ -67,7 +60,8 @@ export const discoverTrends = async (niche: string, lang: Language): Promise<Ins
   CRITICAL: All generated text MUST be in ${languageNames[lang]}.`;
 
   try {
-    const response = await ai.models.generateContent({
+    const ai = getAI();
+    const result = await ai.models.generateContent({
       model: "gemini-1.5-flash",
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: {
@@ -90,7 +84,7 @@ export const discoverTrends = async (niche: string, lang: Language): Promise<Ins
       }
     });
 
-    const text = response.text;
+    const text = result.response.text();
     if (!text) return [];
     const trends = JSON.parse(text);
     return trends.map((t: any) => ({
@@ -114,9 +108,7 @@ export const generatePrompts = async (
   selectedPersona?: Persona,
   plan?: SubscriptionPlan
 ): Promise<PromptSet> => {
-  const ai = getAI();
   const languageNames = { PT: 'Portuguese (Brazil)', EN: 'English', ES: 'Spanish' };
-  const parts: any[] = [];
 
   const objectCount = plan === 'Free' ? 3 : 10;
 
@@ -180,25 +172,24 @@ MISSION: Create viral narratives for "Vira Express".
     required: ["sequencia_storytelling", "objetos", "roteiro_unificado", "videoPrompt_Tecnico", "watermark_instruction", "viral_score"]
   };
 
-  let userPrompt = refinementCommand
+  const userPrompt = refinementCommand
     ? `ADJUSTMENT: "${refinementCommand}". PREVIOUS CONTEXT: ${JSON.stringify(previousResult)}. GENERATE EXACTLY ${objectCount} OBJECTS.`
     : `Generate strategy for: ${idea.title}. Description: ${idea.description}. Persona: ${selectedPersona?.name || 'Default'}. Plan: ${plan}. GENERATE EXACTLY ${objectCount} OBJECTS.`;
 
-  parts.push({ text: userPrompt });
-
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-1.5-pro",
-      contents: [{ role: 'user', parts }],
+    const ai = getAI();
+    const result = await ai.models.generateContent({
+      model: "gemini-1.5-flash",
+      contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
       config: {
-        systemInstruction,
         temperature: 0.8,
         responseMimeType: "application/json",
-        responseSchema: PromptSetSchema as any
+        responseSchema: PromptSetSchema as any,
+        systemInstruction,
       },
     });
 
-    const text = response.text;
+    const text = result.response.text();
     if (!text) throw new Error("Empty response from AI");
     return JSON.parse(text);
   } catch (error) {
@@ -208,15 +199,16 @@ MISSION: Create viral narratives for "Vira Express".
 };
 
 export const generateActualImage = async (imagePrompt: string, ratio: AspectRatio): Promise<string> => {
-  const ai = getAI();
   try {
-    const response = await ai.models.generateContent({
+    const ai = getAI();
+    const result = await ai.models.generateContent({
       model: "gemini-1.5-flash",
       contents: [{ role: 'user', parts: [{ text: `Generate a high quality 3D image base for: ${imagePrompt}` }] }],
     });
 
-    if (response.candidates && response.candidates[0]?.content?.parts) {
-      for (const part of response.candidates[0].content.parts) {
+    const parts = result.response.candidates?.[0]?.content?.parts;
+    if (parts) {
+      for (const part of parts) {
         if (part.inlineData) {
           return `data:image/png;base64,${part.inlineData.data}`;
         }
