@@ -5,7 +5,7 @@ import { ViralIdea, PromptSet, Language, AspectRatio, GenerationMode, Persona, I
 const getAI = () => {
   const apiKey = import.meta.env.VITE_GOOGLE_API_KEY || 'AIzaSyB_AJhr0G-RrxETsOSQyFH5ZvvQXsinsXs';
   if (!apiKey) {
-    throw new Error("API Key ausente no Vercel. Certifique-se de que o nome é EXATAMENTE: VITE_GOOGLE_API_KEY");
+    throw new Error("API Key ausente. Configure VITE_GOOGLE_API_KEY.");
   }
   return new GoogleGenAI({ apiKey, apiVersion: 'v1' });
 };
@@ -18,33 +18,22 @@ Generate exactly 10 ideas for "Talking Object Ecosystems" for the niche: "${nich
 RULES:
 1. Think in Ecosystems: Objects that interact or a central iconic object from the niche.
 2. Viral Dialogue: Discuss a secret, pain point, or current meme of the niche in a comic or sarcasm.
-3. OUTPUT LANGUAGE: You MUST provide the "title" and "description" in ${languageNames[lang]}. This is a hard requirement.`;
+3. OUTPUT LANGUAGE: You MUST provide the "title" and "description" in ${languageNames[lang]}. This is a hard requirement.
+4. RETURN ONLY VALID JSON ARRAY with this exact structure:
+[{"id": "unique-id", "title": "Title Here", "description": "Description Here", "emoji": "😀"}]`;
 
   try {
     const ai = getAI();
     const result = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-1.5-pro",
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: {
         temperature: 1,
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.ARRAY,
-          items: {
-            type: Type.OBJECT,
-            properties: {
-              id: { type: Type.STRING },
-              title: { type: Type.STRING },
-              description: { type: Type.STRING },
-              emoji: { type: Type.STRING },
-            },
-            required: ["id", "title", "description", "emoji"]
-          }
-        }
+        maxOutputTokens: 2048
       },
     });
 
-    const text = result.text;
+    const text = result.text.replace(/```json/g, '').replace(/```/g, '').trim();
     if (!text) throw new Error("IA retornou resposta vazia");
     return JSON.parse(text);
   } catch (error: any) {
@@ -58,34 +47,22 @@ export const discoverTrends = async (niche: string, lang: Language): Promise<Ins
 
   const prompt = `As a TikTok trend analyst, identify 3 viral video concepts for "Talking Objects" for the niche: "${niche}".
   Provide hook suggestions and define the protagonist object.
-  CRITICAL: All generated text MUST be in ${languageNames[lang]}.`;
+  CRITICAL: All generated text MUST be in ${languageNames[lang]}.
+  RETURN ONLY VALID JSON ARRAY with this exact structure:
+  [{"id": "unique-id", "title": "Title", "thumbnail": "https://...", "url": "https://...", "niche": "Niche Name"}]`;
 
   try {
     const ai = getAI();
     const result = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-1.5-pro",
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: {
         temperature: 0.7,
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.ARRAY,
-          items: {
-            type: Type.OBJECT,
-            properties: {
-              id: { type: Type.STRING },
-              title: { type: Type.STRING },
-              thumbnail: { type: Type.STRING },
-              url: { type: Type.STRING },
-              niche: { type: Type.STRING }
-            },
-            required: ["id", "title", "thumbnail", "url", "niche"]
-          }
-        }
+        maxOutputTokens: 1024
       }
     });
 
-    const text = result.text;
+    const text = result.text.replace(/```json/g, '').replace(/```/g, '').trim();
     if (!text) return [];
     const trends = JSON.parse(text);
     return trends.map((t: any) => ({
@@ -174,23 +151,45 @@ MISSION: Create viral narratives for "Vira Express".
   };
 
   const userPrompt = refinementCommand
-    ? `ADJUSTMENT: "${refinementCommand}". PREVIOUS CONTEXT: ${JSON.stringify(previousResult)}. GENERATE EXACTLY ${objectCount} OBJECTS.`
-    : `Generate strategy for: ${idea.title}. Description: ${idea.description}. Persona: ${selectedPersona?.name || 'Default'}. Plan: ${plan}. GENERATE EXACTLY ${objectCount} OBJECTS.`;
+    ? `ADJUSTMENT: "${refinementCommand}". PREVIOUS CONTEXT: ${JSON.stringify(previousResult)}. GENERATE EXACTLY ${objectCount} OBJECTS.
+
+RETURN ONLY VALID JSON with this exact structure:
+{
+  "sequencia_storytelling": "string",
+  "objetos": [{"id": "string", "title": "string", "persona": "string", "imagePrompt": "string (in English)"}],
+  "roteiro_unificado": [{"time": "string", "speaker": "string", "text": "string", "emotion": "string"}],
+  "videoPrompt_Tecnico": "string (in English)",
+  "watermark_instruction": "string",
+  "viral_score": {"total": number, "hook": number, "retention": number, "cta": number, "feedback": "string"}
+}
+
+SYSTEM INSTRUCTION: ${systemInstruction}`
+    : `Generate strategy for: ${idea.title}. Description: ${idea.description}. Persona: ${selectedPersona?.name || 'Default'}. Plan: ${plan}. GENERATE EXACTLY ${objectCount} OBJECTS.
+
+RETURN ONLY VALID JSON with this exact structure:
+{
+  "sequencia_storytelling": "string",
+  "objetos": [{"id": "string", "title": "string", "persona": "string", "imagePrompt": "string (in English)"}],
+  "roteiro_unificado": [{"time": "string", "speaker": "string", "text": "string", "emotion": "string"}],
+  "videoPrompt_Tecnico": "string (in English)",
+  "watermark_instruction": "string",
+  "viral_score": {"total": number, "hook": number, "retention": number, "cta": number, "feedback": "string"}
+}
+
+SYSTEM INSTRUCTION: ${systemInstruction}`;
 
   try {
     const ai = getAI();
     const result = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-1.5-pro",
       contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
       config: {
         temperature: 0.8,
-        responseMimeType: "application/json",
-        responseSchema: PromptSetSchema as any,
-        systemInstruction,
+        maxOutputTokens: 4096
       },
     });
 
-    const text = result.text;
+    const text = result.text.replace(/```json/g, '').replace(/```/g, '').trim();
     if (!text) throw new Error("IA retornou resposta vazia");
     return JSON.parse(text);
   } catch (error) {
@@ -203,7 +202,7 @@ export const generateActualImage = async (imagePrompt: string, ratio: AspectRati
   try {
     const ai = getAI();
     const result = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-1.5-pro",
       contents: [{ role: 'user', parts: [{ text: `Generate a high quality 3D image base for: ${imagePrompt}` }] }],
     });
 

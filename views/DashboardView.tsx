@@ -9,6 +9,7 @@ import {
   Clock, User, Search, Edit3, Trash2, Play, ShieldAlert, MessageCircle
 } from 'lucide-react';
 import { generateIdeas, discoverTrends } from '../services/geminiService';
+import { AIErrorsModal } from '../components/AIErrorsModal';
 
 interface DashboardViewProps {
   user: UserProfile;
@@ -30,9 +31,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
   const [loadingMore, setLoadingMore] = useState(false);
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>('9:16');
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null);
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const [muralSearch, setMuralSearch] = useState('');
-  // muralVideos removido pois agora usamos t.niches com links diretos
   const [muralLoading, setMuralLoading] = useState(false);
   const [trends, setTrends] = useState<InspirationVideo[]>([]);
 
@@ -85,7 +87,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
       }
     } catch (error: any) {
       console.error("Erro ao gerar ideias:", error);
-      // alert("Tivemos um problema ao conectar com a IA. Tente novamente em instantes.");
+      setErrorMessage("Tivemos um problema ao conectar com a IA. Verifique sua chave API no Vercel.");
+      setErrorModalOpen(true);
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -214,27 +217,43 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
           </section>
 
           {ideas.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              {ideas.map((idea) => (
-                <div key={idea.id} className="bg-white/5 border border-white/10 rounded-[2rem] p-8 space-y-6 hover:bg-white/10 transition-all group relative overflow-hidden">
-                  <div className="flex justify-between items-start">
-                    <div className="text-5xl p-4 bg-black/40 rounded-2xl group-hover:scale-110 transition-transform">{idea.emoji}</div>
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {ideas.map((idea) => (
+                  <div key={idea.id} className="bg-white/5 border border-white/10 rounded-[2rem] p-8 space-y-6 hover:bg-white/10 transition-all group relative overflow-hidden">
+                    <div className="flex justify-between items-start">
+                      <div className="text-5xl p-4 bg-black/40 rounded-2xl group-hover:scale-110 transition-transform">{idea.emoji}</div>
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-xl font-black text-white">{idea.title}</h3>
+                      <p className="text-gray-400 text-[11px] leading-relaxed font-medium">{idea.description}</p>
+                    </div>
+                    <button onClick={() => goToPrompt(idea)} className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-xl flex items-center justify-center gap-2 text-[10px] uppercase tracking-widest">
+                      {t.generatePrompts}
+                    </button>
                   </div>
-                  <div className="space-y-2">
-                    <h3 className="text-xl font-black text-white">{idea.title}</h3>
-                    <p className="text-gray-400 text-[11px] leading-relaxed font-medium">{idea.description}</p>
-                  </div>
-                  <button onClick={() => goToPrompt(idea)} className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-xl flex items-center justify-center gap-2 text-[10px] uppercase tracking-widest">
-                    {t.generatePrompts}
-                  </button>
-                </div>
-              ))}
+                ))}
+              </div>
+
+              <button
+                onClick={() => handleGenerate(true)}
+                disabled={loadingMore}
+                className="w-full py-5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-white transition-all flex items-center justify-center gap-2"
+              >
+                {loadingMore ? (
+                  <RefreshCcw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    <Zap className="w-4 h-4 fill-current" />
+                    Gerar Mais 10 Ideias
+                  </>
+                )}
+              </button>
             </div>
           )}
         </div>
 
         <aside className="lg:col-span-4 space-y-8">
-          {/* Seção MURAL (Restaurada e Responsiva) */}
           <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-6 md:p-8 space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400 flex items-center gap-2">
@@ -270,7 +289,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
 
             <div className="space-y-4 max-h-[600px] overflow-y-auto custom-scrollbar pr-2">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* AI Trends Results (if any) */}
                 {trends.length > 0 && trends.map((trend) => (
                   <a
                     key={trend.id}
@@ -294,7 +312,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
                   </a>
                 ))}
 
-                {/* Pre-defined Niches (The Library) */}
                 {t.niches
                   .filter(n => n.toLowerCase().includes(muralSearch.toLowerCase()))
                   .map((niche, idx) => (
@@ -315,33 +332,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
                       </div>
                     </a>
                   ))}
-
-                {/* Custom Search Fallback */}
-                {muralSearch && trends.length === 0 && !muralLoading && (
-                  <a
-                    href={`https://www.tiktok.com/search?q=${encodeURIComponent('vídeos virais objetos falantes ' + muralSearch)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-900/50 to-purple-900/50 border border-indigo-500/30 hover:border-indigo-400 transition-all p-6 flex flex-col items-center text-center gap-4 hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/20 col-span-1 sm:col-span-2"
-                  >
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 flex items-center justify-center group-hover:bg-indigo-500 group-hover:text-white transition-all">
-                      <Search className="w-5 h-5 text-indigo-300 group-hover:text-white" />
-                    </div>
-                    <div className="space-y-1">
-                      <span className="block text-xs font-black text-white leading-tight uppercase tracking-tighter italic">
-                        Buscar "{muralSearch}" no TikTok
-                      </span>
-                      <span className="block text-[8px] text-indigo-300 font-bold uppercase tracking-[0.2em]">
-                        Pesquisar Nicho Novo
-                      </span>
-                    </div>
-                  </a>
-                )}
               </div>
             </div>
           </div>
 
-          {/* Histórico */}
           <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-6 md:p-8 space-y-6">
             <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400 flex items-center gap-2">
               <Clock className="w-4 h-4" /> {t.historyTitle}
@@ -393,6 +387,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
         <MessageCircle className="w-8 h-8" />
         <span className="absolute right-20 bg-green-600 text-white text-[10px] font-black px-4 py-2 rounded-xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest shadow-xl pointer-events-none">Suporte 24h</span>
       </a>
+
+      <AIErrorsModal
+        isOpen={errorModalOpen}
+        onClose={() => setErrorModalOpen(false)}
+        onRetry={() => {
+          setErrorModalOpen(false);
+          handleGenerate(loadingMore);
+        }}
+        errorMessage={errorMessage}
+      />
     </div>
   );
 };

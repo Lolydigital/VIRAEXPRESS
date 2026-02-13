@@ -9,6 +9,7 @@ import {
   AlertCircle, BarChart3, Info
 } from 'lucide-react';
 import { generatePrompts, generateActualImage } from '../services/geminiService';
+import { AIErrorsModal } from '../components/AIErrorsModal';
 
 export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; language: Language; onSave: (idea: ViralIdea) => Promise<void>; onConsumeCredit: () => void }> = ({ user, t, language, onSave, onConsumeCredit }) => {
   const location = useLocation();
@@ -25,6 +26,8 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
   const [watermarkedImages, setWatermarkedImages] = useState<Record<string, string>>({});
   const [userHandle, setUserHandle] = useState(idea?.userHandle || '@SeuHandle');
   const [finalVideo, setFinalVideo] = useState<string | null>(idea?.finalVideoUrl || null);
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const [copied, setCopied] = useState<string | null>(null);
   const [isSaved, setIsSaved] = useState(false);
@@ -42,6 +45,7 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
     if (refinement) setRefining(true);
     else {
       setLoading(true);
+      setError(null);
       onConsumeCredit(); // Consome crédito ao abrir uma nova estratégia
     }
 
@@ -54,7 +58,8 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
       });
     } catch (err: any) {
       console.error(err);
-      // alert("Tivemos um problema ao gerar a estrutura. Tente novamente em instantes.");
+      setErrorMessage("Erro ao gerar estrutura. Verifique sua chave Gemini no Vercel.");
+      setErrorModalOpen(true);
     } finally {
       setLoading(false);
       setRefining(false);
@@ -198,6 +203,7 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
           </h1>
           <p className="text-gray-500 text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] md:tracking-[0.5em]">{t.readySubtitle}</p>
         </div>
+
 
         {/* TERMÔMETRO DE VIRALIZAÇÃO */}
         {prompts?.viral_score && (
@@ -523,6 +529,15 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
           </div>
         </div>
       </main>
+      <AIErrorsModal
+        isOpen={errorModalOpen}
+        onClose={() => setErrorModalOpen(false)}
+        onRetry={() => {
+          setErrorModalOpen(false);
+          loadContent(refining ? refinementText : undefined);
+        }}
+        errorMessage={errorMessage}
+      />
     </div>
   );
 };
