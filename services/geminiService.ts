@@ -33,7 +33,7 @@ RULES:
       },
     });
 
-    const text = result.text.replace(/```json/g, '').replace(/```/g, '').trim();
+    const text = (result.text || '').replace(/```json/g, '').replace(/```/g, '').trim();
     if (!text) throw new Error("IA retornou resposta vazia");
     return JSON.parse(text);
   } catch (error: any) {
@@ -62,7 +62,7 @@ export const discoverTrends = async (niche: string, lang: Language): Promise<Ins
       }
     });
 
-    const text = result.text.replace(/```json/g, '').replace(/```/g, '').trim();
+    const text = (result.text || '').replace(/```json/g, '').replace(/```/g, '').trim();
     if (!text) return [];
     const trends = JSON.parse(text);
     return trends.map((t: any) => ({
@@ -189,7 +189,7 @@ SYSTEM INSTRUCTION: ${systemInstruction}`;
       },
     });
 
-    const text = result.text.replace(/```json/g, '').replace(/```/g, '').trim();
+    const text = (result.text || '').replace(/```json/g, '').replace(/```/g, '').trim();
     if (!text) throw new Error("IA retornou resposta vazia");
     return JSON.parse(text);
   } catch (error) {

@@ -45,7 +45,6 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
     if (refinement) setRefining(true);
     else {
       setLoading(true);
-      setError(null);
       onConsumeCredit(); // Consome crédito ao abrir uma nova estratégia
     }
 
