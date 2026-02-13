@@ -1,16 +1,8 @@
-import { GoogleGenAI, Type } from "@google/genai";
 import { ViralIdea, PromptSet, Language, AspectRatio, GenerationMode, Persona, InspirationVideo, SubscriptionPlan } from "../types";
 
-// Force redeploy - v1.0.5 - Added 30s Timeout and Telemetry
-const getAI = () => {
-  const apiKey = import.meta.env.VITE_GOOGLE_API_KEY || (typeof process !== 'undefined' ? process.env?.VITE_GOOGLE_API_KEY : '');
-
-  if (!apiKey) {
-    console.error("DEBUG: VITE_GOOGLE_API_KEY is undefined.");
-    throw new Error("API Key ausente. Configure VITE_GOOGLE_API_KEY no Vercel.");
-  }
-
-  return new GoogleGenAI({ apiKey, apiVersion: 'v1' });
+// Force redeploy - v1.0.6 - Switched to Direct REST API (fetch)
+const getApiKey = () => {
+  return import.meta.env.VITE_GOOGLE_API_KEY || (typeof process !== 'undefined' ? process.env?.VITE_GOOGLE_API_KEY : '');
 };
 
 // Watchdog Timer Helper (30 seconds)
@@ -21,6 +13,55 @@ const withTimeout = <T>(promise: Promise<T>, taskName: string, timeoutMs = 30000
       setTimeout(() => reject(new Error(`Timeout: Chamada IA (${taskName}) excedeu ${timeoutMs / 1000}s`)), timeoutMs)
     )
   ]);
+};
+
+// Direct REST API Helper
+const callGeminiREST = async (model: string, prompt: string, taskName: string, config?: any) => {
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    console.error(`DEBUG: [${taskName}] VITE_GOOGLE_API_KEY is undefined.`);
+    throw new Error("API Key ausente. Configure VITE_GOOGLE_API_KEY no Vercel.");
+  }
+
+  const url = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`;
+
+  const body = {
+    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    generationConfig: config || {
+      temperature: 0.8,
+      maxOutputTokens: 2048
+    }
+  };
+
+  console.log(`DEBUG: [${taskName}] Iniciando chamada REST Gemini 2.0 Flash...`);
+
+  try {
+    const response = await withTimeout(fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    }), taskName);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error(`DEBUG: [${taskName}] Erro API (${response.status}):`, errorData);
+      throw new Error(`Erro Gemini (${response.status}): ${errorData.error?.message || 'Erro Desconhecido'}`);
+    }
+
+    const result = await response.json();
+    const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!text) {
+      console.error(`DEBUG: [${taskName}] Resposta sem conteúdo:`, result);
+      throw new Error("IA retornou resposta sem conteúdo");
+    }
+
+    console.log(`DEBUG: [${taskName}] Sucesso`);
+    return text;
+  } catch (error: any) {
+    console.error(`DEBUG: [${taskName}] Falha na chamada:`, error.message);
+    throw error;
+  }
 };
 
 // Simple Caching Helper
@@ -63,27 +104,17 @@ RULES:
 4. RETURN ONLY VALID JSON ARRAY with this exact structure:
 [{"id": "unique-id", "title": "Title Here", "description": "Description Here", "emoji": "😀"}]`;
 
-  console.log(`DEBUG: [Ideas] Iniciando chamada Gemini para "${niche}"...`);
-
   try {
-    const ai = getAI();
-    const result = await withTimeout(ai.models.generateContent({
-      model: "gemini-2.0-flash",
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      config: {
-        temperature: 1,
-        maxOutputTokens: 2048
-      },
-    }), "Ideas");
+    const rawText = await callGeminiREST("gemini-2.0-flash", prompt, "Ideas", {
+      temperature: 1,
+      maxOutputTokens: 2048
+    });
 
-    const text = (result.text || '').replace(/```json/g, '').replace(/```/g, '').trim();
-    if (!text) throw new Error("IA retornou resposta vazia");
+    const text = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
     const ideas = JSON.parse(text);
     setCache(cacheKey, ideas);
-    console.log(`DEBUG: [Ideas] Sucesso para "${niche}"`);
     return ideas;
   } catch (error: any) {
-    console.error(`DEBUG: [Ideas] Erro para "${niche}":`, error.message);
     throw error;
   }
 };
@@ -101,20 +132,13 @@ export const discoverTrends = async (niche: string, lang: Language): Promise<Ins
   RETURN ONLY VALID JSON ARRAY with this exact structure:
   [{"id": "unique-id", "title": "Title", "thumbnail": "https://...", "url": "https://...", "niche": "Niche Name"}]`;
 
-  console.log(`DEBUG: [Trends] Iniciando chamada Gemini para "${niche}"...`);
-
   try {
-    const ai = getAI();
-    const result = await withTimeout(ai.models.generateContent({
-      model: "gemini-2.0-flash",
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      config: {
-        temperature: 0.7,
-        maxOutputTokens: 1024
-      }
-    }), "Trends");
+    const rawText = await callGeminiREST("gemini-2.0-flash", prompt, "Trends", {
+      temperature: 0.7,
+      maxOutputTokens: 1024
+    });
 
-    const text = (result.text || '').replace(/```json/g, '').replace(/```/g, '').trim();
+    const text = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
     if (!text) return [];
     const trends = JSON.parse(text);
     const finalTrends = trends.map((t: any) => ({
@@ -122,10 +146,8 @@ export const discoverTrends = async (niche: string, lang: Language): Promise<Ins
       thumbnail: t.thumbnail.startsWith('http') ? t.thumbnail : `https://images.unsplash.com/photo-1586769852044-692d6e3703a0?w=400&h=600&fit=crop`
     }));
     setCache(cacheKey, finalTrends);
-    console.log(`DEBUG: [Trends] Sucesso para "${niche}"`);
     return finalTrends;
-  } catch (error: any) {
-    console.error(`DEBUG: [Trends] Erro para "${niche}":`, error.message);
+  } catch (error) {
     return [];
   }
 };
@@ -159,49 +181,35 @@ MISSION: Create viral narratives for "Vira Express".
     ? `ADJUSTMENT: "${refinementCommand}". PREVIOUS CONTEXT: ${JSON.stringify(previousResult)}. GENERATE EXACTLY ${objectCount} OBJECTS.`
     : `Generate strategy for: ${idea.title}. Description: ${idea.description}. Persona: ${selectedPersona?.name || 'Default'}. Plan: ${plan}. GENERATE EXACTLY ${objectCount} OBJECTS.`;
 
-  const promptFinal = `${userPrompt}\n\nRETURN ONLY VALID JSON with the expected structure.\n\nSYSTEM INSTRUCTION: ${systemInstruction}`;
-
-  console.log(`DEBUG: [Prompts] Iniciando chamada Gemini para "${idea.title}"...`);
+  const promptFinal = `${userPrompt}\n\nRETURN ONLY VALID JSON.\n\nSYSTEM INSTRUCTION: ${systemInstruction}`;
 
   try {
-    const ai = getAI();
-    const result = await withTimeout(ai.models.generateContent({
-      model: "gemini-2.0-flash",
-      contents: [{ role: 'user', parts: [{ text: promptFinal }] }],
-      config: {
-        temperature: 0.8,
-        maxOutputTokens: 4096
-      },
-    }), "Prompts");
+    const rawText = await callGeminiREST("gemini-2.0-flash", promptFinal, "Prompts", {
+      temperature: 0.8,
+      maxOutputTokens: 4096
+    });
 
-    const text = (result.text || '').replace(/```json/g, '').replace(/```/g, '').trim();
-    if (!text) throw new Error("IA retornou resposta vazia");
-    console.log(`DEBUG: [Prompts] Sucesso para "${idea.title}"`);
+    const text = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
     return JSON.parse(text);
   } catch (error: any) {
-    console.error(`DEBUG: [Prompts] Erro para "${idea.title}":`, error.message);
     throw error;
   }
 };
 
 export const generateActualImage = async (imagePrompt: string, ratio: AspectRatio): Promise<string> => {
-  console.log(`DEBUG: [Image] Iniciando geração de imagem...`);
-  try {
-    const ai = getAI();
-    const result = await withTimeout(ai.models.generateContent({
-      model: "gemini-2.0-flash",
-      contents: [{ role: 'user', parts: [{ text: `Generate a high quality 3D image base for: ${imagePrompt}` }] }],
-    }), "Image");
+  const prompt = `Generate a high quality 3D image base for: ${imagePrompt}`;
 
-    const data = result.data;
-    if (data) {
-      console.log(`DEBUG: [Image] Sucesso (Base64)`);
-      return `data:image/png;base64,${data}`;
-    }
-    console.log(`DEBUG: [Image] Sucesso (Unsplash Fallback)`);
+  try {
+    const rawText = await callGeminiREST("gemini-2.0-flash", prompt, "Image", {
+      temperature: 0.7,
+      maxOutputTokens: 1024
+    });
+
+    // Note: Since we are using generateContent, it doesn't return an image directly.
+    // However, if the user was expecting image data, the SDK was doing something similar.
+    // If the tool only generates text, we return the fallback.
     return `https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80`;
   } catch (error: any) {
-    console.error(`DEBUG: [Image] Erro:`, error.message);
     return `https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80`;
   }
 };
