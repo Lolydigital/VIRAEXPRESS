@@ -84,7 +84,26 @@ const App: React.FC = () => {
         throw new Error("Acesso bloqueado ou cancelado.");
       }
 
-      setUser(profile as UserProfile);
+      // 3. Reset Mensal Automático (Lazy Reset)
+      let finalProfile = { ...profile };
+      const now = new Date();
+      const lastLogin = profile.last_login ? new Date(profile.last_login) : null;
+
+      if (lastLogin && (now.getMonth() !== lastLogin.getMonth() || now.getFullYear() !== lastLogin.getFullYear())) {
+        console.log("DEBUG: Iniciando reset mensal de créditos...");
+        finalProfile.credits_used = 0;
+        finalProfile.image_credits_used = 0;
+        await supabase.from('profiles').update({
+          credits_used: 0,
+          image_credits_used: 0,
+          last_login: now.getTime()
+        }).eq('id', profile.id);
+      } else {
+        // Apenas atualiza o último login
+        await supabase.from('profiles').update({ last_login: now.getTime() }).eq('id', profile.id);
+      }
+
+      setUser(finalProfile as UserProfile);
     } catch (err: any) {
       alert(err.message);
     }
