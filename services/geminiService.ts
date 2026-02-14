@@ -246,7 +246,13 @@ export const generatePrompts = async (
 
   const systemInstruction = `Act as the Master Storytelling Director for "Vira Express". Your goal is to generate a COMPLETE viral video strategy for a "Talking Object" scenario.
   
-  You MUST return a valid JSON object with the following structure:
+  MANDATORY STRUCTURE:
+  - Generate exactly 2-3 distinct characters/objects that INTERACT with each other.
+  - The script MUST be a dialogue or a confrontation between these objects.
+  - Each object MUST have a unique "id", "title", "persona", and "imagePrompt".
+  - Each object MUST have a "scenes" array (integers) indicating which scenes of the script it appears in.
+
+  JSON STRUCTURE:
   {
     "sequencia_storytelling": "A brief overview of the narrative arc.",
     "objetos": [
@@ -255,28 +261,26 @@ export const generatePrompts = async (
         "title": "Sad Banana",
         "persona": "Dramático",
         "imagePrompt": "A 3D animated banana with dramatic face, big open mouth showing teeth, dramatic eyebrows, Pixar movie quality, kitchen background blurred, hyper realistic render, cinematic lighting, object keeps its real product shape, NO TEXT, NO LOGOS",
-        "cena": "principal"
-      }
+        "cena": "principal",
+        "scenes": [1, 2, 4]
+      },
+      ...
     ],
     "roteiro_unificado": [
-      { "time": "0-2s", "text": "Presentation...", "emotion": "Dramático", "speaker": "Banana" },
-      { "time": "2-5s", "text": "Hook...", "emotion": "Pânico", "speaker": "Banana" },
-      { "time": "5-20s", "text": "Content...", "emotion": "Sarcástico", "speaker": "Banana" },
-      { "time": "20-25s", "text": "CTA...", "emotion": "Motivacional", "speaker": "Banana" }
+      { "time": "Cena 1", "text": "Presentation...", "emotion": "Dramático", "speaker": "Banana" },
+      { "time": "Cena 2", "text": "Reaction...", "emotion": "Sarcástico", "speaker": "Coffee Cup" },
+      ...
     ],
     "viral_score": { "total": 95, "hook": 98, "retention": 92, "cta": 95, "feedback": "..." },
     "watermark_instruction": "TEXTO DA MARCA D'ÁGUA",
-    "videoPrompt_Tecnico": "A master prompt for VEO 3 in ENGLISH describing the scene action."
+    "videoPrompt_Tecnico": "A master prompt for VEO 3 in ENGLISH describing the interaction between ALL characters in the scene."
   }
 
   ESTILO MANDATÓRIO (IMAGE PROMPT):
   - "3D animated [objeto] with [expressão] face"
-  - "big open mouth showing teeth, dramatic eyebrows"
-  - "Pixar movie quality, hyper realistic render, cinematic lighting"
-  - "object keeps its real product shape but remains GENERIC"
+  - "Extremely descriptive: eyes, mouth, textures, lighting, Pixar movie quality"
+  - "Object keeps its real product shape but remains GENERIC"
   - "CRITICAL: NO TRADEMARKS, NO ACTUAL BRAND LOGOS, NO WRITING"
-  6. 🎬 SCRIPT: The "roteiro_unificado" MUST be highly diverse and unique for every generation. Avoid repetitive hooks or narrative structures. Create dynamic, surprising dialogues between objects.
-  7. 🎬 SCENE FILTER: Use the "cena" field. Default to "principal" for all cinematic objects that should have a generated image.
   
   Language: ${languageNames[lang]}.`;
 

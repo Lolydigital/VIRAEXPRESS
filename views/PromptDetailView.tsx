@@ -459,7 +459,7 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
                     </>
                   )}
                 </div>
-                <div className="p-8 border-t border-white/10 bg-black/40 space-y-4">
+                <div className="p-8 border-t border-white/10 bg-black/40 space-y-5">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-black text-indigo-400 uppercase tracking-widest">{obj.persona}</span>
                     <button onClick={() => handleCopy(obj.imagePrompt, `prompt-${obj.id}`)} className="text-[10px] font-black text-gray-400 hover:text-white flex items-center gap-2 uppercase tracking-widest transition-all">
@@ -467,6 +467,16 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
                       Copiar Prompt
                     </button>
                   </div>
+
+                  {Array.isArray(obj.scenes) && obj.scenes.length > 0 && (
+                    <div className="flex items-center gap-3 bg-indigo-500/10 border border-indigo-500/20 px-4 py-2 rounded-xl">
+                      <span className="text-[14px]">🎭</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-indigo-300">
+                        APARECE NAS CENAS: {obj.scenes.join(', ')}
+                      </span>
+                    </div>
+                  )}
+
                   <p className="text-[12px] font-medium font-mono text-gray-100 italic leading-relaxed text-left line-clamp-2">"{obj.imagePrompt}"</p>
                 </div>
               </div>
@@ -485,9 +495,18 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
             <div className="space-y-8">
               {Array.isArray(prompts?.roteiro_unificado) && prompts.roteiro_unificado.map((line, idx) => (
                 <div key={idx} className="flex gap-6 items-start group">
-                  <div className="w-16 h-16 rounded-full bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center shrink-0 mt-1 shadow-inner relative group-hover:scale-110 transition-transform">
+                  <div className="w-16 h-16 rounded-full bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center shrink-0 mt-1 shadow-inner relative group-hover:scale-110 transition-transform overflow-hidden">
                     <div className="absolute inset-0 bg-indigo-500/10 rounded-full animate-pulse"></div>
-                    <span className="text-3xl relative z-10">{line.speaker.includes('☕') ? '☕' : line.speaker.includes('💸') ? '💸' : line.speaker.includes('💊') ? '💊' : '🎬'}</span>
+                    <span className="text-3xl relative z-10">
+                      {line.speaker.includes('☕') ? '☕' :
+                        line.speaker.includes('💸') ? '💸' :
+                          line.speaker.includes('💊') ? '💊' :
+                            line.speaker.includes('💄') ? '💄' :
+                              line.speaker.toLowerCase().includes('banana') ? '🍌' :
+                                line.speaker.toLowerCase().includes('boleto') ? '📄' :
+                                  line.speaker.toLowerCase().includes('tesoura') ? '✂️' :
+                                    line.speaker.toLowerCase().includes('barbeador') ? '🪒' : '🎬'}
+                    </span>
                   </div>
                   <div className="flex-1 bg-black/40 p-6 rounded-3xl border border-white/5 relative hover:border-indigo-500/30 transition-all group/card shadow-xl">
                     <div className="flex items-center gap-4 mb-4">
