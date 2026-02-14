@@ -58,6 +58,7 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
 
     try {
       console.log(`DEBUG: [PromptDetail] Iniciando geração de estratégia para: ${idea.title}`);
+      const pResult = await generatePrompts(idea, language, aspectRatio as AspectRatio, 'viral', imageInput, refinement, prompts || undefined, persona, user.plan);
       console.log(`DEBUG: [PromptDetail] Estratégia recebida com sucesso:`, pResult);
       console.log(`DEBUG: [PromptDetail] Estrutura - objetos: ${Array.isArray(pResult.objetos)}, roteiro: ${Array.isArray(pResult.roteiro_unificado)}`);
       setPrompts(pResult);
