@@ -26,7 +26,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ user, t,
 
   const [newUserEmail, setNewUserEmail] = useState('');
   const [newUserPass, setNewUserPass] = useState('123456');
-  const [newUserPlan, setNewUserPlan] = useState<SubscriptionPlan>('Pro');
+  const [newUserPlan, setNewUserPlan] = useState<SubscriptionPlan>('Basic');
   const [isCreating, setIsCreating] = useState(false);
 
   const [systemStatus, setSystemStatus] = useState({
@@ -89,7 +89,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ user, t,
       const userId = authData.user?.id || crypto.randomUUID();
       const { error: profileError } = await supabase.from('profiles').upsert([{
         id: userId, email: newUserEmail.toLowerCase(), plan: newUserPlan, status: 'active',
-        credits_total: newUserPlan === 'Elite' ? 9999 : 50, credits_used: 0, role: 'user'
+        credits_total: newUserPlan === 'Professional' ? 9999 : 50, credits_used: 0, role: 'user'
       }], { onConflict: 'email' });
       if (profileError) throw profileError;
       alert(`✅ ALUNO ATIVADO!\n\nEmail: ${newUserEmail}\nSenha: ${newUserPass}`);
@@ -226,7 +226,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ user, t,
                       </div>
                     </td>
                     <td className="p-6">
-                      <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${u.plan === 'Elite' ? 'bg-yellow-500/10 text-yellow-500' : 'bg-indigo-500/10 text-indigo-500'}`}>{u.plan}</span>
+                      <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${u.plan === 'Professional' ? 'bg-yellow-500/10 text-yellow-500' : 'bg-indigo-500/10 text-indigo-500'}`}>{u.plan}</span>
                     </td>
                     <td className="p-6">
                       <span className="text-[10px] font-bold text-gray-400">{u.credits_used}/{u.credits_total}</span>
@@ -254,7 +254,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ user, t,
               <input type="email" required value={newUserEmail} onChange={(e) => setNewUserEmail(e.target.value)} className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl text-sm" placeholder="E-mail do aluno" />
               <input type="text" required value={newUserPass} onChange={(e) => setNewUserPass(e.target.value)} className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl text-sm" placeholder="Senha" />
               <div className="grid grid-cols-2 gap-3">
-                {['Pro', 'Elite'].map(p => (
+                {['Basic', 'Professional'].map(p => (
                   <button key={p} type="button" onClick={() => setNewUserPlan(p as SubscriptionPlan)} className={`py-4 rounded-2xl border text-[10px] font-black uppercase ${newUserPlan === p ? 'bg-indigo-600 border-indigo-400' : 'bg-black/40 border-white/10'}`}>PLANO {p}</button>
                 ))}
               </div>

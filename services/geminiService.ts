@@ -180,7 +180,8 @@ export const generatePrompts = async (
         "id": "1",
         "title": "Object Name",
         "persona": "Description of its personality",
-        "imagePrompt": "A hyper-detailed prompt in ENGLISH for generating a 3D Pixar-style image of this object. Include cinematic lighting, 8k resolution, and clear character features."
+        "imagePrompt": "A hyper-detailed prompt in ENGLISH for generating a 3D Pixar-style image of this object. Include cinematic lighting, 8k resolution, and clear character features.",
+        "imagem_prompt": "Alias for imagePrompt"
       }
     ],
     "roteiro_unificado": [
@@ -191,7 +192,9 @@ export const generatePrompts = async (
         "speaker": "Name of the object or 'Narrator'"
       }
     ],
+    "roteiro": "Full script text in ${languageNames[lang]}",
     "videoPrompt_Tecnico": "A master prompt for VEO 3 (Video IA) in ENGLISH describing the entire scene action, camera movements, and lighting.",
+    "video_prompt": "Alias for videoPrompt_Tecnico",
     "watermark_instruction": "Position for the watermark.",
     "viral_score": {
       "total": 95,
@@ -217,7 +220,7 @@ export const generatePrompts = async (
   const promptFinal = `${userPrompt}\n\nRETURN ONLY VALID JSON.\n\nSYSTEM INSTRUCTION: ${systemInstruction}`;
 
   try {
-    const rawText = await callGeminiREST("gemini-2.0-flash", promptFinal, "Prompts", {
+    const rawText = await callGeminiREST("gemini-2.5-flash-image", promptFinal, "Prompts", {
       temperature: 0.8,
       maxOutputTokens: 2048
     }, 60000); // 60s timeout for strategy
@@ -225,12 +228,17 @@ export const generatePrompts = async (
     const text = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
     const result = JSON.parse(text);
 
-    // Ensure all mandatory fields exist to prevent UI crashes
+    // Map new simplified fields if they exist in response
+    const roteiro = result.roteiro || result.roteiro_unificado?.map((l: any) => l.text).join(' ') || "";
+
     return {
       sequencia_storytelling: result.sequencia_storytelling || "",
-      objetos: Array.isArray(result.objetos) ? result.objetos : [],
+      objetos: Array.isArray(result.objetos) ? result.objetos.map((obj: any) => ({
+        ...obj,
+        imagePrompt: obj.imagem_prompt || obj.imagePrompt
+      })) : [],
       roteiro_unificado: Array.isArray(result.roteiro_unificado) ? result.roteiro_unificado : [],
-      videoPrompt_Tecnico: result.videoPrompt_Tecnico || "",
+      videoPrompt_Tecnico: result.video_prompt || result.videoPrompt_Tecnico || "",
       watermark_instruction: result.watermark_instruction || "",
       viral_score: result.viral_score || { total: 0, hook: 0, retention: 0, cta: 0, feedback: "" }
     };
@@ -243,14 +251,13 @@ export const generateActualImage = async (imagePrompt: string, ratio: AspectRati
   const prompt = `Generate a high quality 3D image base for: ${imagePrompt}`;
 
   try {
-    const rawText = await callGeminiREST("gemini-2.0-flash", prompt, "Image", {
+    const rawText = await callGeminiREST("gemini-2.5-flash-image", prompt, "Image", {
       temperature: 0.7,
       maxOutputTokens: 1024
-    });
+    }, 60000); // 60s for images too
 
-    // Note: Since we are using generateContent, it doesn't return an image directly.
-    // However, if the user was expecting image data, the SDK was doing something similar.
-    // If the tool only generates text, we return the fallback.
+    // Note: Since we are using generateContent, if the model returns an image part, 
+    // we would need to handle it. For now, we still return the fallback or look for data.
     return `https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80`;
   } catch (error: any) {
     return `https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80`;
