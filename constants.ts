@@ -271,6 +271,7 @@ export const TRANSLATIONS: Record<Language, Translation> = {
     hookScore: 'Gancho',
     retentionScore: 'Retención',
     ctaScore: 'Llamada',
-    trendScore: 'Tendencia'
+    trendScore: 'Tendencia',
+    appearsInScenes: 'APARECE EN LAS ESCENAS'
   }
 };
