@@ -110,17 +110,28 @@ export const generateIdeas = async (niche: string, lang: Language): Promise<Vira
   const prompt = `Express Idea Guru. Niche: "${niche}".
 Generate 10 viral "Talking Object" ideas.
 Rules: Interactive, sarcastic, viral/meme.
-Lang: ${languageNames[lang]}. JSON ONLY.
+Lang: ${languageNames[lang]}.
+RETURN ONLY A VALID JSON ARRAY. NO MARKDOWN. NO CODE BLOCKS.
 Structure: [{"id": "uid", "title": "...", "description": "...", "emoji": "..."}]`;
 
   try {
     const rawText = await callGeminiREST("gemini-2.0-flash", prompt, "Ideas", {
       temperature: 1,
-      maxOutputTokens: 1024
+      maxOutputTokens: 2048 // Increased to prevent truncation
     });
 
-    const text = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-    console.log(`DEBUG: [Ideas] Texto limpo para parsing:`, text.substring(0, 100) + "...");
+    // Enhanced JSON extraction
+    let jsonDelta = rawText;
+    const startIdx = jsonDelta.indexOf('[');
+    const endIdx = jsonDelta.lastIndexOf(']');
+
+    if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+      jsonDelta = jsonDelta.substring(startIdx, endIdx + 1);
+    }
+
+    const text = jsonDelta.trim();
+    console.log(`DEBUG: [Ideas] Texto extraído para parsing (${text.length} chars)`);
+
     const ideas = JSON.parse(text);
     if (!Array.isArray(ideas)) {
       console.error(`DEBUG: [Ideas] Resultado não é um array!`, ideas);
@@ -130,6 +141,7 @@ Structure: [{"id": "uid", "title": "...", "description": "...", "emoji": "..."}]
     console.log(`DEBUG: [Ideas] Array parsed com ${ideas.length} itens`);
     return ideas;
   } catch (error: any) {
+    console.error(`DEBUG: [Ideas] Falha ao processar JSON:`, error.message);
     throw error;
   }
 };
@@ -150,10 +162,16 @@ export const discoverTrends = async (niche: string, lang: Language): Promise<Ins
   try {
     const rawText = await callGeminiREST("gemini-2.0-flash", prompt, "Trends", {
       temperature: 0.7,
-      maxOutputTokens: 1024
+      maxOutputTokens: 2048
     });
 
-    const text = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+    let jsonDelta = rawText;
+    const startIdx = jsonDelta.indexOf('[');
+    const endIdx = jsonDelta.lastIndexOf(']');
+    if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+      jsonDelta = jsonDelta.substring(startIdx, endIdx + 1);
+    }
+    const text = jsonDelta.trim();
     if (!text) return [];
     const trends = JSON.parse(text);
     const finalTrends = trends.map((t: any) => ({
@@ -236,7 +254,13 @@ export const generatePrompts = async (
       maxOutputTokens: 2048
     }, 60000); // 60s timeout for strategy
 
-    const text = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+    let jsonDelta = rawText;
+    const startIdx = jsonDelta.indexOf('{');
+    const endIdx = jsonDelta.lastIndexOf('}');
+    if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+      jsonDelta = jsonDelta.substring(startIdx, endIdx + 1);
+    }
+    const text = jsonDelta.trim();
     const result = JSON.parse(text);
 
     // Map new simplified fields if they exist in response
