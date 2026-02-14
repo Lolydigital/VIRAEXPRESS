@@ -103,6 +103,12 @@ const App: React.FC = () => {
         await supabase.from('profiles').update({ last_login: now.getTime() }).eq('id', profile.id);
       }
 
+      // 4. Garantia de Cotas Iniciais (Especialmente para o Free Bait)
+      if (profile.plan === 'Free' && (profile.image_credits_total === 0 || profile.image_credits_total === undefined)) {
+        finalProfile.image_credits_total = 4;
+        await supabase.from('profiles').update({ image_credits_total: 4 }).eq('id', profile.id);
+      }
+
       setUser(finalProfile as UserProfile);
     } catch (err: any) {
       alert(err.message);
@@ -116,6 +122,9 @@ const App: React.FC = () => {
 
   const updateCredits = async (used: number) => {
     if (!user) return;
+    // Roteiros ilimitados para o Free
+    if (user.plan === 'Free') return;
+
     const newUsed = (user.credits_used || 0) + used;
     const updatedUser = { ...user, credits_used: newUsed };
     setUser(updatedUser);

@@ -28,6 +28,8 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ user, t,
   const [newUserPass, setNewUserPass] = useState('123456');
   const [newUserPlan, setNewUserPlan] = useState<SubscriptionPlan>('Basic');
   const [isCreating, setIsCreating] = useState(false);
+  const [planConfigs, setPlanConfigs] = useState<any[]>([]);
+  const [editingPlan, setEditingPlan] = useState<any>(null);
 
   const [systemStatus, setSystemStatus] = useState({
     database: 'checking',
@@ -38,7 +40,13 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ user, t,
   useEffect(() => {
     fetchUsers();
     checkSystem();
+    fetchConfigs();
   }, []);
+
+  const fetchConfigs = async () => {
+    const { data } = await supabase.from('plan_config').select('*').order('price', { ascending: true });
+    if (data) setPlanConfigs(data);
+  };
 
   const checkSystem = async () => {
     const { data, error } = await supabase.from('profiles').select('id').limit(1);
@@ -87,9 +95,11 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ user, t,
       });
       if (authError && authError.message !== "User already registered") throw authError;
       const userId = authData.user?.id || crypto.randomUUID();
+      const quota = planConfigs.find(p => p.plan_name === newUserPlan)?.image_quota || 0;
       const { error: profileError } = await supabase.from('profiles').upsert([{
         id: userId, email: newUserEmail.toLowerCase(), plan: newUserPlan, status: 'active',
-        credits_total: newUserPlan === 'Professional' ? 9999 : 50, credits_used: 0, role: 'user'
+        credits_total: newUserPlan === 'Professional' ? 9999 : 50, credits_used: 0,
+        image_credits_total: quota, image_credits_used: 0, role: 'user'
       }], { onConflict: 'email' });
       if (profileError) throw profileError;
       alert(`✅ ALUNO ATIVADO!\n\nEmail: ${newUserEmail}\nSenha: ${newUserPass}`);
@@ -136,50 +146,72 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ user, t,
       </header>
 
       <main className="max-w-7xl mx-auto px-8 mt-12 space-y-12">
-        {/* Guia de Deploy Vercel - O "MASTIGADO" */}
-        <section className="bg-indigo-600/5 border border-indigo-500/20 rounded-[3rem] p-10 relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-10 opacity-10">
-            <Rocket className="w-40 h-40 text-indigo-500" />
-          </div>
-          <div className="relative z-10 space-y-8">
+        {/* Gerenciamento de Planos e Preços */}
+        <section className="bg-[#1E293B]/60 border border-white/10 rounded-[3rem] p-10 space-y-8">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center"><Rocket className="w-6 h-6 text-white" /></div>
+              <div className="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center"><DollarSign className="w-6 h-6 text-white" /></div>
               <div>
-                <h3 className="text-xl font-black text-white uppercase italic tracking-tighter">Guia de Deploy Vercel</h3>
-                <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Siga estas etapas para colocar seu site no ar</p>
+                <h3 className="text-xl font-black text-white uppercase italic tracking-tighter">Planos e Preços</h3>
+                <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Configure preços e cotas de imagem</p>
               </div>
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {envVars.map((env) => (
-                <div key={env.key} className="bg-black/40 border border-white/5 p-6 rounded-[2rem] space-y-4">
-                  <div>
-                    <p className="text-[10px] font-black text-gray-500 uppercase">{env.desc}</p>
-                    <p className="text-sm font-bold text-white font-mono">{env.key}</p>
-                  </div>
-                  <button
-                    onClick={() => handleCopy(env.key, env.key)}
-                    className="w-full py-3 bg-white/5 hover:bg-white/10 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
-                  >
-                    {copiedKey === env.key ? <CheckCircle2 className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                    {copiedKey === env.key ? 'COPIADO!' : 'COPIAR CHAVE'}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {planConfigs.map((config) => (
+              <div key={config.id} className="bg-black/40 border border-white/5 p-8 rounded-[2.5rem] space-y-6 group hover:border-indigo-500/30 transition-all">
+                <div className="flex justify-between items-start">
+                  <span className="px-4 py-1.5 bg-indigo-600/20 text-indigo-400 rounded-full text-[9px] font-black uppercase tracking-widest">
+                    {config.plan_name}
+                  </span>
+                  <button onClick={() => setEditingPlan(config)} className="text-gray-500 hover:text-white transition-colors">
+                    <Settings className="w-4 h-4" />
                   </button>
                 </div>
-              ))}
-            </div>
+                <div className="space-y-1">
+                  <p className="text-3xl font-black text-white italic tracking-tighter">R$ {config.price}</p>
+                  <p className="text-[10px] font-bold text-gray-500 uppercase">{config.image_quota} IMAGENS/MÊS</p>
+                </div>
+                <div className="pt-4 border-t border-white/5">
+                  <p className="text-[8px] font-black text-gray-600 uppercase mb-2">Checkout Link</p>
+                  <p className="text-[10px] font-mono text-indigo-400 truncate">{config.checkout_url}</p>
+                </div>
+              </div>
+            ))}
+          </div>
 
-            <div className="flex flex-col md:flex-row gap-4">
-              <a href="https://vercel.com/new" target="_blank" className="flex-1 bg-white text-indigo-900 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest text-center flex items-center justify-center gap-2 hover:scale-105 transition-all">
-                ABRIR VERCEL <ExternalLink className="w-4 h-4" />
-              </a>
-              <div className="flex-1 bg-indigo-600/20 border border-indigo-500/30 px-6 py-4 rounded-2xl flex items-center gap-3">
-                <AlertCircle className="w-5 h-5 text-indigo-400" />
-                <p className="text-[9px] font-bold text-indigo-100 leading-tight uppercase">
-                  DICA: No painel da Vercel, cole estas chaves em "Environment Variables" antes do Deploy.
-                </p>
+          {editingPlan && (
+            <div className="bg-indigo-600/5 border border-indigo-500/20 rounded-2xl p-8 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div>
+                  <label className="text-[10px] font-black text-gray-500 uppercase block mb-2">Preço (R$)</label>
+                  <input type="number" value={editingPlan.price} onChange={e => setEditingPlan({ ...editingPlan, price: parseInt(e.target.value) })} className="w-full px-4 py-2 bg-black/50 border border-white/10 rounded-xl" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-black text-gray-500 uppercase block mb-2">Cota Imagens</label>
+                  <input type="number" value={editingPlan.image_quota} onChange={e => setEditingPlan({ ...editingPlan, image_quota: parseInt(e.target.value) })} className="w-full px-4 py-2 bg-black/50 border border-white/10 rounded-xl" />
+                </div>
+                <div className="lg:col-span-2">
+                  <label className="text-[10px] font-black text-gray-500 uppercase block mb-2">Link Checkout</label>
+                  <input type="text" value={editingPlan.checkout_url} onChange={e => setEditingPlan({ ...editingPlan, checkout_url: e.target.value })} className="w-full px-4 py-2 bg-black/50 border border-white/10 rounded-xl" />
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <button
+                  onClick={async () => {
+                    await supabase.from('plan_config').update(editingPlan).eq('id', editingPlan.id);
+                    setEditingPlan(null);
+                    fetchConfigs();
+                  }}
+                  className="bg-emerald-600 px-8 py-3 rounded-xl text-[10px] font-black uppercase"
+                >
+                  Salvar Alterações
+                </button>
+                <button onClick={() => setEditingPlan(null)} className="text-gray-500 uppercase text-[10px] font-black">Cancelar</button>
               </div>
             </div>
-          </div>
+          )}
         </section>
 
         {/* Status e Lista de Alunos (Mantido e Melhorado) */}

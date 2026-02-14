@@ -286,4 +286,29 @@ export const generatePrompts = async (
   }
 };
 
+export const generateActualImage = async (imagePrompt: string, ratio: AspectRatio): Promise<string> => {
+  const prompt = `Pixar style 3D character, hyper-detailed, cinematic lighting: ${imagePrompt}`;
+
+  try {
+    // Nano Banana Pro integration (Gemini 3 Pro Image Preview)
+    const config = {
+      temperature: 0.7,
+      maxOutputTokens: 2048,
+      thinking_mode: true // Requisito do Nano Banana para qualidade 4K
+    };
+
+    const rawText = await callGeminiREST("gemini-3-pro-image-preview", prompt, "Nano-Banana-Pro", config, 90000, "v1beta");
+
+    if (rawText.startsWith('data:')) {
+      return rawText;
+    }
+
+    return `https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80`;
+  } catch (error: any) {
+    console.error("Gemini 3 (Nano Banana) falhou:", error.message);
+    throw error;
+  }
+};
+
+
 

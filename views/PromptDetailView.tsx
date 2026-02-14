@@ -8,7 +8,7 @@ import {
   ShieldCheck, DownloadCloud, Scissors, Droplets, AtSign, Upload, Video, Trash2,
   AlertCircle, BarChart3, Info
 } from 'lucide-react';
-import { generatePrompts } from '../services/geminiService';
+import { generatePrompts, generateActualImage } from '../services/geminiService';
 import { AIErrorsModal } from '../components/AIErrorsModal';
 
 export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; language: Language; onSave: (idea: ViralIdea) => Promise<void>; onConsumeCredit: () => void; onConsumeImageCredit: () => void }> = ({ user, t, language, onSave, onConsumeCredit, onConsumeImageCredit }) => {
@@ -20,7 +20,11 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
   const [refining, setRefining] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [refinementText, setRefinementText] = useState('');
+  const [generatingImages, setGeneratingImages] = useState<Record<string, boolean>>({});
   const [prompts, setPrompts] = useState<PromptSet | null>(restoredPrompts || null);
+  const [generatedImages, setGeneratedImages] = useState<Record<string, string>>({});
+  const [watermarkedImages, setWatermarkedImages] = useState<Record<string, string>>({});
+  const [showExhaustedModal, setShowExhaustedModal] = useState(false);
   const [userHandle, setUserHandle] = useState(idea?.userHandle || '@SeuHandle');
   const [finalVideo, setFinalVideo] = useState<string | null>(idea?.finalVideoUrl || null);
   const [errorModalOpen, setErrorModalOpen] = useState(false);
@@ -34,7 +38,12 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
     if (!refinement && restoredPrompts) {
       setLoading(false);
       if (Array.isArray(restoredPrompts.objetos)) {
-        // Objeto ja carregado do historico
+        restoredPrompts.objetos.forEach(async (obj: any) => {
+          // Só gera imagem automático se for personagem principal (da cena)
+          if (obj.cena === 'principal') {
+            handleImageGen(obj.id, obj.imagePrompt);
+          }
+        });
       }
       return;
     }
@@ -59,7 +68,12 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
       setPrompts(pResult);
 
       if (Array.isArray(pResult.objetos)) {
-        // Limpeza: prompts prontos
+        pResult.objetos.forEach(async (obj) => {
+          // Só gera imagem automático se for personagem principal (da cena)
+          if (obj.cena === 'principal') {
+            handleImageGen(obj.id, obj.imagePrompt);
+          }
+        });
       } else {
         console.warn(`DEBUG: [PromptDetail] Aviso: 'objetos' não é um array!`, pResult.objetos);
       }
@@ -86,6 +100,67 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
 
 
 
+  const applyWatermark = (id: string, originalUrl: string) => {
+    if (!originalUrl) return;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      if (ctx) {
+        ctx.drawImage(img, 0, 0);
+        const padding = 30;
+        const fontSize = Math.floor(img.width / 32);
+        ctx.font = `bold ${fontSize}px Inter, sans-serif`;
+        const text = userHandle || '@ViraExpress';
+        const textWidth = ctx.measureText(text).width;
+        ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+        const bgWidth = textWidth + 30;
+        const bgHeight = fontSize + 16;
+        const x = img.width - bgWidth - padding;
+        const y = img.height - bgHeight - padding;
+        ctx.beginPath();
+        ctx.roundRect(x, y, bgWidth, bgHeight, 12);
+        ctx.fill();
+        ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+        ctx.fillText(text, x + 15, y + fontSize + 5);
+        setWatermarkedImages(prev => ({ ...prev, [id]: canvas.toDataURL() }));
+      }
+    };
+    img.src = originalUrl;
+  };
+
+  const handleImageGen = async (id: string, prompt: string) => {
+    const imageCreditsLeft = (user.image_credits_total || 0) - (user.image_credits_used || 0);
+
+    // Lógica de Isca Free (4 imagens na primeira requisição, depois bloqueia)
+    if (user.plan === 'Free' && user.image_credits_used >= 4 && user.role !== 'admin') {
+      setShowExhaustedModal(true);
+      return;
+    }
+
+    if ((imageCreditsLeft <= 0 || user.status !== 'active') && user.role !== 'admin') {
+      setShowExhaustedModal(true);
+      return;
+    }
+
+    console.log(`DEBUG: [PromptDetail] Iniciando geração de imagem para objeto: ${id}`);
+    setGeneratingImages(prev => ({ ...prev, [id]: true }));
+    try {
+      const imgUrl = await generateActualImage(prompt, aspectRatio as AspectRatio);
+      console.log(`DEBUG: [PromptDetail] Imagem gerada para ${id}: ${imgUrl}`);
+      setGeneratedImages(prev => ({ ...prev, [id]: imgUrl }));
+      onConsumeImageCredit(); // Debit credit on success
+      applyWatermark(id, imgUrl);
+    } catch (err) {
+      console.error("Erro na imagem:", id, err);
+    } finally {
+      setGeneratingImages(prev => ({ ...prev, [id]: false }));
+    }
+  };
+
   const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -104,7 +179,14 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
   };
 
   const downloadImage = (id: string) => {
-    // No visuals to download
+    const url = watermarkedImages[id] || generatedImages[id];
+    if (!url) return;
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `ViraExpress_${id}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const saveAction = async () => {
@@ -241,6 +323,18 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
                 className="w-full pl-14 pr-6 py-5 bg-black/50 border border-white/10 rounded-2xl text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-white transition-all"
               />
             </div>
+            <button
+              onClick={() => {
+                if (Array.isArray(prompts?.objetos)) {
+                  prompts.objetos.forEach(obj => {
+                    if (generatedImages[obj.id]) applyWatermark(obj.id, generatedImages[obj.id]);
+                  });
+                }
+              }}
+              className="px-10 py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl text-[12px] uppercase tracking-widest transition-all shadow-2xl shadow-indigo-600/30 active:scale-95 shrink-0"
+            >
+              {t.applyHandle}
+            </button>
           </div>
         </section>
 
@@ -251,27 +345,57 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
             <h3 className="text-2xl md:text-3xl font-black text-white uppercase italic tracking-tighter shrink-0">{t.imagePromptTitle}</h3>
             <div className="h-px flex-1 bg-white/10 hidden md:block"></div>
           </div>
-          <div className="bg-indigo-600/10 border border-indigo-500/20 rounded-2xl p-4 mb-6 flex items-center gap-3">
-            <Info className="w-5 h-5 text-indigo-400" />
-            <p className="text-[11px] md:text-[12px] font-bold text-gray-400 uppercase tracking-widest">
-              Use estes prompts no gerador de imagens de sua preferência (Midjourney, Leonardo, etc.)
-            </p>
-          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
-            {Array.isArray(prompts?.objetos) && prompts.objetos.filter(obj => obj.cena === 'principal').map((obj) => (
-              <div key={obj.id} className="bg-[#1E293B]/60 border border-white/10 rounded-[2rem] overflow-hidden group hover:border-indigo-500/50 transition-all flex flex-col shadow-2xl p-6 md:p-8 space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 rounded-full bg-indigo-500 animate-pulse shrink-0"></div>
-                    <span className="text-[10px] md:text-[11px] font-black text-indigo-400 uppercase tracking-widest">{obj.persona}</span>
+            {Array.isArray(prompts?.objetos) && prompts.objetos.map((obj) => (
+              <div key={obj.id} className="bg-[#1E293B]/60 border border-white/10 rounded-[3rem] overflow-hidden group hover:border-indigo-500/50 transition-all flex flex-col shadow-2xl">
+                <div className="p-8 border-b border-white/10 bg-black/20 space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-3 h-3 rounded-full bg-indigo-500 animate-pulse shrink-0"></div>
+                      <span className="text-[10px] md:text-[11px] font-black text-indigo-400 uppercase tracking-widest">{obj.persona}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => handleCopy(obj.imagePrompt, `prompt-${obj.id}`)} className="flex items-center gap-2 px-4 py-2 bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 rounded-xl hover:bg-indigo-600 hover:text-white transition-all text-[10px] font-black uppercase">
+                        {copied === `prompt-${obj.id}` ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                        COPIAR PROMPT
+                      </button>
+                      <button onClick={() => downloadImage(obj.id)} className="p-3 hover:bg-white/10 rounded-xl text-gray-400 hover:text-emerald-400 transition-all border border-white/5">
+                        <DownloadCloud className="w-5 h-5" />
+                      </button>
+                    </div>
                   </div>
-                  <button onClick={() => handleCopy(obj.imagePrompt, `prompt-${obj.id}`)} className="flex items-center gap-2 px-4 py-2 bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 rounded-xl hover:bg-indigo-600 hover:text-white transition-all text-[10px] font-black uppercase">
-                    {copied === `prompt-${obj.id}` ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                    COPIAR PROMPT
-                  </button>
+                  <div className="p-5 bg-black/50 rounded-2xl border border-white/5 group-hover:border-indigo-500/30 transition-all">
+                    <p className="text-[11px] md:text-[12px] font-medium font-mono text-gray-400 line-clamp-3 italic leading-relaxed text-left">{obj.imagePrompt}</p>
+                  </div>
                 </div>
-                <div className="p-6 bg-black/50 rounded-2xl border border-white/5 group-hover:border-indigo-500/30 transition-all">
-                  <p className="text-sm md:text-base font-medium font-mono text-gray-300 italic leading-relaxed text-left">{obj.imagePrompt}</p>
+                <div className={`relative bg-black flex items-center justify-center overflow-hidden flex-1 ${aspectRatio === '9:16' ? 'aspect-[9/16]' : 'aspect-[16/9]'}`}>
+                  {generatingImages[obj.id] ? (
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="w-16 h-16 border-4 border-indigo-600/20 border-t-indigo-600 rounded-full animate-spin"></div>
+                      <span className="text-[11px] font-black text-indigo-400 uppercase tracking-widest animate-pulse">{t.loading}</span>
+                    </div>
+                  ) : (
+                    <>
+                      {generatedImages[obj.id] ? (
+                        <img src={watermarkedImages[obj.id] || generatedImages[obj.id]} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt={obj.title} />
+                      ) : (
+                        <div className="flex flex-col items-center gap-6 text-center px-12 opacity-40 group-hover:opacity-100 transition-opacity">
+                          <ImageIcon className="w-20 h-20 text-indigo-500/30" />
+                          <div className="flex flex-col gap-2 items-center">
+                            <button
+                              onClick={() => handleImageGen(obj.id, obj.imagePrompt)}
+                              className="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all disabled:opacity-50"
+                            >
+                              Gerar Imagem
+                            </button>
+                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">
+                              Restam {(user.image_credits_total || 0) - (user.image_credits_used || 0)} imagens
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
             ))}
@@ -461,6 +585,39 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
           </div>
         </div>
       </main>
+      {showExhaustedModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/90 backdrop-blur-md">
+          <div className="bg-[#1E293B] border border-white/10 rounded-[3rem] w-full max-w-md p-10 space-y-8 shadow-2xl text-center">
+            <div className="w-20 h-20 bg-indigo-600 rounded-3xl flex items-center justify-center mx-auto shadow-2xl shadow-indigo-600/30">
+              <Zap className="w-10 h-10 text-white" />
+            </div>
+            <div className="space-y-4">
+              <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter">Imagens Esgotadas!</h3>
+              <p className="text-sm text-gray-400 font-medium">
+                {user.plan === 'Free'
+                  ? "Suas 4 imagens grátis acabaram! Quer gerar mais e dominar o TikTok?"
+                  : "Você atingiu o limite mensal do seu plano."}
+              </p>
+            </div>
+            <div className="space-y-4">
+              <a
+                href="https://pay.hotmart.com/YOUR_BASIC_LINK" // Placeholder
+                target="_blank"
+                className="block w-full py-6 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-[2rem] text-sm uppercase tracking-widest transition-all shadow-xl shadow-indigo-600/20"
+              >
+                ASSINAR PLANO BÁSICO - R$ 29
+              </a>
+              <button
+                onClick={() => setShowExhaustedModal(false)}
+                className="w-full py-4 text-gray-500 font-black text-[10px] uppercase tracking-widest hover:text-white transition-colors"
+              >
+                CONTINUAR SEM IMAGENS
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <AIErrorsModal
         isOpen={errorModalOpen}
         onClose={() => setErrorModalOpen(false)}

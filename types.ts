@@ -18,6 +18,15 @@ export interface UserProfile {
   last_login?: number;
 }
 
+export interface PlanConfig {
+  id: string;
+  plan_name: SubscriptionPlan;
+  price: number;
+  image_quota: number;
+  checkout_url: string;
+  active: boolean;
+}
+
 export interface AppConfig {
   support_link: string;
   api_cost_per_gen: number; // Em centavos de dólar
