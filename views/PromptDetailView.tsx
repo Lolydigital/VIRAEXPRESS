@@ -370,38 +370,36 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
           </section>
         )}
 
-        {/* REFINAR ESTRATÉGIA */}
-        <section className="bg-[#1E293B]/60 border border-indigo-500/20 rounded-[3rem] p-8 md:p-12 space-y-8 shadow-inner">
+        {/* AJUSTES E REFINAMENTO */}
+        <section className="bg-[#1E293B]/60 border border-white/10 rounded-[3rem] p-10 md:p-14 space-y-12 shadow-2xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Sparkles className="w-6 h-6 text-indigo-400" />
-              <h3 className="text-[11px] md:text-[13px] font-black uppercase tracking-[0.3em] text-indigo-300">{t.refineTitle}</h3>
+              <Sparkles className="w-8 h-8 text-indigo-400" />
+              <h3 className="text-2xl md:text-3xl font-black text-white italic uppercase tracking-tighter shrink-0">{t.refineTitle}</h3>
             </div>
             <div className="flex gap-4">
-              <button onClick={() => loadContent("Deixe a expressão mais dramática e exagerada")} className="px-4 py-2 bg-indigo-500/10 border border-indigo-500/30 rounded-xl text-[10px] font-black uppercase tracking-widest text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all">
+              <button onClick={() => loadContent("Deixe a expressão mais dramática e exagerada")} className="px-5 py-2.5 bg-indigo-500/10 border border-indigo-500/30 rounded-xl text-[10px] font-black uppercase tracking-widest text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all">
                 + Expressão
               </button>
-              <button onClick={() => loadContent("Mude o cenário para algo mais inusitado")} className="px-4 py-2 bg-indigo-500/10 border border-indigo-500/30 rounded-xl text-[10px] font-black uppercase tracking-widest text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all">
+              <button onClick={() => loadContent("Mude o cenário para algo more inusitado")} className="px-5 py-2.5 bg-indigo-500/10 border border-indigo-500/30 rounded-xl text-[10px] font-black uppercase tracking-widest text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all">
                 Mudar Cenário
               </button>
-              <button onClick={() => loadContent("Remova logotipos, textos e marcas visíveis da imagem")} className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-[10px] font-black uppercase tracking-widest text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all">
+              <button onClick={() => loadContent("Remova logotipos, textos e marcas visíveis da imagem")} className="px-5 py-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-[10px] font-black uppercase tracking-widest text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all">
                 Remover Marcas
               </button>
             </div>
           </div>
           <div className="flex flex-col md:flex-row gap-6">
-            <input
-              type="text"
+            <textarea
               placeholder={t.refinePlaceholder}
               value={refinementText}
               onChange={(e) => setRefinementText(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleRefine()}
-              className="flex-1 bg-black/60 border border-white/10 rounded-2xl px-8 py-6 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white shadow-xl transition-all"
+              className="flex-1 min-h-[120px] px-8 py-6 bg-black/50 border border-white/10 rounded-[2rem] text-sm md:text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-white transition-all resize-none shadow-inner leading-relaxed"
             />
             <button
               onClick={handleRefine}
               disabled={refining || !refinementText.trim()}
-              className="px-12 py-6 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-black rounded-2xl transition-all flex items-center justify-center gap-4 shadow-2xl shadow-indigo-600/30 active:scale-95 shrink-0"
+              className="px-12 py-6 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-black rounded-2xl transition-all flex items-center justify-center gap-4 shadow-2xl active:scale-95 shrink-0"
             >
               {refining ? <RefreshCcw className="w-6 h-6 animate-spin" /> : <Send className="w-6 h-6" />}
               <span className="text-[12px] uppercase tracking-widest">{t.adjust}</span>
@@ -444,75 +442,17 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
           </div>
         </section>
 
-        {/* 1️⃣ IMAGE PROMPTS */}
+        {/* 2. AREA DE IMAGENS (HORIZONTAL / LARGE) */}
         <section className="space-y-8">
-          <div className="flex items-center gap-6">
-            <div className="bg-indigo-600 text-white w-12 h-12 rounded-2xl flex items-center justify-center font-black text-2xl italic shadow-2xl shadow-indigo-600/30 shrink-0">1</div>
-            <h3 className="text-2xl md:text-3xl font-black text-white uppercase italic tracking-tighter shrink-0">{t.imagePromptTitle}</h3>
-            <div className="h-px flex-1 bg-white/10 hidden md:block"></div>
+          <div className="flex items-center gap-4">
+            <ImageIcon className="w-8 h-8 text-indigo-400" />
+            <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter">{t.imagePromptTitle}</h3>
           </div>
 
-          {/* AVISO DE CRÉDITO INSUFICIENTE */}
-          {(() => {
-            const principalCharacters = prompts?.objetos?.filter(obj => obj.cena === 'principal') || [];
-            const imageCreditsLeft = (user.image_credits_total || 0) - (user.image_credits_used || 0);
-
-            if (principalCharacters.length > imageCreditsLeft && imageCreditsLeft > 0) {
-              return (
-                <div className="bg-yellow-600/20 border-2 border-yellow-500/50 rounded-2xl p-6 space-y-3">
-                  <div className="flex items-start gap-3">
-                    <AlertCircle className="w-6 h-6 text-yellow-400 shrink-0 mt-1" />
-                    <div className="space-y-2">
-                      <p className="text-yellow-400 font-bold text-sm md:text-base">
-                        ⚠️ Você tem {imageCreditsLeft} {imageCreditsLeft === 1 ? 'crédito' : 'créditos'}, mas o roteiro tem {principalCharacters.length} personagens.
-                      </p>
-                      <p className="text-sm text-gray-300">
-                        Serão geradas {imageCreditsLeft} {imageCreditsLeft === 1 ? 'imagem' : 'imagens'}. Para os personagens restantes, você pode:
-                      </p>
-                      <ul className="text-sm text-gray-300 space-y-1 ml-4">
-                        <li>• Gerar manualmente depois</li>
-                        <li>• Fazer upgrade do plano para mais créditos</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              );
-            }
-            return null;
-          })()}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {Array.isArray(prompts?.objetos) && prompts.objetos.filter(obj => obj.cena === 'principal').map((obj) => (
               <div key={obj.id} className="bg-[#1E293B]/60 border border-white/10 rounded-[3rem] overflow-hidden group hover:border-indigo-500/50 transition-all flex flex-col shadow-2xl">
-                <div className="p-8 border-b border-white/10 bg-black/20 space-y-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-3 h-3 rounded-full bg-indigo-500 animate-pulse shrink-0"></div>
-                      <span className="text-[10px] md:text-[11px] font-black text-indigo-400 uppercase tracking-widest">{obj.persona}</span>
-                    </div>
-                    <div className="flex gap-2">
-                      <button onClick={() => handleCopy(obj.imagePrompt, `prompt-${obj.id}`)} className="flex items-center gap-2 px-4 py-2 bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 rounded-xl hover:bg-indigo-600 hover:text-white transition-all text-[10px] font-black uppercase">
-                        {copied === `prompt-${obj.id}` ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                        COPIAR PROMPT
-                      </button>
-                      <button onClick={() => downloadImage(obj.id)} className="p-3 hover:bg-white/10 rounded-xl text-gray-400 hover:text-emerald-400 transition-all border border-white/5">
-                        <DownloadCloud className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="p-5 bg-black/50 rounded-2xl border border-white/5 group-hover:border-indigo-500/30 transition-all space-y-3">
-                    <p className="text-[11px] md:text-[12px] font-medium font-mono text-gray-400 line-clamp-3 italic leading-relaxed text-left">{obj.imagePrompt}</p>
-
-                    {/* INDICADOR DE CENAS (Mastigado para TDAH) */}
-                    {obj.scenes && obj.scenes.length > 0 && (
-                      <div className="flex items-center gap-2 pt-2 border-t border-white/5">
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">📌 Use nas CENAS:</span>
-                        <span className="text-[11px] font-black text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-md">{obj.scenes.join(', ')}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className={`relative bg-black flex items-center justify-center overflow-hidden flex-1 ${aspectRatio === '9:16' ? 'aspect-[9/16]' : 'aspect-[16/9]'}`}>
+                <div className={`relative bg-black flex items-center justify-center overflow-hidden h-[500px] ${aspectRatio === '9:16' ? 'aspect-[9/16]' : 'aspect-[16/9]'}`}>
                   {generatingImages[obj.id] ? (
                     <div className="flex flex-col items-center gap-4">
                       <div className="w-16 h-16 border-4 border-indigo-600/20 border-t-indigo-600 rounded-full animate-spin"></div>
@@ -523,23 +463,28 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
                       {generatedImages[obj.id] ? (
                         <img src={watermarkedImages[obj.id] || generatedImages[obj.id]} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt={obj.title} />
                       ) : (
-                        <div className="flex flex-col items-center gap-6 text-center px-12 opacity-40 group-hover:opacity-100 transition-opacity">
+                        <div className="flex flex-col items-center gap-6 text-center px-12 opacity-60 group-hover:opacity-100 transition-opacity">
                           <ImageIcon className="w-20 h-20 text-indigo-500/30" />
-                          <div className="flex flex-col gap-2 items-center">
-                            <button
-                              onClick={() => handleImageGen(obj.id, obj.imagePrompt)}
-                              className="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all disabled:opacity-50"
-                            >
-                              Gerar Imagem
-                            </button>
-                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">
-                              Restam {(user.image_credits_total || 0) - (user.image_credits_used || 0)} imagens
-                            </span>
-                          </div>
+                          <button
+                            onClick={() => handleImageGen(obj.id, obj.imagePrompt)}
+                            className="px-8 py-4 bg-indigo-600 text-white border border-indigo-500 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-indigo-500 transition-all shadow-xl"
+                          >
+                            Gerar Imagem
+                          </button>
                         </div>
                       )}
                     </>
                   )}
+                </div>
+                <div className="p-8 border-t border-white/10 bg-black/40 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-black text-indigo-400 uppercase tracking-widest">{obj.persona}</span>
+                    <button onClick={() => handleCopy(obj.imagePrompt, `prompt-${obj.id}`)} className="text-[10px] font-black text-gray-400 hover:text-white flex items-center gap-2 uppercase tracking-widest transition-all">
+                      {copied === `prompt-${obj.id}` ? <CheckCircle className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                      Copiar Prompt
+                    </button>
+                  </div>
+                  <p className="text-[12px] font-medium font-mono text-gray-100 italic leading-relaxed text-left line-clamp-2">"{obj.imagePrompt}"</p>
                 </div>
               </div>
             ))}
