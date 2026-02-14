@@ -201,7 +201,9 @@ export const generatePrompts = async (
   const maxObjects = plan === 'Free' ? 3 : 9;
 
   const systemInstruction = `Act as the Master Storytelling Director for "Vira Express". Your goal is to generate a COMPLETE viral video strategy for a "Talking Object" scenario.
-  
+
+  CRITICAL: VARIETY IS KEY. Never repeat the same premise (like "Shakes" or "Gym bottles") unless specifically requested. Be creative, weird, and viral. Use inanimate objects from any niche (electronics, food, office, nature).
+
   You MUST return a valid JSON object with the following structure:
   {
     "sequencia_storytelling": "A brief overview of the narrative arc.",
@@ -242,7 +244,7 @@ export const generatePrompts = async (
   3. 🌐 LANGUAGE: All user-facing text (script, title, feedback) MUST be in ${languageNames[lang]}. Prompt fields MUST be in ENGLISH.
   4. 🎨 STYLE: Pixar 3D Cinematic Animation.
   5. 🧩 QUANTITY: Generate exactly ${maxObjects} objects in the "objetos" array.
-  6. 🎬 SCRIPT: The "roteiro_unificado" should be a multi-line dialogue between the objects.
+  6. 🎬 SCRIPT: The "roteiro_unificado" should be a multi-line dialogue between the objects. Create dynamic scenes where multiple objects interact.
   7. 🎬 SCENE FILTER: Use the "cena" field to distinguish speaking characters ("principal") from background noise/objects.`;
 
   const userPrompt = refinementCommand

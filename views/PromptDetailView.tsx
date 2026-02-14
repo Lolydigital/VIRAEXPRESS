@@ -38,11 +38,11 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
     if (!refinement && restoredPrompts) {
       setLoading(false);
       if (Array.isArray(restoredPrompts.objetos)) {
-        // Encontra o primeiro objeto principal para não sobrecarregar e obedecer a regra de isca
-        const firstPrincipal = restoredPrompts.objetos.find((obj: any) => obj.cena === 'principal');
-        if (firstPrincipal) {
-          handleImageGen(firstPrincipal.id, firstPrincipal.imagePrompt);
-        }
+        restoredPrompts.objetos.forEach((obj: any) => {
+          if (obj.cena === 'principal') {
+            handleImageGen(obj.id, obj.imagePrompt);
+          }
+        });
       }
       return;
     }
@@ -67,11 +67,11 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
       setPrompts(pResult);
 
       if (Array.isArray(pResult.objetos)) {
-        // Encontra o primeiro objeto principal para não sobrecarregar
-        const firstPrincipal = pResult.objetos.find(obj => obj.cena === 'principal');
-        if (firstPrincipal) {
-          handleImageGen(firstPrincipal.id, firstPrincipal.imagePrompt);
-        }
+        pResult.objetos.forEach(obj => {
+          if (obj.cena === 'principal') {
+            handleImageGen(obj.id, obj.imagePrompt);
+          }
+        });
       } else {
         console.warn(`DEBUG: [PromptDetail] Aviso: 'objetos' não é um array!`, pResult.objetos);
       }
@@ -301,6 +301,32 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
           </section>
         )}
 
+        {/* REFINAR ESTRATÉGIA */}
+        <section className="bg-[#1E293B]/60 border border-indigo-500/20 rounded-[3rem] p-8 md:p-12 space-y-8 shadow-inner">
+          <div className="flex items-center gap-4">
+            <Sparkles className="w-6 h-6 text-indigo-400" />
+            <h3 className="text-[11px] md:text-[13px] font-black uppercase tracking-[0.3em] text-indigo-300">{t.refineTitle}</h3>
+          </div>
+          <div className="flex flex-col md:flex-row gap-6">
+            <input
+              type="text"
+              placeholder={t.refinePlaceholder}
+              value={refinementText}
+              onChange={(e) => setRefinementText(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleRefine()}
+              className="flex-1 bg-black/60 border border-white/10 rounded-2xl px-8 py-6 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white shadow-xl transition-all"
+            />
+            <button
+              onClick={handleRefine}
+              disabled={refining || !refinementText.trim()}
+              className="px-12 py-6 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-black rounded-2xl transition-all flex items-center justify-center gap-4 shadow-2xl shadow-indigo-600/30 active:scale-95 shrink-0"
+            >
+              {refining ? <RefreshCcw className="w-6 h-6 animate-spin" /> : <Send className="w-6 h-6" />}
+              <span className="text-[12px] uppercase tracking-widest">{t.adjust}</span>
+            </button>
+          </div>
+        </section>
+
         {/* PERSONALIZAR MARCA DE PROTEÇÃO */}
         <section className="bg-[#1E293B]/60 border border-white/10 rounded-[2.5rem] p-8 md:p-10 space-y-8">
           <div className="flex items-center gap-4">
@@ -465,32 +491,6 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
                 {t.copyVideoPrompt || "COPIAR MASTER PROMPT"}
               </button>
             </div>
-          </div>
-        </section>
-
-        {/* REFINAR ESTRATÉGIA */}
-        <section className="bg-[#1E293B]/60 border border-indigo-500/20 rounded-[3rem] p-8 md:p-12 space-y-8 shadow-inner">
-          <div className="flex items-center gap-4">
-            <Sparkles className="w-6 h-6 text-indigo-400" />
-            <h3 className="text-[11px] md:text-[13px] font-black uppercase tracking-[0.3em] text-indigo-300">{t.refineTitle}</h3>
-          </div>
-          <div className="flex flex-col md:flex-row gap-6">
-            <input
-              type="text"
-              placeholder={t.refinePlaceholder}
-              value={refinementText}
-              onChange={(e) => setRefinementText(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleRefine()}
-              className="flex-1 bg-black/60 border border-white/10 rounded-2xl px-8 py-6 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white shadow-xl transition-all"
-            />
-            <button
-              onClick={handleRefine}
-              disabled={refining || !refinementText.trim()}
-              className="px-12 py-6 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-black rounded-2xl transition-all flex items-center justify-center gap-4 shadow-2xl shadow-indigo-600/30 active:scale-95 shrink-0"
-            >
-              {refining ? <RefreshCcw className="w-6 h-6 animate-spin" /> : <Send className="w-6 h-6" />}
-              <span className="text-[12px] uppercase tracking-widest">{t.adjust}</span>
-            </button>
           </div>
         </section>
 
