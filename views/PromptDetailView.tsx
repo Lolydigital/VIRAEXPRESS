@@ -644,24 +644,6 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
 
         {/* FLOATING FOOTER */}
         <div className="fixed bottom-0 md:bottom-10 left-1/2 -translate-x-1/2 w-full max-w-5xl px-6 pb-8 md:pb-0 z-[100] space-y-8">
-          <div className="flex justify-center items-center gap-4 bg-black/40 backdrop-blur-3xl border border-white/10 p-4 rounded-[2.5rem] md:rounded-[3rem] shadow-2xl w-max mx-auto">
-            {flowTools.map(tool => (
-              <a
-                key={tool.name}
-                href={tool.url}
-                target="_blank"
-                rel="noreferrer"
-                className="flex flex-col items-center gap-2 group"
-              >
-                <div className={`w-14 h-14 md:w-20 md:h-20 ${tool.color} backdrop-blur-3xl border border-white/20 rounded-[1.5rem] md:rounded-[2rem] flex items-center justify-center hover:scale-110 transition-all shadow-2xl`}>
-                  <div className="scale-90 md:scale-125 group-hover:rotate-6 transition-transform">{tool.icon}</div>
-                </div>
-                <span className="text-[8px] md:text-[9px] font-black text-gray-400 uppercase tracking-wider text-center max-w-[80px] leading-tight group-hover:text-white transition-colors">
-                  {tool.label}
-                </span>
-              </a>
-            ))}
-          </div>
           <div className="bg-[#1E293B]/90 backdrop-blur-3xl border border-white/20 p-4 md:p-6 rounded-[2.5rem] md:rounded-full flex gap-4 md:gap-6 shadow-[0_40px_100px_rgba(0,0,0,1)] ring-1 ring-white/10">
             <button onClick={() => navigate('/dashboard')} className="flex-1 py-5 md:py-6 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full font-black text-[10px] md:text-[13px] uppercase tracking-[0.2em] text-white transition-all active:scale-95 shadow-lg">
               {t.dashboardButton}
