@@ -16,14 +16,14 @@ const withTimeout = <T>(promise: Promise<T>, taskName: string, timeoutMs = 30000
 };
 
 // Direct REST API Helper
-const callGeminiREST = async (model: string, prompt: string, taskName: string, config?: any, timeoutMs?: number) => {
+const callGeminiREST = async (model: string, prompt: string, taskName: string, config?: any, timeoutMs?: number, apiVersion: 'v1' | 'v1beta' = 'v1') => {
   const apiKey = getApiKey();
   if (!apiKey) {
     console.error(`DEBUG: [${taskName}] VITE_GOOGLE_API_KEY is undefined.`);
     throw new Error("API Key ausente. Configure VITE_GOOGLE_API_KEY no Vercel.");
   }
 
-  const url = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/${apiVersion}/models/${model}:generateContent?key=${apiKey}`;
 
   const body = {
     contents: [{ role: 'user', parts: [{ text: prompt }] }],
@@ -33,7 +33,7 @@ const callGeminiREST = async (model: string, prompt: string, taskName: string, c
     }
   };
 
-  console.log(`DEBUG: [${taskName}] Iniciando chamada REST Gemini (${model})...`);
+  console.log(`DEBUG: [${taskName}] Iniciando chamada REST Gemini (${model}) via ${apiVersion}...`);
 
   try {
     const response = await withTimeout(fetch(url, {
@@ -231,7 +231,7 @@ export const generatePrompts = async (
   const promptFinal = `${userPrompt}\n\nRETURN ONLY VALID JSON.\n\nSYSTEM INSTRUCTION: ${systemInstruction}`;
 
   try {
-    const rawText = await callGeminiREST("gemini-2.5-flash-image", promptFinal, "Prompts", {
+    const rawText = await callGeminiREST("gemini-2.0-flash", promptFinal, "Prompts", {
       temperature: 0.8,
       maxOutputTokens: 2048
     }, 60000); // 60s timeout for strategy
@@ -265,10 +265,14 @@ export const generateActualImage = async (imagePrompt: string, ratio: AspectRati
     const rawText = await callGeminiREST("gemini-2.5-flash-image", prompt, "Image", {
       temperature: 0.7,
       maxOutputTokens: 1024
-    }, 60000); // 60s for images too
+    }, 60000, "v1beta"); // 60s for images + v1beta
 
-    // Note: Since we are using generateContent, if the model returns an image part, 
-    // we would need to handle it. For now, we still return the fallback or look for data.
+    // If it's a data URL (inlineData from gemini-2.5-flash-image), return it
+    if (rawText.startsWith('data:')) {
+      return rawText;
+    }
+
+    // Fallback if it didn't return an image directly
     return `https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80`;
   } catch (error: any) {
     return `https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80`;
