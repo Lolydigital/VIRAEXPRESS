@@ -48,9 +48,13 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
 
       // Only generate images for principal objects that don't have saved images
       if (Array.isArray(restoredPrompts.objetos)) {
+        let availableCredits = imageCreditsLeft;
         restoredPrompts.objetos.forEach((obj: any) => {
           if (obj.cena === 'principal' && !idea?.savedImages?.[obj.id]) {
-            handleImageGen(obj.id, obj.imagePrompt);
+            if (availableCredits > 0 || user.role === 'admin') {
+              handleImageGen(obj.id, obj.imagePrompt);
+              availableCredits--;
+            }
           }
         });
       }
@@ -77,9 +81,15 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
       setPrompts(pResult);
 
       if (Array.isArray(pResult.objetos)) {
+        const imageCreditsTotal = (user.image_credits_total || 0) - (user.image_credits_used || 0);
+        let availableCredits = imageCreditsTotal;
+
         pResult.objetos.forEach(obj => {
           if (obj.cena === 'principal') {
-            handleImageGen(obj.id, obj.imagePrompt);
+            if (availableCredits > 0 || user.role === 'admin') {
+              handleImageGen(obj.id, obj.imagePrompt);
+              availableCredits--;
+            }
           }
         });
       } else {
