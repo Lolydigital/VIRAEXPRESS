@@ -146,9 +146,11 @@ export const generateIdeas = async (niche: string, lang: Language, skipCache = f
   const viralNiche = Object.keys(VIRAL_OBJECTS_BANK).find(k => k.toLowerCase().includes(niche.toLowerCase()));
 
   if (viralNiche) {
-    const objects = (VIRAL_OBJECTS_BANK as any)[viralNiche];
-    trendContext = `TREND 2026: The niche is "${viralNiche}". Use objects like: ${objects.map((o: any) => o.name).join(", ")}. 
-    Personalities to focus on: ${objects.map((o: any) => o.personality).join(", ")}. 
+    const objects = [...(VIRAL_OBJECTS_BANK as any)[viralNiche]];
+    // Embaralhar para evitar repetição (Pote de Água sempre primeiro)
+    const shuffled = objects.sort(() => Math.random() - 0.5);
+    trendContext = `TREND 2026: The niche is "${viralNiche}". Use objects like: ${shuffled.map((o: any) => o.name).join(", ")}. 
+    Personalities to focus on: ${shuffled.map((o: any) => o.personality).join(", ")}. 
     Style: Objects talking, sarcastic, exaggerated Pixar-style emotions.`;
   }
 
@@ -272,14 +274,9 @@ export const generatePrompts = async (
   - "Pixar movie quality, hyper realistic render, cinematic lighting"
   - "object keeps its real product shape but remains GENERIC"
   - "CRITICAL: NO TRADEMARKS, NO ACTUAL BRAND LOGOS, NO WRITING"
-  - "If the object is a product (e.g., Whey Protein), remove all brand labels. You can use generic symbols or a single letter (like 'W') if necessary, but NEVER a real brand."
+  6. 🎬 SCRIPT: The "roteiro_unificado" MUST be highly diverse and unique for every generation. Avoid repetitive hooks or narrative structures. Create dynamic, surprising dialogues between objects.
+  7. 🎬 SCENE FILTER: Use the "cena" field. Default to "principal" for all cinematic objects that should have a generated image.
   
-  LÓGICA DE ROTEIRO (TIMING):
-  - [0-2s] apresentação
-  - [2-5s] gancho
-  - [5-20s] conteúdo
-  - [20-25s] CTA
-
   Language: ${languageNames[lang]}.`;
 
   const userPromptText = refinementCommand
@@ -341,7 +338,7 @@ export const generatePrompts = async (
     const processedObjects = Array.isArray(result.objetos) ? result.objetos.map((obj: any) => ({
       ...obj,
       imagePrompt: obj.imagePrompt || obj.imagem_prompt,
-      cena: obj.cena || 'secundario',
+      cena: obj.cena || 'principal', // Mudando default para principal para garantir que apareça
       scenes: extractScenes(obj.persona || obj.title || '', sortedRoteiro)
     })) : [];
 
