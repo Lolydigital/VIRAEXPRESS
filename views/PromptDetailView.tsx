@@ -10,6 +10,8 @@ import {
 } from 'lucide-react';
 import { generatePrompts, generateActualImage } from '../services/geminiService';
 import { AIErrorsModal } from '../components/AIErrorsModal';
+import { WhatsAppButton } from '../components/WhatsAppButton';
+import { PlanCards } from '../components/PlanCards';
 
 export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; language: Language; onSave: (idea: ViralIdea) => Promise<void>; onConsumeCredit: () => void; onConsumeImageCredit: () => void }> = ({ user, t, language, onSave, onConsumeCredit, onConsumeImageCredit }) => {
   const location = useLocation();
@@ -548,6 +550,13 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
             ))}
           </div>
         </section>
+
+        {/* PLAN UPGRADE CARDS */}
+        <PlanCards
+          currentPlan={user.plan}
+          creditsUsed={user.image_credits_used || 0}
+          creditsTotal={user.image_credits_total || 0}
+        />
 
         {/* MEU VÍDEO PRONTO */}
         <section className="bg-white/5 border border-white/10 rounded-[3rem] md:rounded-[4rem] p-10 md:p-16 space-y-12">

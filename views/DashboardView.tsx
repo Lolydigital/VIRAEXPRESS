@@ -10,6 +10,8 @@ import {
 } from 'lucide-react';
 import { generateIdeas, discoverTrends } from '../services/geminiService';
 import { AIErrorsModal } from '../components/AIErrorsModal';
+import { WhatsAppButton } from '../components/WhatsAppButton';
+import { PlanCards } from '../components/PlanCards';
 
 interface DashboardViewProps {
   user: UserProfile;
