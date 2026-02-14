@@ -38,12 +38,11 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
     if (!refinement && restoredPrompts) {
       setLoading(false);
       if (Array.isArray(restoredPrompts.objetos)) {
-        restoredPrompts.objetos.forEach(async (obj: any) => {
-          // Só gera imagem automático se for personagem principal (da cena)
-          if (obj.cena === 'principal') {
-            handleImageGen(obj.id, obj.imagePrompt);
-          }
-        });
+        // Encontra o primeiro objeto principal para não sobrecarregar e obedecer a regra de isca
+        const firstPrincipal = restoredPrompts.objetos.find((obj: any) => obj.cena === 'principal');
+        if (firstPrincipal) {
+          handleImageGen(firstPrincipal.id, firstPrincipal.imagePrompt);
+        }
       }
       return;
     }
@@ -68,12 +67,11 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
       setPrompts(pResult);
 
       if (Array.isArray(pResult.objetos)) {
-        pResult.objetos.forEach(async (obj) => {
-          // Só gera imagem automático se for personagem principal (da cena)
-          if (obj.cena === 'principal') {
-            handleImageGen(obj.id, obj.imagePrompt);
-          }
-        });
+        // Encontra o primeiro objeto principal para não sobrecarregar
+        const firstPrincipal = pResult.objetos.find(obj => obj.cena === 'principal');
+        if (firstPrincipal) {
+          handleImageGen(firstPrincipal.id, firstPrincipal.imagePrompt);
+        }
       } else {
         console.warn(`DEBUG: [PromptDetail] Aviso: 'objetos' não é um array!`, pResult.objetos);
       }

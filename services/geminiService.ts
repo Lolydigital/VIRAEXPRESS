@@ -293,8 +293,7 @@ export const generateActualImage = async (imagePrompt: string, ratio: AspectRati
     // Nano Banana Pro integration (Gemini 3 Pro Image Preview)
     const config = {
       temperature: 0.7,
-      maxOutputTokens: 2048,
-      thinking_mode: true // Requisito do Nano Banana para qualidade 4K
+      maxOutputTokens: 2048
     };
 
     const rawText = await callGeminiREST("gemini-3-pro-image-preview", prompt, "Nano-Banana-Pro", config, 90000, "v1beta");
