@@ -8,6 +8,7 @@ import { LoginView } from './views/LoginView';
 import { DashboardView } from './views/DashboardView';
 import { PromptDetailView } from './views/PromptDetailView';
 import { AdminDashboardView } from './views/AdminDashboardView';
+import { AdminView } from './views/AdminView';
 import { supabase } from './lib/supabase';
 
 const App: React.FC = () => {
@@ -164,7 +165,8 @@ const App: React.FC = () => {
           <Route path="/" element={user ? <Navigate to="/dashboard" /> : <LoginView onLogin={handleLogin} language={language} setLanguage={setLanguage} t={t} />} />
           <Route path="/dashboard" element={user ? <DashboardView user={user} t={t} language={language} setLanguage={setLanguage} onLogout={handleLogout} history={history} isHistoryLoading={isHistoryLoading} onDeleteHistory={deleteFromHistory} /> : <Navigate to="/" />} />
           <Route path="/prompts/:id" element={user ? <PromptDetailView user={user} t={t} language={language} onSave={saveToHistory} onConsumeCredit={() => updateCredits(1)} onConsumeImageCredit={() => updateImageCredits(1)} /> : <Navigate to="/" />} />
-          <Route path="/admin" element={user?.role === 'admin' ? <AdminDashboardView user={user} t={t} onLogout={handleLogout} /> : <Navigate to="/dashboard" />} />
+          <Route path="/admin" element={user?.role === 'admin' ? <AdminView user={user} /> : <Navigate to="/dashboard" />} />
+          <Route path="/admin-dashboard" element={user?.role === 'admin' ? <AdminDashboardView user={user} t={t} onLogout={handleLogout} /> : <Navigate to="/dashboard" />} />
         </Routes>
       </div>
     </HashRouter>

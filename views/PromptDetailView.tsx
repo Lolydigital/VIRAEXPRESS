@@ -525,12 +525,18 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
           <h3 className="text-[11px] md:text-[13px] font-black uppercase tracking-[0.5em] text-indigo-400 text-center opacity-70 italic">{t.flowTitle}</h3>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10">
             {[
-              { step: '1', title: t.stepImage, desc: t.stepImageDesc, icon: <ImageIcon className="w-8 h-8" /> },
-              { step: '2', title: t.stepVideo, desc: t.stepVideoDesc, icon: <Tv className="w-8 h-8" /> },
-              { step: '3', title: t.stepAudio, desc: t.stepAudioDesc, icon: <Scissors className="w-8 h-8" /> },
-              { step: '4', title: t.stepRemove, desc: t.stepRemoveDesc, icon: <Droplets className="w-8 h-8" /> },
+              { step: '1', title: t.stepImage, desc: t.stepImageDesc, icon: <ImageIcon className="w-8 h-8" />, url: 'https://gemini.google.com' },
+              { step: '2', title: t.stepVideo, desc: t.stepVideoDesc, icon: <Tv className="w-8 h-8" />, url: 'https://labs.google/veo' },
+              { step: '3', title: t.stepAudio, desc: t.stepAudioDesc, icon: <Scissors className="w-8 h-8" />, url: 'https://www.capcut.com' },
+              { step: '4', title: t.stepRemove, desc: t.stepRemoveDesc, icon: <Droplets className="w-8 h-8" />, url: 'https://watermarkremover.io' },
             ].map(item => (
-              <div key={item.step} className="bg-white/5 p-8 md:p-10 rounded-[2.5rem] border border-white/5 text-center space-y-6 hover:border-indigo-500/30 transition-all flex flex-col items-center group shadow-xl">
+              <a
+                key={item.step}
+                href={item.url}
+                target="_blank"
+                rel="noreferrer"
+                className="bg-white/5 p-8 md:p-10 rounded-[2.5rem] border border-white/5 text-center space-y-6 hover:border-indigo-500/30 transition-all flex flex-col items-center group shadow-xl cursor-pointer"
+              >
                 <div className="w-20 h-20 bg-indigo-600 rounded-[2rem] flex items-center justify-center shadow-2xl shadow-indigo-600/30 mb-2 group-hover:scale-110 transition-transform">
                   {item.icon}
                 </div>
@@ -538,7 +544,7 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
                   <h4 className="text-[13px] font-black uppercase text-white tracking-widest leading-none">{item.title}</h4>
                   <p className="text-[10px] text-gray-500 font-bold uppercase leading-relaxed tracking-tighter opacity-70 group-hover:opacity-100 transition-opacity">{item.desc}</p>
                 </div>
-              </div>
+              </a>
             ))}
           </div>
         </section>
