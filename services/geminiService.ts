@@ -197,7 +197,17 @@ MISSION: Create viral narratives for "Vira Express".
     });
 
     const text = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-    return JSON.parse(text);
+    const result = JSON.parse(text);
+
+    // Ensure all mandatory fields exist to prevent UI crashes
+    return {
+      sequencia_storytelling: result.sequencia_storytelling || "",
+      objetos: Array.isArray(result.objetos) ? result.objetos : [],
+      roteiro_unificado: Array.isArray(result.roteiro_unificado) ? result.roteiro_unificado : [],
+      videoPrompt_Tecnico: result.videoPrompt_Tecnico || "",
+      watermark_instruction: result.watermark_instruction || "",
+      viral_score: result.viral_score || { total: 0, hook: 0, retention: 0, cta: 0, feedback: "" }
+    };
   } catch (error: any) {
     throw error;
   }

@@ -36,9 +36,11 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
   const loadContent = async (refinement?: string) => {
     if (!refinement && restoredPrompts) {
       setLoading(false);
-      restoredPrompts.objetos.forEach(async (obj: any) => {
-        handleImageGen(obj.id, obj.imagePrompt);
-      });
+      if (Array.isArray(restoredPrompts.objetos)) {
+        restoredPrompts.objetos.forEach(async (obj: any) => {
+          handleImageGen(obj.id, obj.imagePrompt);
+        });
+      }
       return;
     }
 
@@ -56,13 +58,17 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
 
     try {
       console.log(`DEBUG: [PromptDetail] Iniciando geração de estratégia para: ${idea.title}`);
-      const pResult = await generatePrompts(idea, language, aspectRatio as AspectRatio, 'viral', imageInput, refinement, prompts || undefined, persona, user.plan);
       console.log(`DEBUG: [PromptDetail] Estratégia recebida com sucesso:`, pResult);
+      console.log(`DEBUG: [PromptDetail] Estrutura - objetos: ${Array.isArray(pResult.objetos)}, roteiro: ${Array.isArray(pResult.roteiro_unificado)}`);
       setPrompts(pResult);
 
-      pResult.objetos.forEach(async (obj) => {
-        handleImageGen(obj.id, obj.imagePrompt);
-      });
+      if (Array.isArray(pResult.objetos)) {
+        pResult.objetos.forEach(async (obj) => {
+          handleImageGen(obj.id, obj.imagePrompt);
+        });
+      } else {
+        console.warn(`DEBUG: [PromptDetail] Aviso: 'objetos' não é um array!`, pResult.objetos);
+      }
     } catch (err: any) {
       console.error(err);
       setErrorMessage("Erro ao gerar estrutura. Verifique sua chave Gemini no Vercel.");
@@ -295,9 +301,11 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
             </div>
             <button
               onClick={() => {
-                prompts?.objetos.forEach(obj => {
-                  if (generatedImages[obj.id]) applyWatermark(obj.id, generatedImages[obj.id]);
-                });
+                if (Array.isArray(prompts?.objetos)) {
+                  prompts.objetos.forEach(obj => {
+                    if (generatedImages[obj.id]) applyWatermark(obj.id, generatedImages[obj.id]);
+                  });
+                }
               }}
               className="px-10 py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl text-[12px] uppercase tracking-widest transition-all shadow-2xl shadow-indigo-600/30 active:scale-95 shrink-0"
             >
@@ -314,7 +322,7 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
             <div className="h-px flex-1 bg-white/10 hidden md:block"></div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
-            {prompts?.objetos.map((obj) => (
+            {Array.isArray(prompts?.objetos) && prompts.objetos.map((obj) => (
               <div key={obj.id} className="bg-[#1E293B]/60 border border-white/10 rounded-[3rem] overflow-hidden group hover:border-indigo-500/50 transition-all flex flex-col shadow-2xl">
                 <div className="p-8 border-b border-white/10 bg-black/20 space-y-6">
                   <div className="flex items-center justify-between">
@@ -368,7 +376,7 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
           </div>
           <div className="bg-[#1E293B]/40 border border-white/10 rounded-[3rem] p-8 md:p-12 space-y-10">
             <div className="space-y-8">
-              {prompts?.roteiro_unificado.map((line, idx) => (
+              {Array.isArray(prompts?.roteiro_unificado) && prompts.roteiro_unificado.map((line, idx) => (
                 <div key={idx} className="flex gap-6 items-start group">
                   <div className="w-16 h-16 rounded-full bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center shrink-0 mt-1 shadow-inner relative group-hover:scale-110 transition-transform">
                     <div className="absolute inset-0 bg-indigo-500/10 rounded-full animate-pulse"></div>
