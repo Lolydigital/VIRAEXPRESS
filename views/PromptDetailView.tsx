@@ -7,7 +7,7 @@ import {
   ArrowLeft, Copy, CheckCircle, ExternalLink, ImageIcon, RefreshCcw,
   Zap, Sparkles, Smile, Tv, Send,
   ShieldCheck, DownloadCloud, Scissors, Droplets, AtSign, Upload, Video, Trash2,
-  AlertCircle, BarChart3, Info
+  AlertCircle, BarChart3, Info, TrendingUp
 } from 'lucide-react';
 import { generatePrompts, generateActualImage } from '../services/geminiService';
 import { AIErrorsModal } from '../components/AIErrorsModal';

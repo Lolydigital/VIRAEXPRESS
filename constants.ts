@@ -117,7 +117,13 @@ export const TRANSLATIONS: Record<Language, Translation> = {
     stepImageDesc: 'Gere no Gemini usando os prompts acima.',
     stepVideoDesc: 'Anime no VEO 3 com o Master Prompt.',
     stepAudioDesc: 'Grave o roteiro no CapCut com a voz do personagem.',
-    stepRemoveDesc: 'Se houver marca d\'água da IA, remova com o link abaixo.'
+    stepRemoveDesc: 'Se houver marca d\'água da IA, remova com o link abaixo.',
+    viralScore: 'Viral Score',
+    viralDescription: 'Análise de potencial de viralização',
+    hookScore: 'Gancho',
+    retentionScore: 'Retenção',
+    ctaScore: 'Chamada',
+    trendScore: 'Tendência'
   },
   EN: {
     title: 'ViraExpress',
@@ -184,7 +190,13 @@ export const TRANSLATIONS: Record<Language, Translation> = {
     stepImageDesc: 'Generate in Gemini using the prompts above.',
     stepVideoDesc: 'Animate in VEO 3 with the Master Prompt.',
     stepAudioDesc: 'Record script in CapCut with persona voice.',
-    stepRemoveDesc: 'If there is an AI watermark, remove it with the link below.'
+    stepRemoveDesc: 'If there is an AI watermark, remove it with the link below.',
+    viralScore: 'Viral Score',
+    viralDescription: 'Viral potential analysis',
+    hookScore: 'Hook',
+    retentionScore: 'Retention',
+    ctaScore: 'CTA',
+    trendScore: 'Trend'
   },
   ES: {
     title: 'ViraExpress',
@@ -251,6 +263,13 @@ export const TRANSLATIONS: Record<Language, Translation> = {
     stepImageDesc: 'Genera en Gemini usando los prompts de arriba.',
     stepVideoDesc: 'Anima en VEO 3 con el Master Prompt.',
     stepAudioDesc: 'Graba el guión en CapCut con la voz del personagem.',
-    stepRemoveDesc: 'Si hay marca de agua de IA, quítala con el link de abajo.'
+    stepRemoveDesc: 'Si hay marca de agua de IA, quítala con el link de abajo.',
+    viralScore: 'Viral Score',
+    viralDescription: 'Análisis de potencial viral',
+    hookScore: 'Gancho',
+    retentionScore: 'Retención',
+    ctaScore: 'Llamada',
+    trendScore: 'Tendencia'
   }
 };
+```

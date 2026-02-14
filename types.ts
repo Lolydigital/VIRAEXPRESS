@@ -173,4 +173,12 @@ export interface Translation {
   stepVideoDesc: string;
   stepAudioDesc: string;
   stepRemoveDesc: string;
+
+  // New Viral Score Keys
+  viralScore: string;
+  viralDescription: string;
+  hookScore: string;
+  retentionScore: string;
+  ctaScore: string;
+  trendScore: string;
 }
