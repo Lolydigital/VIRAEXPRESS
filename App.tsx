@@ -98,8 +98,19 @@ const App: React.FC = () => {
   const updateCredits = async (used: number) => {
     if (!user) return;
     const newUsed = (user.credits_used || 0) + used;
-    setUser({ ...user, credits_used: newUsed });
+    const updatedUser = { ...user, credits_used: newUsed };
+    setUser(updatedUser);
+    localStorage.setItem('activeUser', JSON.stringify(updatedUser)); // Immediate persistence
     await supabase.from('profiles').update({ credits_used: newUsed }).eq('id', user.id);
+  };
+
+  const updateImageCredits = async (used: number) => {
+    if (!user) return;
+    const newUsed = (user.image_credits_used || 0) + used;
+    const updatedUser = { ...user, image_credits_used: newUsed };
+    setUser(updatedUser);
+    localStorage.setItem('activeUser', JSON.stringify(updatedUser)); // Immediate persistence
+    await supabase.from('profiles').update({ image_credits_used: newUsed }).eq('id', user.id);
   };
 
   const saveToHistory = async (idea: ViralIdea): Promise<void> => {
@@ -124,7 +135,7 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/" element={user ? <Navigate to="/dashboard" /> : <LoginView onLogin={handleLogin} language={language} setLanguage={setLanguage} t={t} />} />
           <Route path="/dashboard" element={user ? <DashboardView user={user} t={t} language={language} setLanguage={setLanguage} onLogout={handleLogout} history={history} isHistoryLoading={isHistoryLoading} onDeleteHistory={deleteFromHistory} /> : <Navigate to="/" />} />
-          <Route path="/prompts/:id" element={user ? <PromptDetailView user={user} t={t} language={language} onSave={saveToHistory} onConsumeCredit={() => updateCredits(1)} /> : <Navigate to="/" />} />
+          <Route path="/prompts/:id" element={user ? <PromptDetailView user={user} t={t} language={language} onSave={saveToHistory} onConsumeCredit={() => updateCredits(1)} onConsumeImageCredit={() => updateImageCredits(1)} /> : <Navigate to="/" />} />
           <Route path="/admin" element={user?.role === 'admin' ? <AdminDashboardView user={user} t={t} onLogout={handleLogout} /> : <Navigate to="/dashboard" />} />
         </Routes>
       </div>

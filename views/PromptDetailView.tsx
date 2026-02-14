@@ -11,7 +11,7 @@ import {
 import { generatePrompts, generateActualImage } from '../services/geminiService';
 import { AIErrorsModal } from '../components/AIErrorsModal';
 
-export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; language: Language; onSave: (idea: ViralIdea) => Promise<void>; onConsumeCredit: () => void }> = ({ user, t, language, onSave, onConsumeCredit }) => {
+export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; language: Language; onSave: (idea: ViralIdea) => Promise<void>; onConsumeCredit: () => void; onConsumeImageCredit: () => void }> = ({ user, t, language, onSave, onConsumeCredit, onConsumeImageCredit }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { idea, aspectRatio, imageInput, persona, restoredPrompts } = location.state || {};
@@ -124,12 +124,24 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
   };
 
   const handleImageGen = async (id: string, prompt: string) => {
+    if (user.plan === 'Free' && user.role !== 'admin') {
+      console.warn("Imagens bloqueadas no plano Free");
+      return;
+    }
+
+    const imageCreditsLeft = (user.image_credits_total || 0) - (user.image_credits_used || 0);
+    if (imageCreditsLeft <= 0 && user.role !== 'admin') {
+      alert("Seus créditos de imagem acabaram. Faça upgrade para gerar mais!");
+      return;
+    }
+
     console.log(`DEBUG: [PromptDetail] Iniciando geração de imagem para objeto: ${id}`);
     setGeneratingImages(prev => ({ ...prev, [id]: true }));
     try {
       const imgUrl = await generateActualImage(prompt, aspectRatio as AspectRatio);
       console.log(`DEBUG: [PromptDetail] Imagem gerada para ${id}: ${imgUrl}`);
       setGeneratedImages(prev => ({ ...prev, [id]: imgUrl }));
+      onConsumeImageCredit(); // Debit credit on success
       applyWatermark(id, imgUrl);
     } catch (err) {
       console.error("Erro na imagem:", id, err);
@@ -357,7 +369,20 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
                       ) : (
                         <div className="flex flex-col items-center gap-6 text-center px-12 opacity-40 group-hover:opacity-100 transition-opacity">
                           <ImageIcon className="w-20 h-20 text-indigo-500/30" />
-                          <button onClick={() => handleImageGen(obj.id, obj.imagePrompt)} className="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all">{t.loading === 'Free' ? 'Retry generation' : 'Gerar Imagem'}</button>
+                          <div className="flex flex-col gap-2 items-center">
+                            <button
+                              onClick={() => handleImageGen(obj.id, obj.imagePrompt)}
+                              className="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all disabled:opacity-50"
+                              disabled={user.plan === 'Free' && user.role !== 'admin'}
+                            >
+                              {user.plan === 'Free' && user.role !== 'admin' ? 'Indisponível no Free' : 'Gerar Imagem'}
+                            </button>
+                            {user.plan !== 'Free' && (
+                              <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">
+                                Restam {(user.image_credits_total || 0) - (user.image_credits_used || 0)} imagens
+                              </span>
+                            )}
+                          </div>
                         </div>
                       )}
                     </>

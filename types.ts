@@ -3,7 +3,7 @@ export type Language = 'PT' | 'EN' | 'ES';
 export type AspectRatio = '9:16' | '16:9';
 export type GenerationMode = 'viral' | 'tiktok_shop' | 'realism' | 'tone';
 export type UserRole = 'user' | 'admin';
-export type SubscriptionPlan = 'Free' | 'Pro' | 'Elite';
+export type SubscriptionPlan = 'Free' | 'Basic' | 'Professional';
 
 export interface UserProfile {
   id: string;
@@ -12,6 +12,8 @@ export interface UserProfile {
   plan: SubscriptionPlan;
   credits_total: number;
   credits_used: number;
+  image_credits_total: number;
+  image_credits_used: number;
   status: 'active' | 'inactive' | 'refunded';
   last_login?: number;
 }

@@ -40,7 +40,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
 
   const navigate = useNavigate();
 
-  const creditsLeft = user.credits_total - user.credits_used;
+  const scriptsLeft = user.credits_total - user.credits_used;
+  const imageCreditsLeft = (user.image_credits_total || 0) - (user.image_credits_used || 0);
 
   useEffect(() => {
     if (method === 'list') {
@@ -64,8 +65,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
   };
 
   const handleGenerate = async (isMore = false) => {
-    if (creditsLeft <= 0 && user.role !== 'admin') {
-      alert("Você atingiu o limite de créditos do seu plano. Faça upgrade para continuar!");
+    const scriptsLeft = user.credits_total - user.credits_used;
+    if (scriptsLeft <= 0 && user.role !== 'admin') {
+      alert("Você atingiu o limite de roteiros do seu plano. Faça upgrade para continuar!");
       return;
     }
 
@@ -145,11 +147,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-full border border-white/10">
-            <Zap className={`w-3.5 h-3.5 ${creditsLeft > 0 ? 'text-yellow-400 fill-yellow-400' : 'text-gray-600'}`} />
-            <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">
-              {creditsLeft} {t.success}
-            </span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/10">
+              <Zap className={`w-3.5 h-3.5 ${scriptsLeft > 0 ? 'text-yellow-400 fill-yellow-400' : 'text-gray-600'}`} />
+              <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">
+                {scriptsLeft} Roteiros
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/10">
+              <RefreshCcw className={`w-3.5 h-3.5 ${imageCreditsLeft > 0 ? 'text-indigo-400' : 'text-gray-600'}`} />
+              <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">
+                {imageCreditsLeft <= 0 ? 0 : imageCreditsLeft} Imagens
+              </span>
+            </div>
           </div>
 
           {user.role === 'admin' && (

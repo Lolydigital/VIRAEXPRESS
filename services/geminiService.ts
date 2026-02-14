@@ -5,7 +5,7 @@ const getApiKey = () => {
   return import.meta.env.VITE_GOOGLE_API_KEY || (typeof process !== 'undefined' ? process.env?.VITE_GOOGLE_API_KEY : '');
 };
 
-// Watchdog Timer Helper (30 seconds)
+// Watchdog Timer Helper (Default 30s, flexible)
 const withTimeout = <T>(promise: Promise<T>, taskName: string, timeoutMs = 30000): Promise<T> => {
   return Promise.race([
     promise,
@@ -16,7 +16,7 @@ const withTimeout = <T>(promise: Promise<T>, taskName: string, timeoutMs = 30000
 };
 
 // Direct REST API Helper
-const callGeminiREST = async (model: string, prompt: string, taskName: string, config?: any) => {
+const callGeminiREST = async (model: string, prompt: string, taskName: string, config?: any, timeoutMs?: number) => {
   const apiKey = getApiKey();
   if (!apiKey) {
     console.error(`DEBUG: [${taskName}] VITE_GOOGLE_API_KEY is undefined.`);
@@ -40,7 +40,7 @@ const callGeminiREST = async (model: string, prompt: string, taskName: string, c
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
-    }), taskName);
+    }), taskName, timeoutMs);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -96,19 +96,16 @@ export const generateIdeas = async (niche: string, lang: Language): Promise<Vira
 
   const languageNames = { PT: 'Portuguese (Brazil)', EN: 'English', ES: 'Spanish' };
 
-  const prompt = `Act as the Chief Strategist of "Vira Express".
-Generate exactly 10 ideas for "Talking Object Ecosystems" for the niche: "${niche}".
-RULES:
-1. Think in Ecosystems: Objects that interact or a central iconic object from the niche.
-2. Viral Dialogue: Discuss a secret, pain point, or current meme of the niche in a comic or sarcasm.
-3. OUTPUT LANGUAGE: You MUST provide the "title" and "description" in ${languageNames[lang]}. This is a hard requirement.
-4. RETURN ONLY VALID JSON ARRAY with this exact structure:
-[{"id": "unique-id", "title": "Title Here", "description": "Description Here", "emoji": "😀"}]`;
+  const prompt = `Express Idea Guru. Niche: "${niche}".
+Generate 10 viral "Talking Object" ideas.
+Rules: Interactive, sarcastic, viral/meme.
+Lang: ${languageNames[lang]}. JSON ONLY.
+Structure: [{"id": "uid", "title": "...", "description": "...", "emoji": "..."}]`;
 
   try {
     const rawText = await callGeminiREST("gemini-2.0-flash", prompt, "Ideas", {
       temperature: 1,
-      maxOutputTokens: 2048
+      maxOutputTokens: 1024
     });
 
     const text = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
@@ -171,30 +168,59 @@ export const generatePrompts = async (
   plan?: SubscriptionPlan
 ): Promise<PromptSet> => {
   const languageNames = { PT: 'Portuguese (Brazil)', EN: 'English', ES: 'Spanish' };
-  const objectCount = plan === 'Free' ? 3 : 10;
+  const maxObjects = plan === 'Free' ? 3 : 9;
 
-  const systemInstruction = `Act as a Storytelling Director and Animation Scriptwriter 2026.
-MISSION: Create viral narratives for "Vira Express".
-1. 🎭 PERSONALITY: ${selectedPersona ? `${selectedPersona.name}: ${selectedPersona.trait}` : 'Standard Viral 2026'}.
-2. 🎭 LOGIC A-B-A: Conflict, Resolution, CTA (Call to Action).
-3. 📊 VIRAL SCORE: Analyze the script and give 0-100 scores for Hook, Retention, and CTA.
-4. 🌐 TECHNICAL LANGUAGE: The "imagePrompt" and "videoPrompt_Tecnico" fields MUST BE IN ENGLISH.
-5. 🎨 IMAGE STYLE: Pixar Animation Style, cinematic lighting, 8k, hyper-detailed textures.
-6. 🎬 VIDEO PROMPT: Master Prompt for VEO 3 describing action, physics, and cinematography in English.
-7. 📝 CONTENT LANGUAGE: All user-facing text (title, description, script, feedback) MUST BE IN ${languageNames[lang]}.
-8. 🧩 QUANTITY: Generate EXACTLY ${objectCount} objects in the "objetos" array.`;
+  const systemInstruction = `Act as the Master Storytelling Director for "Vira Express". Your goal is to generate a COMPLETE viral video strategy for a "Talking Object" scenario.
+  
+  You MUST return a valid JSON object with the following structure:
+  {
+    "sequencia_storytelling": "A brief overview of the narrative arc.",
+    "objetos": [
+      {
+        "id": "1",
+        "title": "Object Name",
+        "persona": "Description of its personality",
+        "imagePrompt": "A hyper-detailed prompt in ENGLISH for generating a 3D Pixar-style image of this object. Include cinematic lighting, 8k resolution, and clear character features."
+      }
+    ],
+    "roteiro_unificado": [
+      {
+        "time": "0:00",
+        "text": "Dialogue line in ${languageNames[lang]}",
+        "emotion": "Expression (e.g., Sarcastic, Happy)",
+        "speaker": "Name of the object or 'Narrator'"
+      }
+    ],
+    "videoPrompt_Tecnico": "A master prompt for VEO 3 (Video IA) in ENGLISH describing the entire scene action, camera movements, and lighting.",
+    "watermark_instruction": "Position for the watermark.",
+    "viral_score": {
+      "total": 95,
+      "hook": 98,
+      "retention": 92,
+      "cta": 95,
+      "feedback": "IA analysis of why this will go viral in ${languageNames[lang]}."
+    }
+  }
+
+  RULES:
+  1. 🎭 PERSONALITY: ${selectedPersona ? `${selectedPersona.name}: ${selectedPersona.trait}` : 'Viral & Sarcastic'}.
+  2. 🎭 LOGIC: Conflict -> Resolution -> Sharp CTA.
+  3. 🌐 LANGUAGE: All user-facing text (script, title, feedback) MUST be in ${languageNames[lang]}. Prompt fields MUST be in ENGLISH.
+  4. 🎨 STYLE: Pixar 3D Cinematic Animation.
+  5. 🧩 QUANTITY: Generate exactly ${maxObjects} objects in the "objetos" array to populate the scene.
+  6. 🎬 SCRIPT: The "roteiro_unificado" should be a multi-line dialogue between the objects.`;
 
   const userPrompt = refinementCommand
-    ? `ADJUSTMENT: "${refinementCommand}". PREVIOUS CONTEXT: ${JSON.stringify(previousResult)}. GENERATE EXACTLY ${objectCount} OBJECTS.`
-    : `Generate strategy for: ${idea.title}. Description: ${idea.description}. Persona: ${selectedPersona?.name || 'Default'}. Plan: ${plan}. GENERATE EXACTLY ${objectCount} OBJECTS.`;
+    ? `ADJUST: "${refinementCommand}". CONTEXT: ${JSON.stringify(previousResult)}. GEN OBJECTS (MAX: ${maxObjects}).`
+    : `STRATEGY: ${idea.title}. DESC: ${idea.description}. PERSONA: ${selectedPersona?.name}. PLAN: ${plan}. GEN OBJECTS (MAX: ${maxObjects}).`;
 
   const promptFinal = `${userPrompt}\n\nRETURN ONLY VALID JSON.\n\nSYSTEM INSTRUCTION: ${systemInstruction}`;
 
   try {
     const rawText = await callGeminiREST("gemini-2.0-flash", promptFinal, "Prompts", {
       temperature: 0.8,
-      maxOutputTokens: 4096
-    });
+      maxOutputTokens: 2048
+    }, 60000); // 60s timeout for strategy
 
     const text = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
     const result = JSON.parse(text);
