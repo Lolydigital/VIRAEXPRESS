@@ -111,14 +111,14 @@ export const generateIdeas = async (niche: string, lang: Language): Promise<Vira
 Generate 10 viral "Talking Object" ideas.
 Rules: Interactive, sarcastic, viral/meme.
 Lang: ${languageNames[lang]}.
-RETURN ONLY A VALID JSON ARRAY. NO MARKDOWN. NO CODE BLOCKS.
+RETURN ONLY A VALID JSON ARRAY. NO MARKDOWN. NO CODE BLOCKS. NO COMMENTS. NO EXTRA TEXT.
 Structure: [{"id": "uid", "title": "...", "description": "...", "emoji": "..."}]`;
 
   try {
     const rawText = await callGeminiREST("gemini-2.0-flash", prompt, "Ideas", {
       temperature: 1,
-      maxOutputTokens: 2048 // Increased to prevent truncation
-    });
+      maxOutputTokens: 8192
+    }, 60000);
 
     // Enhanced JSON extraction
     let jsonDelta = rawText;
@@ -156,14 +156,15 @@ export const discoverTrends = async (niche: string, lang: Language): Promise<Ins
   const prompt = `As a TikTok trend analyst, identify 3 viral video concepts for "Talking Objects" for the niche: "${niche}".
   Provide hook suggestions and define the protagonist object.
   CRITICAL: All generated text MUST be in ${languageNames[lang]}.
-  RETURN ONLY VALID JSON ARRAY with this exact structure:
+  RETURN ONLY VALID JSON ARRAY. NO MARKDOWN. NO COMMENTS. NO EXTRA TEXT.
+  Structure:
   [{"id": "unique-id", "title": "Title", "thumbnail": "https://...", "url": "https://...", "niche": "Niche Name"}]`;
 
   try {
     const rawText = await callGeminiREST("gemini-2.0-flash", prompt, "Trends", {
       temperature: 0.7,
-      maxOutputTokens: 2048
-    });
+      maxOutputTokens: 8192
+    }, 60000);
 
     let jsonDelta = rawText;
     const startIdx = jsonDelta.indexOf('[');
@@ -246,12 +247,12 @@ export const generatePrompts = async (
     ? `ADJUST: "${refinementCommand}". CONTEXT: ${JSON.stringify(previousResult)}. GEN OBJECTS (MAX: ${maxObjects}).`
     : `STRATEGY: ${idea.title}. DESC: ${idea.description}. PERSONA: ${selectedPersona?.name}. PLAN: ${plan}. GEN OBJECTS (MAX: ${maxObjects}).`;
 
-  const promptFinal = `${userPrompt}\n\nRETURN ONLY VALID JSON.\n\nSYSTEM INSTRUCTION: ${systemInstruction}`;
+  const promptFinal = `${userPrompt}\n\nRETURN ONLY VALID JSON. NO MARKDOWN. NO COMMENTS. NO EXTRA TEXT.\n\nSYSTEM INSTRUCTION: ${systemInstruction}`;
 
   try {
     const rawText = await callGeminiREST("gemini-2.0-flash", promptFinal, "Prompts", {
       temperature: 0.8,
-      maxOutputTokens: 2048
+      maxOutputTokens: 8192
     }, 60000); // 60s timeout for strategy
 
     let jsonDelta = rawText;
