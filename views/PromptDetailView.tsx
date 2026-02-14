@@ -670,6 +670,9 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
         }}
         errorMessage={errorMessage}
       />
+
+      {/* WhatsApp Support Button */}
+      <WhatsAppButton />
     </div>
   );
 };

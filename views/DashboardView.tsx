@@ -427,6 +427,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
         }}
         errorMessage={errorMessage}
       />
+
+      {/* WhatsApp Support Button */}
+      <WhatsAppButton />
     </div>
   );
 };
