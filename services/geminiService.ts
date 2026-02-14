@@ -286,32 +286,4 @@ export const generatePrompts = async (
   }
 };
 
-export const generateActualImage = async (imagePrompt: string, ratio: AspectRatio): Promise<string> => {
-  const prompt = `Pixar style 3D character, hyper-detailed, cinematic lighting: ${imagePrompt}`;
 
-  try {
-    // Tentativa com Imagen 3 (v1beta) para geração real
-    const rawText = await callGeminiREST("imagen-3.0-generate-001", prompt, "Image", {
-      temperature: 0.7,
-      maxOutputTokens: 1024
-    }, 60000, "v1beta");
-
-    if (rawText.startsWith('data:')) {
-      return rawText;
-    }
-
-    return `https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80`;
-  } catch (error: any) {
-    console.warn("Imagen 3 falhou, tentando Gemini 2.5 como fallback...");
-    try {
-      const fallback = await callGeminiREST("gemini-2.5-flash-image", prompt, "Image-Fallback", {
-        temperature: 0.7,
-        maxOutputTokens: 1024
-      }, 60000, "v1beta");
-      if (fallback.startsWith('data:')) return fallback;
-    } catch (e) {
-      console.error("Todos os modelos de imagem falharam.");
-    }
-    return `https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80`;
-  }
-};
