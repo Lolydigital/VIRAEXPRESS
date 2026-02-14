@@ -38,7 +38,10 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
       setLoading(false);
       if (Array.isArray(restoredPrompts.objetos)) {
         restoredPrompts.objetos.forEach(async (obj: any) => {
-          handleImageGen(obj.id, obj.imagePrompt);
+          // Só gera imagem automático se for personagem principal (da cena)
+          if (obj.cena === 'principal') {
+            handleImageGen(obj.id, obj.imagePrompt);
+          }
         });
       }
       return;
@@ -65,7 +68,10 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
 
       if (Array.isArray(pResult.objetos)) {
         pResult.objetos.forEach(async (obj) => {
-          handleImageGen(obj.id, obj.imagePrompt);
+          // Só gera imagem automático se for personagem principal (da cena)
+          if (obj.cena === 'principal') {
+            handleImageGen(obj.id, obj.imagePrompt);
+          }
         });
       } else {
         console.warn(`DEBUG: [PromptDetail] Aviso: 'objetos' não é um array!`, pResult.objetos);
@@ -343,12 +349,13 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
                       <div className="w-3 h-3 rounded-full bg-indigo-500 animate-pulse shrink-0"></div>
                       <span className="text-[10px] md:text-[11px] font-black text-indigo-400 uppercase tracking-widest">{obj.persona}</span>
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex gap-2">
+                      <button onClick={() => handleCopy(obj.imagePrompt, `prompt-${obj.id}`)} className="flex items-center gap-2 px-4 py-2 bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 rounded-xl hover:bg-indigo-600 hover:text-white transition-all text-[10px] font-black uppercase">
+                        {copied === `prompt-${obj.id}` ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                        COPIAR PROMPT
+                      </button>
                       <button onClick={() => downloadImage(obj.id)} className="p-3 hover:bg-white/10 rounded-xl text-gray-400 hover:text-emerald-400 transition-all border border-white/5">
                         <DownloadCloud className="w-5 h-5" />
-                      </button>
-                      <button onClick={() => handleCopy(obj.imagePrompt, obj.id)} className="p-3 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all border border-white/5">
-                        {copied === obj.id ? <CheckCircle className="w-5 h-5 text-emerald-400" /> : <Copy className="w-5 h-5" />}
                       </button>
                     </div>
                   </div>

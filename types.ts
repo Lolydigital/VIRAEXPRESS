@@ -49,6 +49,7 @@ export interface StorytellingObject {
   title: string;
   persona: string;
   imagePrompt: string;
+  cena?: 'principal' | 'secundario' | 'fundo';
 }
 
 export interface ViralScore {

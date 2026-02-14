@@ -211,7 +211,8 @@ export const generatePrompts = async (
         "title": "Object Name",
         "persona": "Description of its personality",
         "imagePrompt": "A hyper-detailed prompt in ENGLISH for generating a 3D Pixar-style image of this object. Include cinematic lighting, 8k resolution, and clear character features.",
-        "imagem_prompt": "Alias for imagePrompt"
+        "imagem_prompt": "Alias for imagePrompt",
+        "cena": "principal" OR "secundario" OR "fundo" (CRITICAL: Only mark as 'principal' the objects that actually speak or are essential to the scene)
       }
     ],
     "roteiro_unificado": [
@@ -240,8 +241,9 @@ export const generatePrompts = async (
   2. 🎭 LOGIC: Conflict -> Resolution -> Sharp CTA.
   3. 🌐 LANGUAGE: All user-facing text (script, title, feedback) MUST be in ${languageNames[lang]}. Prompt fields MUST be in ENGLISH.
   4. 🎨 STYLE: Pixar 3D Cinematic Animation.
-  5. 🧩 QUANTITY: Generate exactly ${maxObjects} objects in the "objetos" array to populate the scene.
-  6. 🎬 SCRIPT: The "roteiro_unificado" should be a multi-line dialogue between the objects.`;
+  5. 🧩 QUANTITY: Generate exactly ${maxObjects} objects in the "objetos" array.
+  6. 🎬 SCRIPT: The "roteiro_unificado" should be a multi-line dialogue between the objects.
+  7. 🎬 SCENE FILTER: Use the "cena" field to distinguish speaking characters ("principal") from background noise/objects.`;
 
   const userPrompt = refinementCommand
     ? `ADJUST: "${refinementCommand}". CONTEXT: ${JSON.stringify(previousResult)}. GEN OBJECTS (MAX: ${maxObjects}).`
@@ -271,7 +273,8 @@ export const generatePrompts = async (
       sequencia_storytelling: result.sequencia_storytelling || "",
       objetos: Array.isArray(result.objetos) ? result.objetos.map((obj: any) => ({
         ...obj,
-        imagePrompt: obj.imagem_prompt || obj.imagePrompt
+        imagePrompt: obj.imagem_prompt || obj.imagePrompt,
+        cena: obj.cena || 'secundario'
       })) : [],
       roteiro_unificado: Array.isArray(result.roteiro_unificado) ? result.roteiro_unificado : [],
       videoPrompt_Tecnico: result.video_prompt || result.videoPrompt_Tecnico || "",
@@ -284,22 +287,31 @@ export const generatePrompts = async (
 };
 
 export const generateActualImage = async (imagePrompt: string, ratio: AspectRatio): Promise<string> => {
-  const prompt = `Generate a high quality 3D image base for: ${imagePrompt}`;
+  const prompt = `Pixar style 3D character, hyper-detailed, cinematic lighting: ${imagePrompt}`;
 
   try {
-    const rawText = await callGeminiREST("gemini-2.5-flash-image", prompt, "Image", {
+    // Tentativa com Imagen 3 (v1beta) para geração real
+    const rawText = await callGeminiREST("imagen-3.0-generate-001", prompt, "Image", {
       temperature: 0.7,
       maxOutputTokens: 1024
-    }, 60000, "v1beta"); // 60s for images + v1beta
+    }, 60000, "v1beta");
 
-    // If it's a data URL (inlineData from gemini-2.5-flash-image), return it
     if (rawText.startsWith('data:')) {
       return rawText;
     }
 
-    // Fallback if it didn't return an image directly
     return `https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80`;
   } catch (error: any) {
+    console.warn("Imagen 3 falhou, tentando Gemini 2.5 como fallback...");
+    try {
+      const fallback = await callGeminiREST("gemini-2.5-flash-image", prompt, "Image-Fallback", {
+        temperature: 0.7,
+        maxOutputTokens: 1024
+      }, 60000, "v1beta");
+      if (fallback.startsWith('data:')) return fallback;
+    } catch (e) {
+      console.error("Todos os modelos de imagem falharam.");
+    }
     return `https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80`;
   }
 };
