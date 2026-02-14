@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserProfile, PlanConfig } from '../types';
 import { supabase } from '../lib/supabase';
-import { BarChart3, DollarSign, TrendingUp, Users, Settings, ExternalLink, Save, RefreshCcw } from 'lucide-react';
+import { BarChart3, DollarSign, TrendingUp, Users, Settings, ExternalLink, Save, RefreshCcw, Trash2 } from 'lucide-react';
 
 export const AdminView: React.FC<{ user: UserProfile }> = ({ user }) => {
     const navigate = useNavigate();
@@ -12,6 +12,12 @@ export const AdminView: React.FC<{ user: UserProfile }> = ({ user }) => {
     const [whatsappNumber, setWhatsappNumber] = useState('');
     const [editingPlan, setEditingPlan] = useState<PlanConfig | null>(null);
     const [saving, setSaving] = useState(false);
+
+    // Manual User Creation State
+    const [showCreateUser, setShowCreateUser] = useState(false);
+    const [newUserEmail, setNewUserEmail] = useState('');
+    const [newUserId, setNewUserId] = useState('');
+    const [newUserPlan, setNewUserPlan] = useState<SubscriptionPlan>('Free');
 
     useEffect(() => {
         if (user.role !== 'admin') {
@@ -107,6 +113,77 @@ export const AdminView: React.FC<{ user: UserProfile }> = ({ user }) => {
         return { totalUsers, activeUsers, totalImagesGenerated, estimatedCost, totalRevenue, profit };
     };
 
+    const createUser = async () => {
+        if (!newUserEmail || !newUserId) return;
+        setSaving(true);
+        try {
+            const planConfig = plans.find(p => p.plan_name === newUserPlan);
+            const { error } = await supabase
+                .from('user_credits')
+                .insert({
+                    user_id: newUserId,
+                    plan: newUserPlan,
+                    credits_total: 10, // Default script credits
+                    credits_used: 0,
+                    image_credits_total: planConfig?.image_quota || 4,
+                    image_credits_used: 0,
+                    status: 'active'
+                });
+
+            if (!error) {
+                setNewUserEmail('');
+                setNewUserId('');
+                setShowCreateUser(false);
+                await loadAdminData();
+            }
+        } catch (err) {
+            console.error('Error creating user:', err);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const updateUserPlan = async (userIdToUpdate: string, newPlanName: SubscriptionPlan) => {
+        setSaving(true);
+        try {
+            const planConfig = plans.find(p => p.plan_name === newPlanName);
+            const { error } = await supabase
+                .from('user_credits')
+                .update({
+                    plan: newPlanName,
+                    image_credits_total: planConfig?.image_quota || 4
+                })
+                .eq('user_id', userIdToUpdate);
+
+            if (!error) {
+                await loadAdminData();
+            }
+        } catch (err) {
+            console.error('Error updating user plan:', err);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const deleteUser = async (userIdToDelete: string) => {
+        if (!window.confirm('Tem certeza que deseja excluir este usuário?')) return;
+        setSaving(true);
+        try {
+            const { error } = await supabase
+                .from('user_credits')
+                .delete()
+                .eq('user_id', userIdToDelete);
+
+            if (!error) {
+                await loadAdminData();
+            }
+        } catch (err) {
+            console.error('Error deleting user:', err);
+        } finally {
+            setSaving(false);
+        }
+    };
+
     const metrics = calculateMetrics();
 
     if (loading) {
@@ -123,13 +200,78 @@ export const AdminView: React.FC<{ user: UserProfile }> = ({ user }) => {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <h1 className="text-4xl font-black text-white uppercase italic tracking-tighter">Admin Dashboard</h1>
-                    <button
-                        onClick={() => navigate('/dashboard')}
-                        className="px-6 py-3 bg-white/10 hover:bg-white/20 rounded-2xl text-white font-bold transition-all"
-                    >
-                        Voltar
-                    </button>
+                    <div className="flex gap-4">
+                        <button
+                            onClick={() => setShowCreateUser(true)}
+                            className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-2xl text-white font-bold transition-all flex items-center gap-2 shadow-lg shadow-emerald-600/20"
+                        >
+                            <Users className="w-5 h-5" /> Novo Usuário
+                        </button>
+                        <button
+                            onClick={() => navigate('/dashboard')}
+                            className="px-6 py-3 bg-white/10 hover:bg-white/20 rounded-2xl text-white font-bold transition-all"
+                        >
+                            Voltar
+                        </button>
+                    </div>
                 </div>
+
+                {/* Create User Section */}
+                {showCreateUser && (
+                    <div className="bg-[#1E293B] border border-emerald-500/30 rounded-3xl p-8 space-y-6 animate-in fade-in slide-in-from-top-4">
+                        <h2 className="text-2xl font-black text-white uppercase">Cadastrar Usuário Manualmente</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold text-gray-400 uppercase">E-mail</label>
+                                <input
+                                    type="email"
+                                    value={newUserEmail}
+                                    onChange={(e) => setNewUserEmail(e.target.value)}
+                                    className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-xl text-white"
+                                    placeholder="exemplo@email.com"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold text-gray-400 uppercase">User ID (Supabase Auth)</label>
+                                <input
+                                    type="text"
+                                    value={newUserId}
+                                    onChange={(e) => setNewUserId(e.target.value)}
+                                    className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-xl text-white"
+                                    placeholder="uuid-do-usuario"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold text-gray-400 uppercase">Plano</label>
+                                <select
+                                    value={newUserPlan}
+                                    onChange={(e) => setNewUserPlan(e.target.value as SubscriptionPlan)}
+                                    className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-xl text-white"
+                                >
+                                    <option value="Free">Free</option>
+                                    <option value="Basic">Basic</option>
+                                    <option value="Professional">Professional</option>
+                                </select>
+                            </div>
+                            <div className="flex items-end gap-3">
+                                <button
+                                    onClick={createUser}
+                                    disabled={saving}
+                                    className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-white font-bold transition-all flex items-center justify-center gap-2"
+                                >
+                                    {saving ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                                    Criar
+                                </button>
+                                <button
+                                    onClick={() => setShowCreateUser(false)}
+                                    className="py-3 px-6 bg-white/10 hover:bg-white/20 rounded-xl text-white font-bold transition-all"
+                                >
+                                    Cancelar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Metrics Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -298,8 +440,19 @@ export const AdminView: React.FC<{ user: UserProfile }> = ({ user }) => {
                             <tbody>
                                 {users.map(u => (
                                     <tr key={u.user_id} className="border-b border-white/5 hover:bg-white/5">
-                                        <td className="py-4 px-4 text-sm text-white">{u.user_id}</td>
-                                        <td className="py-4 px-4 text-sm text-white font-bold">{u.plan}</td>
+                                        <td className="py-4 px-4 text-sm text-white font-mono">{u.user_id}</td>
+                                        <td className="py-4 px-4">
+                                            <select
+                                                value={u.plan}
+                                                onChange={(e) => updateUserPlan(u.user_id, e.target.value as SubscriptionPlan)}
+                                                className="bg-black/40 border border-white/10 rounded-lg py-1 px-2 text-xs text-white"
+                                                disabled={saving}
+                                            >
+                                                <option value="Free">Free</option>
+                                                <option value="Basic">Basic</option>
+                                                <option value="Professional">Professional</option>
+                                            </select>
+                                        </td>
                                         <td className="py-4 px-4 text-sm text-gray-400">
                                             {u.image_credits_used || 0} / {u.image_credits_total || 0}
                                         </td>
@@ -311,11 +464,18 @@ export const AdminView: React.FC<{ user: UserProfile }> = ({ user }) => {
                                                 ></div>
                                             </div>
                                         </td>
-                                        <td className="py-4 px-4">
+                                        <td className="py-4 px-4 flex items-center justify-between gap-4">
                                             <span className={`px-3 py-1 rounded-full text-xs font-bold ${u.status === 'active' ? 'bg-emerald-600/20 text-emerald-400' : 'bg-red-600/20 text-red-400'
                                                 }`}>
                                                 {u.status}
                                             </span>
+                                            <button
+                                                onClick={() => deleteUser(u.user_id)}
+                                                className="p-2 text-gray-500 hover:text-red-400 transition-colors"
+                                                title="Excluir Usuário"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}

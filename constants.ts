@@ -7,24 +7,27 @@ export const INSPIRATION_VIDEOS: InspirationVideo[] = [
 ];
 
 const COMMON_NICHES_PT = [
+  'Cozinha & Alimentos', 'Pet Shop', 'Saúde & Higiene', 'Finanças',
   'Fé Cristã', 'Saúde Fitness', 'Nutricionista', 'Cabeleireira', 'Estética',
   'Manicure', 'Advogados', 'Psicóloga', 'Cirurgião Plástico', 'Confeiteira',
   'Papelaria Personalizada', 'Tarô', 'Dona de Casa', 'Educação',
-  'Relacionamento', 'Tecnologia', 'Imobiliária', 'Pet Shop', 'Personal Trainer'
+  'Relacionamento', 'Tecnologia', 'Imobiliária', 'Personal Trainer'
 ];
 
 const COMMON_NICHES_EN = [
+  'Kitchen & Food', 'Pet Shop', 'Health & Hygiene', 'Finance',
   'Christian Faith', 'Health & Fitness', 'Nutritionist', 'Hairdresser', 'Esthetics',
   'Manicure', 'Lawyers', 'Psychologist', 'Plastic Surgeon', 'Baker',
   'Custom Stationery', 'Tarot', 'Housewife', 'Education',
-  'Relationships', 'Technology', 'Real Estate', 'Pet Shop', 'Personal Trainer'
+  'Relationships', 'Technology', 'Real Estate', 'Personal Trainer'
 ];
 
 const COMMON_NICHES_ES = [
+  'Cocina y Alimentos', 'Tienda de Mascotas', 'Salud e Higiene', 'Finanzas',
   'Fe Cristiana', 'Salud y Fitness', 'Nutricionista', 'Peluquera', 'Estética',
   'Manicura', 'Abogados', 'Psicóloga', 'Cirujano Plástico', 'Repostera',
   'Papelería Personalizada', 'Tarot', 'Ama de Casa', 'Educación',
-  'Relaciones', 'Tecnología', 'Inmobiliaria', 'Tienda de Mascotas', 'Personal Trainer'
+  'Relaciones', 'Tecnología', 'Inmobiliaria', 'Personal Trainer'
 ];
 
 const PERSONAS_PT: Persona[] = [

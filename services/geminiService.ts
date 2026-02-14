@@ -76,6 +76,38 @@ const callGeminiREST = async (model: string, prompt: string, taskName: string, c
   }
 };
 
+// 2026 TRENDS DATA BANK
+export const VIRAL_OBJECTS_BANK: Record<string, any[]> = {
+  "Cozinha & Alimentos": [
+    { name: "Batata frita", personality: "Furioso", example: "Se eu estiver mole em vez de crocante, me jogue fora." },
+    { name: "Massa/Macarrão", personality: "Pedagógico", example: "Por favor, não coloque óleo na água." },
+    { name: "Pão de forma", personality: "Triste", example: "Você me colocou na geladeira? Agora estou duro." },
+    { name: "Mel", personality: "Autoritário", example: "Me tira da geladeira AGORA. Eu não preciso disso." },
+    { name: "Tomate", personality: "Desesperado", example: "Não me guarda na geladeira! Me deixa amadurecer!" },
+    { name: "Air Fryer", personality: "Frustrada", example: "Você colocou papel manteiga DE NOVO?" }
+  ],
+  "Pet Shop": [
+    { name: "Ração", personality: "Carente", example: "3 semanas que você não me compra... enjoou?" },
+    { name: "Pote de água", personality: "Desesperado", example: "Tô vazio aqui, cadê meu refil?" },
+    { name: "Brinquedo", personality: "Esquecido", example: "Brinca comigo? Tô juntando teia de aranha." },
+    { name: "Coleira", personality: "Abandonada", example: "Me largaram no canto... não gostam mais de mim?" }
+  ],
+  "Saúde & Higiene": [
+    { name: "Espinha", personality: "Acusatória", example: "Dormiu com maquiagem DE NOVO? Olha pra mim." },
+    { name: "Pasta de dente", personality: "Exausta", example: "Você aperta no meio, não no fim. EU TE ODEIO." },
+    { name: "Sabonete", personality: "Seco", example: "3 dias sem me usar... você tá me deixando secar." },
+    { name: "Protetor solar", personality: "Preocupado", example: "Vai sair sem mim? O sol vai te pegar." }
+  ],
+  "Finanças": [
+    { name: "Boleto", personality: "Bravo", example: "Vou vencer amanhã e você nem viu!" },
+    { name: "Fatura", personality: "Assustadora", example: "Você gastou QUANTO esse mês?" },
+    { name: "Cofrinho", personality: "Decepcionado", example: "Mais um mês e eu continuo vazio..." },
+    { name: "App de banco", personality: "Indiferente", example: "Seu saldo: R$ 35,00. Boa sorte." }
+  ]
+};
+
+export const VIRAL_EXPRESSIONS = ["Dramático", "Sarcástico", "Motivacional", "Preocupado", "Bravo"];
+
 // Simple Caching Helper
 const getCache = <T>(key: string): T | null => {
   try {
@@ -109,9 +141,21 @@ export const generateIdeas = async (niche: string, lang: Language, skipCache = f
 
   const languageNames = { PT: 'Portuguese (Brazil)', EN: 'English', ES: 'Spanish' };
 
+  // LÓGICA DE UNICIDADE E TENDÊNCIAS 2026
+  let trendContext = "";
+  const viralNiche = Object.keys(VIRAL_OBJECTS_BANK).find(k => k.toLowerCase().includes(niche.toLowerCase()));
+
+  if (viralNiche) {
+    const objects = (VIRAL_OBJECTS_BANK as any)[viralNiche];
+    trendContext = `TREND 2026: The niche is "${viralNiche}". Use objects like: ${objects.map((o: any) => o.name).join(", ")}. 
+    Personalities to focus on: ${objects.map((o: any) => o.personality).join(", ")}. 
+    Style: Objects talking, sarcastic, exaggerated Pixar-style emotions.`;
+  }
+
   const prompt = `Express Idea Guru. Niche: "${niche}".
+${trendContext}
 Generate 10 viral "Talking Object" ideas.
-Rules: Interactive, sarcastic, viral/meme.
+Rules: Interactive, sarcastic, viral/meme. No repetitions.
 Lang: ${languageNames[lang]}.
 RETURN ONLY A VALID JSON ARRAY. NO MARKDOWN. NO CODE BLOCKS. NO COMMENTS. NO EXTRA TEXT.
 Structure: [{"id": "uid", "title": "...", "description": "...", "emoji": "..."}]`;
@@ -132,18 +176,13 @@ Structure: [{"id": "uid", "title": "...", "description": "...", "emoji": "..."}]
     }
 
     const text = jsonDelta.trim();
-    console.log(`DEBUG: [Ideas] Texto extraído para parsing (${text.length} chars)`);
-
     const ideas = JSON.parse(text);
-    if (!Array.isArray(ideas)) {
-      console.error(`DEBUG: [Ideas] Resultado não é um array!`, ideas);
-      throw new Error("IA não retornou um formato de lista válido");
-    }
+    if (!Array.isArray(ideas)) throw new Error("Formato inválido");
+
     setCache(cacheKey, ideas);
-    console.log(`DEBUG: [Ideas] Array parsed com ${ideas.length} itens`);
     return ideas;
   } catch (error: any) {
-    console.error(`DEBUG: [Ideas] Falha ao processar JSON:`, error.message);
+    console.error(`DEBUG: [Ideas] Error:`, error.message);
     throw error;
   }
 };
@@ -203,63 +242,57 @@ export const generatePrompts = async (
   const maxObjects = plan === 'Free' ? 3 : 9;
 
   const systemInstruction = `Act as the Master Storytelling Director for "Vira Express". Your goal is to generate a COMPLETE viral video strategy for a "Talking Object" scenario.
-
-  CRITICAL: VARIETY IS KEY. Never repeat the same premise (like "Shakes" or "Gym bottles") unless specifically requested. Be creative, weird, and viral. Use inanimate objects from any niche (electronics, food, office, nature).
-
+  
   You MUST return a valid JSON object with the following structure:
   {
     "sequencia_storytelling": "A brief overview of the narrative arc.",
     "objetos": [
       {
-        "id": "1",
-        "title": "Object Name",
-        "persona": "Description of its personality",
-        "imagePrompt": "A hyper-detailed prompt in ENGLISH for generating a 3D Pixar-style image of this object. Include cinematic lighting, 8k resolution, and clear character features.",
-        "imagem_prompt": "Alias for imagePrompt",
-        "cena": "principal" OR "secundario" OR "fundo" (CRITICAL: Only mark as 'principal' the objects that actually speak or are essential to the scene)
+        "id": "obj-1",
+        "title": "Sad Banana",
+        "persona": "Dramático",
+        "imagePrompt": "A 3D animated banana with dramatic face, big open mouth showing teeth, dramatic eyebrows, Pixar movie quality, kitchen background blurred, hyper realistic render, cinematic lighting, object keeps its real product shape, NO TEXT, NO LOGOS",
+        "cena": "principal"
       }
     ],
     "roteiro_unificado": [
-      {
-        "time": "0:00",
-        "text": "Dialogue line in ${languageNames[lang]}",
-        "emotion": "Expression (e.g., Sarcastic, Happy)",
-        "speaker": "Name of the object or 'Narrator'"
-      }
+      { "time": "0-2s", "text": "Presentation...", "emotion": "Dramático", "speaker": "Banana" },
+      { "time": "2-5s", "text": "Hook...", "emotion": "Pânico", "speaker": "Banana" },
+      { "time": "5-20s", "text": "Content...", "emotion": "Sarcástico", "speaker": "Banana" },
+      { "time": "20-25s", "text": "CTA...", "emotion": "Motivacional", "speaker": "Banana" }
     ],
-    "roteiro": "Full script text in ${languageNames[lang]}",
-    "videoPrompt_Tecnico": "A master prompt for VEO 3 (Video IA) in ENGLISH describing the entire scene action, camera movements, and lighting.",
-    "video_prompt": "Alias for videoPrompt_Tecnico",
-    "watermark_instruction": "Position for the watermark.",
-    "viral_score": {
-      "total": 95,
-      "hook": 98,
-      "retention": 92,
-      "cta": 95,
-      "feedback": "IA analysis of why this will go viral in ${languageNames[lang]}."
-    }
+    "viral_score": { "total": 95, "hook": 98, "retention": 92, "cta": 95, "feedback": "..." },
+    "watermark_instruction": "TEXTO DA MARCA D'ÁGUA",
+    "videoPrompt_Tecnico": "A master prompt for VEO 3 in ENGLISH describing the scene action."
   }
 
-  RULES:
-  1. 🎭 PERSONALITY: ${selectedPersona ? `${selectedPersona.name}: ${selectedPersona.trait}` : 'Viral & Sarcastic'}.
-  2. 🎭 LOGIC: Conflict -> Resolution -> Sharp CTA.
-  3. 🌐 LANGUAGE: All user-facing text (script, title, feedback) MUST be in ${languageNames[lang]}. Prompt fields MUST be in ENGLISH.
-  4. 🎨 STYLE: Pixar 3D Cinematic Animation.
-  5. 🧩 QUANTITY: Generate exactly ${maxObjects} objects in the "objetos" array.
-  6. 🎬 SCRIPT: The "roteiro_unificado" should be a multi-line dialogue between the objects. Create dynamic scenes where multiple objects interact.
-  7. 🎬 SCENE FILTER: Use the "cena" field to distinguish speaking characters ("principal") from background noise/objects.`;
+  ESTILO MANDATÓRIO (IMAGE PROMPT):
+  - "3D animated [objeto] with [expressão] face"
+  - "big open mouth showing teeth, dramatic eyebrows"
+  - "Pixar movie quality, hyper realistic render, cinematic lighting"
+  - "object keeps its real product shape but remains GENERIC"
+  - "CRITICAL: NO TRADEMARKS, NO ACTUAL BRAND LOGOS, NO WRITING"
+  - "If the object is a product (e.g., Whey Protein), remove all brand labels. You can use generic symbols or a single letter (like 'W') if necessary, but NEVER a real brand."
+  
+  LÓGICA DE ROTEIRO (TIMING):
+  - [0-2s] apresentação
+  - [2-5s] gancho
+  - [5-20s] conteúdo
+  - [20-25s] CTA
 
-  const userPrompt = refinementCommand
-    ? `ADJUST: "${refinementCommand}". CONTEXT: ${JSON.stringify(previousResult)}. GEN OBJECTS (MAX: ${maxObjects}).`
-    : `STRATEGY: ${idea.title}. DESC: ${idea.description}. PERSONA: ${selectedPersona?.name}. PLAN: ${plan}. GEN OBJECTS (MAX: ${maxObjects}).`;
+  Language: ${languageNames[lang]}.`;
 
-  const promptFinal = `${userPrompt}\n\nRETURN ONLY VALID JSON. NO MARKDOWN. NO COMMENTS. NO EXTRA TEXT.\n\nSYSTEM INSTRUCTION: ${systemInstruction}`;
+  const userPromptText = refinementCommand
+    ? `ADJUST: "${refinementCommand}". CONTEXT: ${JSON.stringify(previousResult)}. GEN OBJECTS(MAX: ${maxObjects}).`
+    : `STRATEGY: ${idea.title}. DESC: ${idea.description}. PERSONA: ${selectedPersona?.name}. PLAN: ${plan}. GEN OBJECTS(MAX: ${maxObjects}).`;
+
+  const promptFinal = `${userPromptText} \n\nRETURN ONLY VALID JSON. NO MARKDOWN. NO COMMENTS. NO EXTRA TEXT.\n\nSYSTEM INSTRUCTION: ${systemInstruction}`;
 
   try {
     const rawText = await callGeminiREST("gemini-2.0-flash", promptFinal, "Prompts", {
       temperature: 0.8,
       maxOutputTokens: 8192
-    }, 60000); // 60s timeout for strategy
+    }, 60000);
 
     let jsonDelta = rawText;
     const startIdx = jsonDelta.indexOf('{');
@@ -269,9 +302,6 @@ export const generatePrompts = async (
     }
     const text = jsonDelta.trim();
     const result = JSON.parse(text);
-
-    // Map new simplified fields if they exist in response
-    const roteiro = result.roteiro || result.roteiro_unificado?.map((l: any) => l.text).join(' ') || "";
 
     // ORDENAR ROTEIRO SEQUENCIALMENTE (1→10) para melhor UX
     let sortedRoteiro = Array.isArray(result.roteiro_unificado) ? result.roteiro_unificado : [];
@@ -292,7 +322,6 @@ export const generatePrompts = async (
         const speaker = line.speaker?.toLowerCase() || '';
         const text = line.text?.toLowerCase() || '';
 
-        // Verifica se o nome do personagem aparece no speaker ou no texto da cena
         if (speaker.includes(searchName) ||
           text.includes(searchName) ||
           (searchName.length > 3 && (speaker.includes(searchName.substring(0, 4)) || text.includes(searchName.substring(0, 4))))) {
@@ -300,7 +329,6 @@ export const generatePrompts = async (
         }
       });
 
-      // Se não encontrou de jeito nenhum, coloca na cena 1 como fallback mas loga aviso
       if (scenes.length === 0) {
         console.warn(`Aviso: Personagem "${personaName}" não foi mapeado automaticamente para nenhuma cena.`);
         return [1];
@@ -312,7 +340,7 @@ export const generatePrompts = async (
     // Processar objetos e adicionar informação de cenas
     const processedObjects = Array.isArray(result.objetos) ? result.objetos.map((obj: any) => ({
       ...obj,
-      imagePrompt: obj.imagem_prompt || obj.imagePrompt,
+      imagePrompt: obj.imagePrompt || obj.imagem_prompt,
       cena: obj.cena || 'secundario',
       scenes: extractScenes(obj.persona || obj.title || '', sortedRoteiro)
     })) : [];
@@ -321,41 +349,33 @@ export const generatePrompts = async (
       sequencia_storytelling: result.sequencia_storytelling || "",
       objetos: processedObjects,
       roteiro_unificado: sortedRoteiro,
-      videoPrompt_Tecnico: result.video_prompt || result.videoPrompt_Tecnico || "",
+      videoPrompt_Tecnico: result.videoPrompt_Tecnico || result.video_prompt || "",
       watermark_instruction: result.watermark_instruction || "",
       viral_score: result.viral_score || { total: 0, hook: 0, retention: 0, cta: 0, feedback: "" }
     };
   } catch (error: any) {
+    console.error(`DEBUG: [Prompts] Error:`, error.message);
     throw error;
   }
 };
 
-export const generateActualImage = async (imagePrompt: string, ratio: AspectRatio): Promise<string> => {
-  const prompt = `Pixar style 3D character, hyper-detailed, cinematic lighting: ${imagePrompt}`;
+export const generateActualImage = async (prompt: string, ratio: AspectRatio): Promise<string> => {
+  // REFORÇO DE LIMPEZA DE MARCA E ESTILO 2026
+  const cleanPrompt = `${prompt}. CRITICAL: NO TRADEMARKS, NO TEXT, NO LOGOS, NO WRITING, NO LABELS, NO BRAND NAMES. Pixar 3d style. Extremely high quality, cinematic lighting.`;
 
   try {
-    // Nano Banana Pro integration (Gemini 3 Pro Image Preview)
     const config = {
-      temperature: 0.7,
-      maxOutputTokens: 2048,
-      // IMPORTANTE: Adicionar aspect_ratio para respeitar escolha do usuário
       image_config: {
-        aspect_ratio: ratio // "9:16", "16:9", "1:1"
+        aspect_ratio: ratio,
+        safety_setting: "BLOCK_LOW_AND_ABOVE",
+        person_generation: "ALLOW_ALL"
       }
     };
 
-    const rawText = await callGeminiREST("gemini-3-pro-image-preview", prompt, "Nano-Banana-Pro", config, 90000, "v1beta");
-
-    if (rawText.startsWith('data:')) {
-      return rawText;
-    }
-
-    return `https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80`;
+    const response = await callGeminiREST("gemini-3-pro-image-preview", cleanPrompt, "ImageGen", config, 90000, "v1beta");
+    return response;
   } catch (error: any) {
-    console.error("Gemini 3 (Nano Banana) falhou:", error.message);
+    console.error(`DEBUG: [ImageGen] Error:`, error.message);
     throw error;
   }
 };
-
-
-

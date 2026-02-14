@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Translation, Language, ViralIdea, PromptSet, AspectRatio, Persona, UserProfile } from '../types';
+import { supabase } from '../lib/supabase';
 import {
   ArrowLeft, Copy, CheckCircle, ExternalLink, ImageIcon, RefreshCcw,
   Zap, Sparkles, Smile, Tv, Send,
@@ -152,15 +153,13 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
   };
 
   const handleImageGen = async (id: string, prompt: string, forceRegenerate = false) => {
-    // Check if image already exists and we're not forcing regeneration
+    // Check if image already exists in local state
     if (!forceRegenerate && generatedImages[id]) {
-      console.log(`DEBUG: [PromptDetail] Image already exists for ${id}, skipping generation`);
       return;
     }
 
     const imageCreditsLeft = (user.image_credits_total || 0) - (user.image_credits_used || 0);
 
-    // Lógica de Isca Free (4 imagens na primeira requisição, depois bloqueia)
     if (user.plan === 'Free' && user.image_credits_used >= 4 && user.role !== 'admin') {
       setShowExhaustedModal(true);
       return;
@@ -171,14 +170,45 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
       return;
     }
 
-    console.log(`DEBUG: [PromptDetail] Iniciando geração de imagem para objeto: ${id}`);
     setGeneratingImages(prev => ({ ...prev, [id]: true }));
     try {
+      // 1. Tentar buscar do Cache (image_library) se não for regeneração forçada
+      if (!forceRegenerate) {
+        const obj = prompts?.objetos.find(o => o.id === id);
+        if (obj) {
+          const { data: cached } = await supabase
+            .from('image_library')
+            .select('image_url')
+            .eq('object_name', obj.title)
+            .eq('expression', obj.persona)
+            .limit(1)
+            .single();
+
+          if (cached?.image_url) {
+            console.log(`DEBUG: [Cache] Imagem encontrada na biblioteca para ${obj.title} (${obj.persona})`);
+            setGeneratedImages(prev => ({ ...prev, [id]: cached.image_url }));
+            applyWatermark(id, cached.image_url);
+            return;
+          }
+        }
+      }
+
+      // 2. Se não houver cache, gera normalmente
       const imgUrl = await generateActualImage(prompt, aspectRatio as AspectRatio);
-      console.log(`DEBUG: [PromptDetail] Imagem gerada para ${id}: ${imgUrl}`);
       setGeneratedImages(prev => ({ ...prev, [id]: imgUrl }));
-      onConsumeImageCredit(); // Debit credit on success
+      onConsumeImageCredit();
       applyWatermark(id, imgUrl);
+
+      // 3. Salva na biblioteca para cache futuro
+      const obj = prompts?.objetos.find(o => o.id === id);
+      if (obj) {
+        await supabase.from('image_library').insert({
+          niche: idea.niche || 'Geral', // Adicionando fallback se niche não estiver no objeto
+          object_name: obj.title,
+          expression: obj.persona,
+          image_url: imgUrl
+        });
+      }
     } catch (err) {
       console.error("Erro na imagem:", id, err);
     } finally {
@@ -342,9 +372,22 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
 
         {/* REFINAR ESTRATÉGIA */}
         <section className="bg-[#1E293B]/60 border border-indigo-500/20 rounded-[3rem] p-8 md:p-12 space-y-8 shadow-inner">
-          <div className="flex items-center gap-4">
-            <Sparkles className="w-6 h-6 text-indigo-400" />
-            <h3 className="text-[11px] md:text-[13px] font-black uppercase tracking-[0.3em] text-indigo-300">{t.refineTitle}</h3>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Sparkles className="w-6 h-6 text-indigo-400" />
+              <h3 className="text-[11px] md:text-[13px] font-black uppercase tracking-[0.3em] text-indigo-300">{t.refineTitle}</h3>
+            </div>
+            <div className="flex gap-4">
+              <button onClick={() => loadContent("Deixe a expressão mais dramática e exagerada")} className="px-4 py-2 bg-indigo-500/10 border border-indigo-500/30 rounded-xl text-[10px] font-black uppercase tracking-widest text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all">
+                + Expressão
+              </button>
+              <button onClick={() => loadContent("Mude o cenário para algo mais inusitado")} className="px-4 py-2 bg-indigo-500/10 border border-indigo-500/30 rounded-xl text-[10px] font-black uppercase tracking-widest text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all">
+                Mudar Cenário
+              </button>
+              <button onClick={() => loadContent("Remova logotipos, textos e marcas visíveis da imagem")} className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-[10px] font-black uppercase tracking-widest text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all">
+                Remover Marcas
+              </button>
+            </div>
           </div>
           <div className="flex flex-col md:flex-row gap-6">
             <input

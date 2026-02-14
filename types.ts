@@ -38,6 +38,7 @@ export interface ViralIdea {
   title: string;
   description: string;
   emoji: string;
+  niche?: string;
   timestamp?: number;
   savedPrompts?: PromptSet;
   savedImages?: Record<string, string>; // Store generated image URLs
