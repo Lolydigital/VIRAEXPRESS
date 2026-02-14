@@ -272,4 +272,3 @@ export const TRANSLATIONS: Record<Language, Translation> = {
     trendScore: 'Tendencia'
   }
 };
-```
