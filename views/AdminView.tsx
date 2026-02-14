@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserProfile, PlanConfig } from '../types';
+import { UserProfile, PlanConfig, SubscriptionPlan } from '../types';
 import { supabase } from '../lib/supabase';
 import { BarChart3, DollarSign, TrendingUp, Users, Settings, ExternalLink, Save, RefreshCcw, Trash2 } from 'lucide-react';
 

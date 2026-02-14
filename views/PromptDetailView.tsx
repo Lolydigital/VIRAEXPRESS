@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Translation, Language, ViralIdea, PromptSet, AspectRatio, Persona, UserProfile } from '../types';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Translation, Language, ViralIdea, PromptSet, AspectRatio, Persona, UserProfile, SubscriptionPlan } from '../types';
 import { supabase } from '../lib/supabase';
 import {
   ArrowLeft, Copy, CheckCircle, ExternalLink, ImageIcon, RefreshCcw,
