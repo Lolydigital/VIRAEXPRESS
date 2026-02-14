@@ -87,10 +87,11 @@ export const VIRAL_OBJECTS_BANK: Record<string, any[]> = {
     { name: "Air Fryer", personality: "Frustrada", example: "Você colocou papel manteiga DE NOVO?" }
   ],
   "Pet Shop": [
-    { name: "Ração", personality: "Carente", example: "3 semanas que você não me compra... enjoou?" },
+    { name: "Cachorro no Banho e Tosa", personality: "Dramático", example: "Me prometeram que era só um passeio! Socorro!" },
+    { name: "Gato no Hotelzinho", personality: "Vingativo", example: "Me deixaram aqui com esses estranhos... o sofá vai sofrer quando eu voltar." },
+    { name: "Poodle Tosa de Cria", personality: "Sarcástico", example: "Olha pra mim! Agora virei um arbusto decorativo?" },
     { name: "Pote de água", personality: "Desesperado", example: "Tô vazio aqui, cadê meu refil?" },
-    { name: "Brinquedo", personality: "Esquecido", example: "Brinca comigo? Tô juntando teia de aranha." },
-    { name: "Coleira", personality: "Abandonada", example: "Me largaram no canto... não gostam mais de mim?" }
+    { name: "Coleira de Passeio", personality: "Ansiosa", example: "Vamo logo? Vamo? Vamo? O porteiro tá esperando!" }
   ],
   "Saúde & Higiene": [
     { name: "Espinha", personality: "Acusatória", example: "Dormiu com maquiagem DE NOVO? Olha pra mim." },
@@ -363,9 +364,7 @@ export const generateActualImage = async (prompt: string, ratio: AspectRatio): P
   try {
     const config = {
       image_config: {
-        aspect_ratio: ratio,
-        safety_setting: "BLOCK_LOW_AND_ABOVE",
-        person_generation: "ALLOW_ALL"
+        aspect_ratio: ratio
       }
     };
 

@@ -32,7 +32,7 @@ export const AdminView: React.FC<{ user: UserProfile }> = ({ user }) => {
         try {
             // Load users
             const { data: usersData } = await supabase
-                .from('user_credits')
+                .from('profiles')
                 .select('*')
                 .order('created_at', { ascending: false });
             setUsers(usersData || []);
@@ -119,15 +119,17 @@ export const AdminView: React.FC<{ user: UserProfile }> = ({ user }) => {
         try {
             const planConfig = plans.find(p => p.plan_name === newUserPlan);
             const { error } = await supabase
-                .from('user_credits')
+                .from('profiles')
                 .insert({
-                    user_id: newUserId,
+                    id: newUserId || crypto.randomUUID(),
+                    email: newUserEmail.toLowerCase(),
                     plan: newUserPlan,
-                    credits_total: 10, // Default script credits
+                    credits_total: newUserPlan === 'Professional' ? 9999 : 50,
                     credits_used: 0,
                     image_credits_total: planConfig?.image_quota || 4,
                     image_credits_used: 0,
-                    status: 'active'
+                    status: 'active',
+                    role: 'user'
                 });
 
             if (!error) {
