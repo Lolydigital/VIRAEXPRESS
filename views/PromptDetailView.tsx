@@ -315,60 +315,43 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
         </div>
 
 
-        {/* TERMÔMETRO DE VIRALIZAÇÃO */}
-        {prompts?.viral_score && (
-          <section className="bg-gradient-to-br from-[#1E293B]/80 to-[#0F172A]/80 border border-white/10 rounded-[2.5rem] md:rounded-[3.5rem] p-8 md:p-12 shadow-2xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-600/10 rounded-full blur-[100px] -mr-40 -mt-40"></div>
-
-            <div className="relative z-10 space-y-10">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
-                <div className="flex items-center gap-5">
-                  <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-2xl shadow-indigo-600/30 shrink-0">
-                    <BarChart3 className="w-8 h-8 text-white" />
-                  </div>
-                  <div className="text-left">
-                    <h3 className="text-xl md:text-2xl font-black text-white italic uppercase tracking-tighter">{t.viralScoreTitle}</h3>
-                    <p className="text-[10px] md:text-[11px] font-black text-indigo-400 uppercase tracking-widest leading-none">Análise de IA Nível 2026</p>
-                  </div>
-                </div>
-                <div className="text-6xl md:text-7xl font-black text-white italic tracking-tighter text-right">
-                  {prompts.viral_score.total}<span className="text-indigo-500 text-3xl md:text-4xl">/100</span>
-                </div>
+        {/* 1. SCORE VIRAL (TOP) */}
+        <section className="bg-[#1E293B]/60 border border-white/10 rounded-[3rem] p-8 md:p-12 space-y-10 shadow-2xl">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="flex items-center gap-6">
+              <div className="w-20 h-20 bg-indigo-600 rounded-[2rem] flex items-center justify-center shadow-2xl shadow-indigo-600/30">
+                <TrendingUp className="w-10 h-10 text-white" />
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
-                {[
-                  { label: t.hookLabel, value: prompts.viral_score.hook, color: 'from-indigo-600 to-indigo-400' },
-                  { label: t.retentionLabel, value: prompts.viral_score.retention, color: 'from-purple-600 to-purple-400' },
-                  { label: t.ctaLabel, value: prompts.viral_score.cta, color: 'from-cyan-600 to-cyan-400' },
-                ].map((stat, i) => (
-                  <div key={i} className="space-y-4">
-                    <div className="flex justify-between items-end px-1">
-                      <span className="text-[10px] md:text-[11px] font-black text-gray-500 uppercase tracking-widest leading-none">{stat.label}</span>
-                      <span className="text-xl md:text-2xl font-black text-white italic leading-none">{stat.value}%</span>
-                    </div>
-                    <div className="h-4 md:h-5 bg-white/5 rounded-full overflow-hidden border border-white/5 p-[3px]">
-                      <div
-                        className={`h-full rounded-full bg-gradient-to-r ${stat.color} transition-all duration-1000 ease-out`}
-                        style={{ width: `${stat.value}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="bg-black/40 border border-white/5 rounded-[2rem] p-6 md:p-8 space-y-4">
-                <div className="flex items-center gap-3 text-indigo-400">
-                  <Info className="w-5 h-5" />
-                  <span className="text-[10px] md:text-[11px] font-black uppercase tracking-widest">{t.feedbackLabel}</span>
-                </div>
-                <p className="text-sm md:text-base text-gray-300 font-medium leading-relaxed italic text-left">
-                  "{prompts.viral_score.feedback}"
-                </p>
+              <div>
+                <h3 className="text-3xl font-black text-white italic uppercase tracking-tighter">{t.viralScore}</h3>
+                <p className="text-indigo-400 font-bold uppercase tracking-widest text-[11px]">{t.viralDescription}</p>
               </div>
             </div>
-          </section>
-        )}
+            <div className="flex items-center gap-4">
+              <span className="text-6xl font-black text-white italic tracking-tighter">{prompts?.viral_score?.total || 0}</span>
+              <span className="text-3xl font-black text-indigo-500/50 uppercase italic tracking-tighter">/100</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              { label: t.hookScore || 'Gancho', val: prompts?.viral_score?.hook || 0, color: 'bg-emerald-500' },
+              { label: t.retentionScore || 'Retenção', val: prompts?.viral_score?.retention || 0, color: 'bg-blue-500' },
+              { label: t.ctaScore || 'CTA', val: prompts?.viral_score?.cta || 0, color: 'bg-indigo-500' },
+              { label: t.trendScore || 'Trend', val: 95, color: 'bg-pink-500' }
+            ].map(s => (
+              <div key={s.label} className="space-y-3">
+                <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-gray-500">
+                  <span>{s.label}</span>
+                  <span>{s.val}%</span>
+                </div>
+                <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                  <div className={`h-full ${s.color} transition-all duration-1000`} style={{ width: `${s.val}%` }}></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
 
         {/* AJUSTES E REFINAMENTO */}
         <section className="bg-[#1E293B]/60 border border-white/10 rounded-[3rem] p-10 md:p-14 space-y-12 shadow-2xl">
