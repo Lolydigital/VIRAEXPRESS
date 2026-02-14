@@ -370,7 +370,7 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
             <div className="h-px flex-1 bg-white/10 hidden md:block"></div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
-            {Array.isArray(prompts?.objetos) && prompts.objetos.map((obj) => (
+            {Array.isArray(prompts?.objetos) && prompts.objetos.filter(obj => obj.cena === 'principal').map((obj) => (
               <div key={obj.id} className="bg-[#1E293B]/60 border border-white/10 rounded-[3rem] overflow-hidden group hover:border-indigo-500/50 transition-all flex flex-col shadow-2xl">
                 <div className="p-8 border-b border-white/10 bg-black/20 space-y-6">
                   <div className="flex items-center justify-between">
