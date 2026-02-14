@@ -48,6 +48,7 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
 
       // Only generate images for principal objects that don't have saved images
       if (Array.isArray(restoredPrompts.objetos)) {
+        const imageCreditsLeft = (user.image_credits_total || 0) - (user.image_credits_used || 0);
         let availableCredits = imageCreditsLeft;
         restoredPrompts.objetos.forEach((obj: any) => {
           if (obj.cena === 'principal' && !idea?.savedImages?.[obj.id]) {
@@ -459,11 +460,11 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
                   <div className="p-5 bg-black/50 rounded-2xl border border-white/5 group-hover:border-indigo-500/30 transition-all space-y-3">
                     <p className="text-[11px] md:text-[12px] font-medium font-mono text-gray-400 line-clamp-3 italic leading-relaxed text-left">{obj.imagePrompt}</p>
 
-                    {/* INDICADOR DE CENAS */}
+                    {/* INDICADOR DE CENAS (Mastigado para TDAH) */}
                     {obj.scenes && obj.scenes.length > 0 && (
                       <div className="flex items-center gap-2 pt-2 border-t border-white/5">
-                        <span className="text-[10px] font-black text-gray-500 uppercase tracking-wider">🎭 Aparece nas cenas:</span>
-                        <span className="text-[11px] font-bold text-indigo-400">{obj.scenes.join(', ')}</span>
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">📌 Use nas CENAS:</span>
+                        <span className="text-[11px] font-black text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-md">{obj.scenes.join(', ')}</span>
                       </div>
                     )}
                   </div>

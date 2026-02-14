@@ -87,8 +87,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
 
     try {
       const finalNiche = method === 'list' ? selectedNiche : customNiche;
-      console.log(`DEBUG: [Dashboard] Chamando generateIdeas para niche: ${finalNiche}`);
-      const result = await generateIdeas(finalNiche || 'viral talking objects', language);
+      console.log(`DEBUG: [Dashboard] Chamando generateIdeas para niche: ${finalNiche} (isMore: ${isMore})`);
+      const result = await generateIdeas(finalNiche || 'viral talking objects', language, isMore);
       console.log(`DEBUG: [Dashboard] Resultado recebido:`, result);
 
       if (result && Array.isArray(result)) {

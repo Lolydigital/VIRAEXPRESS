@@ -100,10 +100,12 @@ const setCache = (key: string, data: any, ttlHours = 24) => {
   }
 };
 
-export const generateIdeas = async (niche: string, lang: Language): Promise<ViralIdea[]> => {
+export const generateIdeas = async (niche: string, lang: Language, skipCache = false): Promise<ViralIdea[]> => {
   const cacheKey = `ideas_${niche}_${lang}`;
-  const cached = getCache<ViralIdea[]>(cacheKey);
-  if (cached) return cached;
+  if (!skipCache) {
+    const cached = getCache<ViralIdea[]>(cacheKey);
+    if (cached) return cached;
+  }
 
   const languageNames = { PT: 'Portuguese (Brazil)', EN: 'English', ES: 'Spanish' };
 
@@ -281,16 +283,30 @@ export const generatePrompts = async (
       });
     }
 
-    // EXTRAIR CENAS ONDE CADA PERSONAGEM APARECE
+    // EXTRAIR CENAS ONDE CADA PERSONAGEM APARECE (Lógica mais robusta para TDAH)
     const extractScenes = (personaName: string, script: any[]): number[] => {
       const scenes: number[] = [];
+      const searchName = personaName.toLowerCase().trim();
+
       script.forEach((line: any, index: number) => {
-        if (line.speaker?.toLowerCase().includes(personaName.toLowerCase()) ||
-          line.text?.toLowerCase().includes(personaName.toLowerCase())) {
+        const speaker = line.speaker?.toLowerCase() || '';
+        const text = line.text?.toLowerCase() || '';
+
+        // Verifica se o nome do personagem aparece no speaker ou no texto da cena
+        if (speaker.includes(searchName) ||
+          text.includes(searchName) ||
+          (searchName.length > 3 && (speaker.includes(searchName.substring(0, 4)) || text.includes(searchName.substring(0, 4))))) {
           scenes.push(index + 1);
         }
       });
-      return scenes.length > 0 ? scenes : [1]; // Default: aparece na cena 1
+
+      // Se não encontrou de jeito nenhum, coloca na cena 1 como fallback mas loga aviso
+      if (scenes.length === 0) {
+        console.warn(`Aviso: Personagem "${personaName}" não foi mapeado automaticamente para nenhuma cena.`);
+        return [1];
+      }
+
+      return [...new Set(scenes)].sort((a, b) => a - b);
     };
 
     // Processar objetos e adicionar informação de cenas
