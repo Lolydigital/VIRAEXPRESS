@@ -150,12 +150,12 @@ export const AdminView: React.FC<{ user: UserProfile }> = ({ user }) => {
         try {
             const planConfig = plans.find(p => p.plan_name === newPlanName);
             const { error } = await supabase
-                .from('user_credits')
+                .from('profiles')
                 .update({
                     plan: newPlanName,
                     image_credits_total: planConfig?.image_quota || 4
                 })
-                .eq('user_id', userIdToUpdate);
+                .eq('id', userIdToUpdate);
 
             if (!error) {
                 await loadAdminData();
@@ -172,9 +172,9 @@ export const AdminView: React.FC<{ user: UserProfile }> = ({ user }) => {
         setSaving(true);
         try {
             const { error } = await supabase
-                .from('user_credits')
+                .from('profiles')
                 .delete()
-                .eq('user_id', userIdToDelete);
+                .eq('id', userIdToDelete);
 
             if (!error) {
                 await loadAdminData();
@@ -441,12 +441,12 @@ export const AdminView: React.FC<{ user: UserProfile }> = ({ user }) => {
                             </thead>
                             <tbody>
                                 {users.map(u => (
-                                    <tr key={u.user_id} className="border-b border-white/5 hover:bg-white/5">
-                                        <td className="py-4 px-4 text-sm text-white font-mono">{u.user_id}</td>
+                                    <tr key={u.id} className="border-b border-white/5 hover:bg-white/5">
+                                        <td className="py-4 px-4 text-sm text-white font-mono">{u.email}</td>
                                         <td className="py-4 px-4">
                                             <select
                                                 value={u.plan}
-                                                onChange={(e) => updateUserPlan(u.user_id, e.target.value as SubscriptionPlan)}
+                                                onChange={(e) => updateUserPlan(u.id, e.target.value as SubscriptionPlan)}
                                                 className="bg-black/40 border border-white/10 rounded-lg py-1 px-2 text-xs text-white"
                                                 disabled={saving}
                                             >
@@ -472,7 +472,7 @@ export const AdminView: React.FC<{ user: UserProfile }> = ({ user }) => {
                                                 {u.status}
                                             </span>
                                             <button
-                                                onClick={() => deleteUser(u.user_id)}
+                                                onClick={() => deleteUser(u.id)}
                                                 className="p-2 text-gray-500 hover:text-red-400 transition-colors"
                                                 title="Excluir Usuário"
                                             >
