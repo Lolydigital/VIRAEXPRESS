@@ -472,7 +472,7 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
                     <div className="flex items-center gap-3 bg-indigo-500/10 border border-indigo-500/20 px-4 py-2 rounded-xl">
                       <span className="text-[14px]">🎭</span>
                       <span className="text-[10px] font-black uppercase tracking-widest text-indigo-300">
-                        APARECE NAS CENAS: {obj.scenes.join(', ')}
+                        {t.appearsInScenes || 'APARECE NAS CENAS'}: {obj.scenes.join(', ')}
                       </span>
                     </div>
                   )}

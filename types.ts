@@ -181,4 +181,5 @@ export interface Translation {
   retentionScore: string;
   ctaScore: string;
   trendScore: string;
+  appearsInScenes: string;
 }

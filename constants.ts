@@ -123,7 +123,8 @@ export const TRANSLATIONS: Record<Language, Translation> = {
     hookScore: 'Gancho',
     retentionScore: 'Retenção',
     ctaScore: 'Chamada',
-    trendScore: 'Tendência'
+    trendScore: 'Tendência',
+    appearsInScenes: 'APARECE NAS CENAS'
   },
   EN: {
     title: 'ViraExpress',
@@ -196,7 +197,8 @@ export const TRANSLATIONS: Record<Language, Translation> = {
     hookScore: 'Hook',
     retentionScore: 'Retention',
     ctaScore: 'CTA',
-    trendScore: 'Trend'
+    trendScore: 'Trend',
+    appearsInScenes: 'APPEARS IN SCENES'
   },
   ES: {
     title: 'ViraExpress',
