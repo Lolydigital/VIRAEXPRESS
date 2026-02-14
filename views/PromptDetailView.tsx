@@ -16,7 +16,7 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
   const navigate = useNavigate();
   const { idea, aspectRatio, imageInput, persona, restoredPrompts } = location.state || {};
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [refining, setRefining] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [refinementText, setRefinementText] = useState('');
@@ -55,7 +55,9 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
     }
 
     try {
+      console.log(`DEBUG: [PromptDetail] Iniciando geração de estratégia para: ${idea.title}`);
       const pResult = await generatePrompts(idea, language, aspectRatio as AspectRatio, 'viral', imageInput, refinement, prompts || undefined, persona, user.plan);
+      console.log(`DEBUG: [PromptDetail] Estratégia recebida com sucesso:`, pResult);
       setPrompts(pResult);
 
       pResult.objetos.forEach(async (obj) => {
@@ -115,9 +117,11 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
   };
 
   const handleImageGen = async (id: string, prompt: string) => {
+    console.log(`DEBUG: [PromptDetail] Iniciando geração de imagem para objeto: ${id}`);
     setGeneratingImages(prev => ({ ...prev, [id]: true }));
     try {
       const imgUrl = await generateActualImage(prompt, aspectRatio as AspectRatio);
+      console.log(`DEBUG: [PromptDetail] Imagem gerada para ${id}: ${imgUrl}`);
       setGeneratedImages(prev => ({ ...prev, [id]: imgUrl }));
       applyWatermark(id, imgUrl);
     } catch (err) {
