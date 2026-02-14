@@ -33,7 +33,7 @@ const callGeminiREST = async (model: string, prompt: string, taskName: string, c
     }
   };
 
-  console.log(`DEBUG: [${taskName}] Iniciando chamada REST Gemini 2.0 Flash...`);
+  console.log(`DEBUG: [${taskName}] Iniciando chamada REST Gemini (${model})...`);
 
   try {
     const response = await withTimeout(fetch(url, {
@@ -50,15 +50,26 @@ const callGeminiREST = async (model: string, prompt: string, taskName: string, c
 
     const result = await response.json();
     console.log(`DEBUG: [${taskName}] Resposta JSON bruta:`, result);
-    const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
 
-    if (!text) {
-      console.error(`DEBUG: [${taskName}] Resposta sem conteúdo (candidates vazio ou parts ausente):`, result);
+    const parts = result.candidates?.[0]?.content?.parts;
+    if (!parts || parts.length === 0) {
+      console.error(`DEBUG: [${taskName}] Resposta sem conteúdo:`, result);
       throw new Error("IA retornou resposta sem conteúdo");
     }
 
-    console.log(`DEBUG: [${taskName}] Sucesso (Texto extraído)`);
-    return text;
+    // Procura por texto ou imagem (inlineData)
+    for (const part of parts) {
+      if (part.text) {
+        console.log(`DEBUG: [${taskName}] Sucesso (Texto encontrado)`);
+        return part.text;
+      }
+      if (part.inlineData) {
+        console.log(`DEBUG: [${taskName}] Sucesso (Imagem encontrada)`);
+        return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+      }
+    }
+
+    throw new Error("Nenhum conteúdo (texto ou imagem) encontrado na resposta");
   } catch (error: any) {
     console.error(`DEBUG: [${taskName}] Falha na chamada:`, error.message);
     throw error;
