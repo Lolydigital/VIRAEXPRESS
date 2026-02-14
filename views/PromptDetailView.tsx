@@ -37,9 +37,17 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
   const loadContent = async (refinement?: string) => {
     if (!refinement && restoredPrompts) {
       setLoading(false);
+
+      // Restore saved images if they exist (avoid regeneration)
+      if (idea?.savedImages) {
+        setGeneratedImages(idea.savedImages);
+        console.log('DEBUG: [PromptDetail] Restored saved images from DB');
+      }
+
+      // Only generate images for principal objects that don't have saved images
       if (Array.isArray(restoredPrompts.objetos)) {
         restoredPrompts.objetos.forEach((obj: any) => {
-          if (obj.cena === 'principal') {
+          if (obj.cena === 'principal' && !idea?.savedImages?.[obj.id]) {
             handleImageGen(obj.id, obj.imagePrompt);
           }
         });
@@ -130,7 +138,13 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
     img.src = originalUrl;
   };
 
-  const handleImageGen = async (id: string, prompt: string) => {
+  const handleImageGen = async (id: string, prompt: string, forceRegenerate = false) => {
+    // Check if image already exists and we're not forcing regeneration
+    if (!forceRegenerate && generatedImages[id]) {
+      console.log(`DEBUG: [PromptDetail] Image already exists for ${id}, skipping generation`);
+      return;
+    }
+
     const imageCreditsLeft = (user.image_credits_total || 0) - (user.image_credits_used || 0);
 
     // Lógica de Isca Free (4 imagens na primeira requisição, depois bloqueia)
@@ -170,6 +184,17 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
 
   useEffect(() => { if (!idea) navigate('/dashboard'); else loadContent(); }, [idea]);
 
+  // Auto-apply watermark when userHandle changes
+  useEffect(() => {
+    if (userHandle && userHandle !== '@SeuHandle') {
+      Object.keys(generatedImages).forEach(id => {
+        if (generatedImages[id]) {
+          applyWatermark(id, generatedImages[id]);
+        }
+      });
+    }
+  }, [userHandle]);
+
   const handleCopy = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
     setCopied(key);
@@ -194,6 +219,7 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
         await onSave({
           ...idea,
           savedPrompts: prompts,
+          savedImages: generatedImages, // Save generated images to avoid regeneration
           aspectRatio,
           persona,
           userHandle,
@@ -210,10 +236,10 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
   };
 
   const flowTools = [
-    { name: 'GEMINI', icon: <Sparkles className="w-5 h-5" />, url: 'https://gemini.google.com', color: 'bg-blue-600/20 text-blue-400 border-blue-500/30' },
-    { name: 'VEO 3', icon: <Tv className="w-5 h-5" />, url: 'https://labs.google/veo', color: 'bg-indigo-600/20 text-indigo-400 border-indigo-500/30' },
-    { name: 'CAPCUT', icon: <Scissors className="w-5 h-5" />, url: 'https://www.capcut.com', color: 'bg-gray-600/20 text-white border-white/20' },
-    { name: 'REMOVE LOGO', icon: <Droplets className="w-5 h-5" />, url: 'https://watermarkremover.io', color: 'bg-cyan-600/20 text-cyan-400 border-cyan-500/30' }
+    { name: 'GEMINI', label: 'Roteiros com IA', icon: <Sparkles className="w-5 h-5" />, url: 'https://gemini.google.com', color: 'bg-blue-600/20 text-blue-400 border-blue-500/30' },
+    { name: 'VEO 3', label: 'Gerar vídeo com IA', icon: <Tv className="w-5 h-5" />, url: 'https://labs.google/veo', color: 'bg-indigo-600/20 text-indigo-400 border-indigo-500/30' },
+    { name: 'CAPCUT', label: 'Editar vídeo', icon: <Scissors className="w-5 h-5" />, url: 'https://www.capcut.com', color: 'bg-gray-600/20 text-white border-white/20' },
+    { name: 'REMOVE LOGO', label: 'Remover marca d\'água', icon: <Droplets className="w-5 h-5" />, url: 'https://watermarkremover.io', color: 'bg-cyan-600/20 text-cyan-400 border-cyan-500/30' }
   ];
 
   if (loading) return (
@@ -561,10 +587,14 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
                 href={tool.url}
                 target="_blank"
                 rel="noreferrer"
-                className={`w-14 h-14 md:w-20 md:h-20 ${tool.color} backdrop-blur-3xl border border-white/20 rounded-[1.5rem] md:rounded-[2rem] flex items-center justify-center hover:scale-125 transition-all group shadow-2xl hover:z-10`}
-                title={tool.name}
+                className="flex flex-col items-center gap-2 group"
               >
-                <div className="scale-90 md:scale-125 group-hover:rotate-6 transition-transform">{tool.icon}</div>
+                <div className={`w-14 h-14 md:w-20 md:h-20 ${tool.color} backdrop-blur-3xl border border-white/20 rounded-[1.5rem] md:rounded-[2rem] flex items-center justify-center hover:scale-110 transition-all shadow-2xl`}>
+                  <div className="scale-90 md:scale-125 group-hover:rotate-6 transition-transform">{tool.icon}</div>
+                </div>
+                <span className="text-[8px] md:text-[9px] font-black text-gray-400 uppercase tracking-wider text-center max-w-[80px] leading-tight group-hover:text-white transition-colors">
+                  {tool.label}
+                </span>
               </a>
             ))}
           </div>

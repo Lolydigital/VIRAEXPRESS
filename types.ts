@@ -40,6 +40,7 @@ export interface ViralIdea {
   emoji: string;
   timestamp?: number;
   savedPrompts?: PromptSet;
+  savedImages?: Record<string, string>; // Store generated image URLs
   aspectRatio?: AspectRatio;
   persona?: Persona;
   userHandle?: string;
