@@ -1,6 +1,6 @@
 
 export type Language = 'PT' | 'EN' | 'ES';
-export type AspectRatio = '9:16' | '16:9';
+export type AspectRatio = '9:16' | '16:9' | '1:1';
 export type GenerationMode = 'viral' | 'tiktok_shop' | 'realism' | 'tone';
 export type UserRole = 'user' | 'admin';
 export type SubscriptionPlan = 'Free' | 'Basic' | 'Professional';
@@ -60,6 +60,7 @@ export interface StorytellingObject {
   persona: string;
   imagePrompt: string;
   cena?: 'principal' | 'secundario' | 'fundo';
+  scenes?: number[]; // Cenas onde este personagem/objeto aparece [1, 2, 5, 7]
 }
 
 export interface ViralScore {

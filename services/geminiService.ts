@@ -271,14 +271,40 @@ export const generatePrompts = async (
     // Map new simplified fields if they exist in response
     const roteiro = result.roteiro || result.roteiro_unificado?.map((l: any) => l.text).join(' ') || "";
 
+    // ORDENAR ROTEIRO SEQUENCIALMENTE (1→10) para melhor UX
+    let sortedRoteiro = Array.isArray(result.roteiro_unificado) ? result.roteiro_unificado : [];
+    if (sortedRoteiro.length > 0) {
+      sortedRoteiro.sort((a: any, b: any) => {
+        const numA = parseInt(a.time?.match(/\d+/)?.[0] || '0');
+        const numB = parseInt(b.time?.match(/\d+/)?.[0] || '0');
+        return numA - numB;
+      });
+    }
+
+    // EXTRAIR CENAS ONDE CADA PERSONAGEM APARECE
+    const extractScenes = (personaName: string, script: any[]): number[] => {
+      const scenes: number[] = [];
+      script.forEach((line: any, index: number) => {
+        if (line.speaker?.toLowerCase().includes(personaName.toLowerCase()) ||
+          line.text?.toLowerCase().includes(personaName.toLowerCase())) {
+          scenes.push(index + 1);
+        }
+      });
+      return scenes.length > 0 ? scenes : [1]; // Default: aparece na cena 1
+    };
+
+    // Processar objetos e adicionar informação de cenas
+    const processedObjects = Array.isArray(result.objetos) ? result.objetos.map((obj: any) => ({
+      ...obj,
+      imagePrompt: obj.imagem_prompt || obj.imagePrompt,
+      cena: obj.cena || 'secundario',
+      scenes: extractScenes(obj.persona || obj.title || '', sortedRoteiro)
+    })) : [];
+
     return {
       sequencia_storytelling: result.sequencia_storytelling || "",
-      objetos: Array.isArray(result.objetos) ? result.objetos.map((obj: any) => ({
-        ...obj,
-        imagePrompt: obj.imagem_prompt || obj.imagePrompt,
-        cena: obj.cena || 'secundario'
-      })) : [],
-      roteiro_unificado: Array.isArray(result.roteiro_unificado) ? result.roteiro_unificado : [],
+      objetos: processedObjects,
+      roteiro_unificado: sortedRoteiro,
       videoPrompt_Tecnico: result.video_prompt || result.videoPrompt_Tecnico || "",
       watermark_instruction: result.watermark_instruction || "",
       viral_score: result.viral_score || { total: 0, hook: 0, retention: 0, cta: 0, feedback: "" }
@@ -295,7 +321,11 @@ export const generateActualImage = async (imagePrompt: string, ratio: AspectRati
     // Nano Banana Pro integration (Gemini 3 Pro Image Preview)
     const config = {
       temperature: 0.7,
-      maxOutputTokens: 2048
+      maxOutputTokens: 2048,
+      // IMPORTANTE: Adicionar aspect_ratio para respeitar escolha do usuário
+      image_config: {
+        aspect_ratio: ratio // "9:16", "16:9", "1:1"
+      }
     };
 
     const rawText = await callGeminiREST("gemini-3-pro-image-preview", prompt, "Nano-Banana-Pro", config, 90000, "v1beta");

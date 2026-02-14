@@ -397,6 +397,36 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
             <h3 className="text-2xl md:text-3xl font-black text-white uppercase italic tracking-tighter shrink-0">{t.imagePromptTitle}</h3>
             <div className="h-px flex-1 bg-white/10 hidden md:block"></div>
           </div>
+
+          {/* AVISO DE CRÉDITO INSUFICIENTE */}
+          {(() => {
+            const principalCharacters = prompts?.objetos?.filter(obj => obj.cena === 'principal') || [];
+            const imageCreditsLeft = (user.image_credits_total || 0) - (user.image_credits_used || 0);
+
+            if (principalCharacters.length > imageCreditsLeft && imageCreditsLeft > 0) {
+              return (
+                <div className="bg-yellow-600/20 border-2 border-yellow-500/50 rounded-2xl p-6 space-y-3">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="w-6 h-6 text-yellow-400 shrink-0 mt-1" />
+                    <div className="space-y-2">
+                      <p className="text-yellow-400 font-bold text-sm md:text-base">
+                        ⚠️ Você tem {imageCreditsLeft} {imageCreditsLeft === 1 ? 'crédito' : 'créditos'}, mas o roteiro tem {principalCharacters.length} personagens.
+                      </p>
+                      <p className="text-sm text-gray-300">
+                        Serão geradas {imageCreditsLeft} {imageCreditsLeft === 1 ? 'imagem' : 'imagens'}. Para os personagens restantes, você pode:
+                      </p>
+                      <ul className="text-sm text-gray-300 space-y-1 ml-4">
+                        <li>• Gerar manualmente depois</li>
+                        <li>• Fazer upgrade do plano para mais créditos</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+            return null;
+          })()}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
             {Array.isArray(prompts?.objetos) && prompts.objetos.filter(obj => obj.cena === 'principal').map((obj) => (
               <div key={obj.id} className="bg-[#1E293B]/60 border border-white/10 rounded-[3rem] overflow-hidden group hover:border-indigo-500/50 transition-all flex flex-col shadow-2xl">
@@ -416,8 +446,16 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
                       </button>
                     </div>
                   </div>
-                  <div className="p-5 bg-black/50 rounded-2xl border border-white/5 group-hover:border-indigo-500/30 transition-all">
+                  <div className="p-5 bg-black/50 rounded-2xl border border-white/5 group-hover:border-indigo-500/30 transition-all space-y-3">
                     <p className="text-[11px] md:text-[12px] font-medium font-mono text-gray-400 line-clamp-3 italic leading-relaxed text-left">{obj.imagePrompt}</p>
+
+                    {/* INDICADOR DE CENAS */}
+                    {obj.scenes && obj.scenes.length > 0 && (
+                      <div className="flex items-center gap-2 pt-2 border-t border-white/5">
+                        <span className="text-[10px] font-black text-gray-500 uppercase tracking-wider">🎭 Aparece nas cenas:</span>
+                        <span className="text-[11px] font-bold text-indigo-400">{obj.scenes.join(', ')}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className={`relative bg-black flex items-center justify-center overflow-hidden flex-1 ${aspectRatio === '9:16' ? 'aspect-[9/16]' : 'aspect-[16/9]'}`}>
