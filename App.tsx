@@ -101,13 +101,12 @@ const App: React.FC = () => {
 
   const updateCredits = async (used: number) => {
     if (!user) return;
-    // Roteiros ilimitados para o Free
-    if (user.plan === 'Free') return;
 
+    // Contagem de pedidos (scripts) para todos os planos
     const newUsed = (user.credits_used || 0) + used;
     const updatedUser = { ...user, credits_used: newUsed };
     setUser(updatedUser);
-    localStorage.setItem('activeUser', JSON.stringify(updatedUser)); // Immediate persistence
+    localStorage.setItem('activeUser', JSON.stringify(updatedUser));
     await supabase.from('profiles').update({ credits_used: newUsed }).eq('id', user.id);
   };
 

@@ -182,4 +182,13 @@ export interface Translation {
   ctaScore: string;
   trendScore: string;
   appearsInScenes: string;
+
+  // Credit & Plan Limits
+  creditLimitTitle: string;
+  creditLimitMessage: string;
+  imageLimitTitle: string;
+  imageLimitMessage: string;
+  upgradeNow: string;
+  micNotSupported: string;
+  micListening: string;
 }

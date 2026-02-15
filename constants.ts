@@ -124,7 +124,14 @@ export const TRANSLATIONS: Record<Language, Translation> = {
     retentionScore: 'Retenção',
     ctaScore: 'Chamada',
     trendScore: 'Tendência',
-    appearsInScenes: 'APARECE NAS CENAS'
+    appearsInScenes: 'APARECE NAS CENAS',
+    creditLimitTitle: 'Limite de Roteiros Atingido',
+    creditLimitMessage: 'Você atingiu o limite de roteiros do seu plano. Faça upgrade agora para continuar criando!',
+    imageLimitTitle: 'Limite de Imagens Atingido',
+    imageLimitMessage: 'Você atingiu sua cota de imagens. Assine um plano Pro para créditos ilimitados!',
+    upgradeNow: 'Fazer Upgrade Agora',
+    micNotSupported: 'Seu navegador não suporta reconhecimento de voz.',
+    micListening: 'Ouvindo...',
   },
   EN: {
     title: 'ViraExpress',
@@ -198,7 +205,14 @@ export const TRANSLATIONS: Record<Language, Translation> = {
     retentionScore: 'Retention',
     ctaScore: 'CTA',
     trendScore: 'Trend',
-    appearsInScenes: 'APPEARS IN SCENES'
+    appearsInScenes: 'APPEARS IN SCENES',
+    creditLimitTitle: 'Script Limit Reached',
+    creditLimitMessage: 'You have reached the script limit for your plan. Upgrade now to keep creating!',
+    imageLimitTitle: 'Image Limit Reached',
+    imageLimitMessage: 'You have reached your image quota. Subscribe to a Pro plan for more credits!',
+    upgradeNow: 'Upgrade Now',
+    micNotSupported: 'Your browser does not support voice recognition.',
+    micListening: 'Listening...',
   },
   ES: {
     title: 'ViraExpress',
@@ -272,6 +286,13 @@ export const TRANSLATIONS: Record<Language, Translation> = {
     retentionScore: 'Retención',
     ctaScore: 'Llamada',
     trendScore: 'Tendencia',
-    appearsInScenes: 'APARECE EN LAS ESCENAS'
+    appearsInScenes: 'APARECE EN LAS ESCENAS',
+    creditLimitTitle: 'Límite de Guiones Alcanzado',
+    creditLimitMessage: 'Has alcanzado el límite de guiones de tu plan. ¡Actualiza ahora para seguir creando!',
+    imageLimitTitle: 'Límite de Imágenes Alcanzado',
+    imageLimitMessage: 'Has alcanzado tu cuota de imágenes. ¡Suscríbete a un plan Pro para más créditos!',
+    upgradeNow: 'Actualizar Ahora',
+    micNotSupported: 'Tu navegador no admite el reconocimiento de voz.',
+    micListening: 'Escuchando...',
   }
 };

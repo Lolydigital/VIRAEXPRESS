@@ -7,8 +7,9 @@ import {
   ArrowLeft, Copy, CheckCircle, ExternalLink, ImageIcon, RefreshCcw,
   Zap, Sparkles, Smile, Tv, Send,
   ShieldCheck, DownloadCloud, Scissors, Droplets, AtSign, Upload, Video, Trash2,
-  AlertCircle, BarChart3, Info, TrendingUp
+  AlertCircle, BarChart3, Info, TrendingUp, Mic
 } from 'lucide-react';
+import { useSpeechToText } from '../hooks/useSpeechToText';
 import { generatePrompts, generateActualImage } from '../services/geminiService';
 import { AIErrorsModal } from '../components/AIErrorsModal';
 import { WhatsAppButton } from '../components/WhatsAppButton';
@@ -30,6 +31,10 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
   const [showExhaustedModal, setShowExhaustedModal] = useState(false);
   const [userHandle, setUserHandle] = useState(idea?.userHandle || '@SeuHandle');
   const [finalVideo, setFinalVideo] = useState<string | null>(idea?.finalVideoUrl || null);
+
+  const { isListening, startListening, stopListening } = useSpeechToText((text) => {
+    setRefinementText(prev => prev ? `${prev} ${text}` : text);
+  });
   const [errorModalOpen, setErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -160,7 +165,10 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
 
     const imageCreditsLeft = (user.image_credits_total || 0) - (user.image_credits_used || 0);
 
-    if (user.plan === 'Free' && user.image_credits_used >= 4 && user.role !== 'admin') {
+    const limit = user.plan === 'Free' ? 4 : 30;
+    const used = user.image_credits_used || 0;
+
+    if (used >= limit && user.role !== 'admin') {
       setShowExhaustedModal(true);
       return;
     }
@@ -383,8 +391,11 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
                 onChange={(e) => setRefinementText(e.target.value)}
                 className="w-full min-h-[120px] px-8 py-6 bg-black/50 border border-white/10 rounded-[2rem] text-sm md:text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-white transition-all resize-none shadow-inner leading-relaxed pr-16"
               />
-              <button className="absolute right-6 top-6 text-gray-500 hover:text-indigo-400 transition-colors">
-                <Mic className="w-6 h-6" />
+              <button
+                onClick={() => isListening ? stopListening() : startListening(language === 'PT' ? 'pt-BR' : 'en-US')}
+                className={`absolute right-6 top-6 p-2 rounded-xl transition-all ${isListening ? 'bg-red-500/20 text-red-400 animate-pulse' : 'text-gray-500 hover:text-indigo-400 hover:bg-white/5'}`}
+              >
+                <Mic className={`w-6 h-6 ${isListening ? 'scale-110' : ''}`} />
               </button>
             </div>
             <button

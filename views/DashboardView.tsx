@@ -12,6 +12,8 @@ import { generateIdeas, discoverTrends } from '../services/geminiService';
 import { AIErrorsModal } from '../components/AIErrorsModal';
 import { WhatsAppButton } from '../components/WhatsAppButton';
 import { PlanCards } from '../components/PlanCards';
+import { useSpeechToText } from '../hooks/useSpeechToText';
+import { Mic } from 'lucide-react';
 
 interface DashboardViewProps {
   user: UserProfile;
@@ -42,6 +44,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
 
   const navigate = useNavigate();
 
+  const { isListening, startListening, stopListening } = useSpeechToText((text) => {
+    setCustomNiche(prev => prev ? `${prev} ${text}` : text);
+  });
+
   const scriptsLeft = user.credits_total - user.credits_used;
   const imageCreditsLeft = (user.image_credits_total || 0) - (user.image_credits_used || 0);
 
@@ -69,7 +75,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
   const handleGenerate = async (isMore = false) => {
     const scriptsLeft = user.credits_total - user.credits_used;
     if (scriptsLeft <= 0 && user.role !== 'admin') {
-      alert("Você atingiu o limite de roteiros do seu plano. Faça upgrade para continuar!");
+      alert(t.creditLimitMessage);
       return;
     }
 
