@@ -122,6 +122,7 @@ export interface Translation {
   generateIdeasTitle: string;
   chooseNiche: string;
   manualNiche: string;
+  manualNichePlaceholder: string;
   nicheLabel: string;
   formatLabel: string;
   generateButton: string;
