@@ -85,7 +85,26 @@ const App: React.FC = () => {
         throw new Error("Seu acesso está inativo ou foi cancelado.");
       }
 
-      // 3. Atualiza o último login em background
+      // 3. Normalização de Cotas para Usuários Antigos (Reparo Silencioso)
+      let needsUpdate = false;
+      let images = profile.image_credits_total;
+      let scripts = profile.credits_total;
+
+      if (profile.plan === 'Free' && images !== 4) { images = 4; needsUpdate = true; }
+      if (profile.plan === 'Basic' && (images !== 30 || scripts !== 9999)) { images = 30; scripts = 9999; needsUpdate = true; }
+      if (profile.plan === 'Professional' && (images !== 100 || scripts !== 9999)) { images = 100; scripts = 9999; needsUpdate = true; }
+      if (profile.plan === 'Enterprise' && (images !== 9999 || scripts !== 9999)) { images = 9999; scripts = 9999; needsUpdate = true; }
+
+      if (needsUpdate) {
+        await supabase.from('profiles').update({
+          image_credits_total: images,
+          credits_total: scripts
+        }).eq('id', profile.id);
+        profile.image_credits_total = images;
+        profile.credits_total = scripts;
+      }
+
+      // 4. Atualiza o último login em background
       supabase.from('profiles').update({ last_login: Date.now() }).eq('id', profile.id).then();
 
       setUser(profile as UserProfile);

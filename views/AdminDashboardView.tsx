@@ -94,12 +94,20 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ user, t,
         password: newUserPass,
       });
       if (authError && authError.message !== "User already registered") throw authError;
+      const getQuotas = () => {
+        if (newUserPlan === 'Free') return { scripts: 50, images: 4 };
+        if (newUserPlan === 'Basic') return { scripts: 9999, images: 30 };
+        if (newUserPlan === 'Professional') return { scripts: 9999, images: 100 };
+        return { scripts: 9999, images: 9999 }; // Enterprise
+      };
+
+      const { scripts, images } = getQuotas();
+
       const userId = authData.user?.id || crypto.randomUUID();
-      const quota = planConfigs.find(p => p.plan_name === newUserPlan)?.image_quota || 0;
       const { error: profileError } = await supabase.from('profiles').upsert([{
         id: userId, email: newUserEmail.toLowerCase(), plan: newUserPlan, status: 'active',
-        credits_total: newUserPlan === 'Professional' ? 9999 : 50, credits_used: 0,
-        image_credits_total: quota, image_credits_used: 0, role: 'user'
+        credits_total: scripts, credits_used: 0,
+        image_credits_total: images, image_credits_used: 0, role: 'user'
       }], { onConflict: 'email' });
       if (profileError) throw profileError;
       alert(`✅ ALUNO ATIVADO!\n\nEmail: ${newUserEmail}\nSenha: ${newUserPass}`);
@@ -286,8 +294,8 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ user, t,
               <input type="email" required value={newUserEmail} onChange={(e) => setNewUserEmail(e.target.value)} className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl text-sm" placeholder="E-mail do aluno" />
               <input type="text" required value={newUserPass} onChange={(e) => setNewUserPass(e.target.value)} className="w-full px-6 py-4 bg-black/40 border border-white/10 rounded-2xl text-sm" placeholder="Senha" />
               <div className="grid grid-cols-2 gap-3">
-                {['Basic', 'Professional'].map(p => (
-                  <button key={p} type="button" onClick={() => setNewUserPlan(p as SubscriptionPlan)} className={`py-4 rounded-2xl border text-[10px] font-black uppercase ${newUserPlan === p ? 'bg-indigo-600 border-indigo-400' : 'bg-black/40 border-white/10'}`}>PLANO {p}</button>
+                {['Free', 'Basic', 'Professional', 'Enterprise'].map(p => (
+                  <button key={p} type="button" onClick={() => setNewUserPlan(p as SubscriptionPlan)} className={`py-4 rounded-2xl border text-[10px] font-black uppercase ${newUserPlan === p ? 'bg-indigo-600 border-indigo-400' : 'bg-black/40 border-white/10'}`}>{p}</button>
                 ))}
               </div>
               <button disabled={isCreating} className="w-full py-6 bg-indigo-600 text-white font-black rounded-[2rem] shadow-2xl">

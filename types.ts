@@ -3,7 +3,7 @@ export type Language = 'PT' | 'EN' | 'ES';
 export type AspectRatio = '9:16' | '16:9' | '1:1';
 export type GenerationMode = 'viral' | 'tiktok_shop' | 'realism' | 'tone';
 export type UserRole = 'user' | 'admin';
-export type SubscriptionPlan = 'Free' | 'Basic' | 'Professional';
+export type SubscriptionPlan = 'Free' | 'Basic' | 'Professional' | 'Enterprise';
 
 export interface UserProfile {
   id: string;

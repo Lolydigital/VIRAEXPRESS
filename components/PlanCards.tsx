@@ -57,8 +57,8 @@ export const PlanCards: React.FC<PlanCardsProps> = ({ currentPlan, creditsUsed, 
                     <div
                         key={plan.id}
                         className={`bg-[#1E293B] border-2 rounded-2xl p-6 space-y-6 transition-all hover:scale-105 ${plan.plan_name === 'Professional'
-                                ? 'border-indigo-500 shadow-2xl shadow-indigo-500/30'
-                                : 'border-white/10 hover:border-indigo-500/50'
+                            ? 'border-indigo-500 shadow-2xl shadow-indigo-500/30'
+                            : 'border-white/10 hover:border-indigo-500/50'
                             }`}
                     >
                         {plan.plan_name === 'Professional' && (
@@ -70,7 +70,7 @@ export const PlanCards: React.FC<PlanCardsProps> = ({ currentPlan, creditsUsed, 
                         <div className="text-center space-y-2">
                             <h4 className="text-xl font-black text-white uppercase">{plan.plan_name}</h4>
                             <div className="flex items-baseline justify-center gap-2">
-                                <span className="text-4xl font-black text-indigo-400">R$ {plan.price.toFixed(0)}</span>
+                                <span className="text-4xl font-black text-indigo-400">R$ {plan.plan_name === 'Professional' ? '79' : '29'}</span>
                                 <span className="text-sm text-gray-500">/mês</span>
                             </div>
                         </div>
@@ -78,7 +78,7 @@ export const PlanCards: React.FC<PlanCardsProps> = ({ currentPlan, creditsUsed, 
                         <div className="space-y-3">
                             <div className="flex items-center gap-3 text-sm text-gray-300">
                                 <Check className="w-5 h-5 text-emerald-400 shrink-0" />
-                                <span><strong>{plan.image_quota}</strong> imagens por mês</span>
+                                <span><strong>{plan.plan_name === 'Professional' ? '100' : '30'}</strong> imagens/mês</span>
                             </div>
                             <div className="flex items-center gap-3 text-sm text-gray-300">
                                 <Check className="w-5 h-5 text-emerald-400 shrink-0" />
@@ -102,8 +102,8 @@ export const PlanCards: React.FC<PlanCardsProps> = ({ currentPlan, creditsUsed, 
                                 target="_blank"
                                 rel="noreferrer"
                                 className={`w-full py-4 rounded-xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${plan.plan_name === 'Professional'
-                                        ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30'
-                                        : 'bg-white/10 hover:bg-white/20 text-white'
+                                    ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30'
+                                    : 'bg-white/10 hover:bg-white/20 text-white'
                                     }`}
                             >
                                 Assinar Agora

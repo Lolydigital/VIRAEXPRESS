@@ -165,7 +165,7 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
 
     const imageCreditsLeft = (user.image_credits_total || 0) - (user.image_credits_used || 0);
 
-    const limit = user.plan === 'Free' ? 4 : 30;
+    const limit = user.image_credits_total || (user.plan === 'Free' ? 4 : 30);
     const used = user.image_credits_used || 0;
 
     if (used >= limit && user.role !== 'admin') {
@@ -689,7 +689,7 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
               <p className="text-sm text-gray-400 font-medium">
                 {user.plan === 'Free'
                   ? "Suas 4 imagens grátis acabaram! Quer gerar mais e dominar o TikTok?"
-                  : "Você atingiu o limite mensal do seu plano."}
+                  : `Você atingiu o limite de ${user.image_credits_total} imagens do seu plano ${user.plan}.`}
               </p>
             </div>
             <div className="space-y-4">
