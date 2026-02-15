@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Zap, Check, ExternalLink } from 'lucide-react';
+import { Zap, Check, ExternalLink, RefreshCcw } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { PlanConfig } from '../types';
 
