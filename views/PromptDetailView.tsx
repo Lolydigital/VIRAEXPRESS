@@ -323,8 +323,8 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
                 <TrendingUp className="w-10 h-10 text-white" />
               </div>
               <div>
-                <h3 className="text-3xl font-black text-white italic uppercase tracking-tighter">{t.viralScore}</h3>
-                <p className="text-indigo-400 font-bold uppercase tracking-widest text-[11px]">{t.viralDescription}</p>
+                <h3 className="text-3xl font-black text-white italic uppercase tracking-tighter">{t.viralScoreTitle || 'VIRAL SCORE'}</h3>
+                <p className="text-indigo-400 font-bold uppercase tracking-widest text-[11px]">{t.viralDescription || 'Análise de potencial de viralização'}</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -333,20 +333,23 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[
-              { label: t.hookScore || 'Gancho', val: prompts?.viral_score?.hook || 0, color: 'bg-emerald-500' },
-              { label: t.retentionScore || 'Retenção', val: prompts?.viral_score?.retention || 0, color: 'bg-blue-500' },
-              { label: t.ctaScore || 'CTA', val: prompts?.viral_score?.cta || 0, color: 'bg-indigo-500' },
-              { label: t.trendScore || 'Trend', val: 95, color: 'bg-pink-500' }
+              { label: t.hookScore || 'Gancho', val: prompts?.viral_score?.hook || 0, color: 'bg-emerald-500', emoji: '🪝' },
+              { label: t.retentionScore || 'Retenção', val: prompts?.viral_score?.retention || 0, color: 'bg-blue-500', emoji: '⏱️' },
+              { label: t.ctaScore || 'CTA', val: prompts?.viral_score?.cta || 0, color: 'bg-indigo-500', emoji: '📢' },
+              { label: t.trendScore || 'Trend', val: prompts?.viral_score?.total ? Math.min(100, prompts.viral_score.total + 5) : 95, color: 'bg-pink-500', emoji: '🔥' }
             ].map(s => (
-              <div key={s.label} className="space-y-3">
-                <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-gray-500">
-                  <span>{s.label}</span>
-                  <span>{s.val}%</span>
+              <div key={s.label} className="bg-black/20 p-6 rounded-[2rem] border border-white/5 space-y-4">
+                <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-gray-500">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">{s.emoji}</span>
+                    <span>{s.label}</span>
+                  </div>
+                  <span className="text-white">{s.val}%</span>
                 </div>
                 <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                  <div className={`h-full ${s.color} transition-all duration-1000`} style={{ width: `${s.val}%` }}></div>
+                  <div className={`h-full ${s.color} shadow-[0_0_15px_rgba(0,0,0,0.5)] transition-all duration-1000`} style={{ width: `${s.val}%` }}></div>
                 </div>
               </div>
             ))}
@@ -372,13 +375,18 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
               </button>
             </div>
           </div>
-          <div className="flex flex-col md:flex-row gap-6">
-            <textarea
-              placeholder={t.refinePlaceholder}
-              value={refinementText}
-              onChange={(e) => setRefinementText(e.target.value)}
-              className="flex-1 min-h-[120px] px-8 py-6 bg-black/50 border border-white/10 rounded-[2rem] text-sm md:text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-white transition-all resize-none shadow-inner leading-relaxed"
-            />
+          <div className="flex flex-col md:flex-row gap-6 relative">
+            <div className="flex-1 relative">
+              <textarea
+                placeholder={t.refinePlaceholder}
+                value={refinementText}
+                onChange={(e) => setRefinementText(e.target.value)}
+                className="w-full min-h-[120px] px-8 py-6 bg-black/50 border border-white/10 rounded-[2rem] text-sm md:text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-white transition-all resize-none shadow-inner leading-relaxed pr-16"
+              />
+              <button className="absolute right-6 top-6 text-gray-500 hover:text-indigo-400 transition-colors">
+                <Mic className="w-6 h-6" />
+              </button>
+            </div>
             <button
               onClick={handleRefine}
               disabled={refining || !refinementText.trim()}
@@ -433,9 +441,9 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {Array.isArray(prompts?.objetos) && prompts.objetos.filter(obj => obj.cena === 'principal').map((obj) => (
+            {Array.isArray(prompts?.objetos) && prompts.objetos.map((obj) => (
               <div key={obj.id} className="bg-[#1E293B]/60 border border-white/10 rounded-[3rem] overflow-hidden group hover:border-indigo-500/50 transition-all flex flex-col shadow-2xl">
-                <div className={`relative bg-black flex items-center justify-center overflow-hidden h-[500px] ${aspectRatio === '9:16' ? 'aspect-[9/16]' : 'aspect-[16/9]'}`}>
+                <div className={`relative bg-black flex items-center justify-center overflow-hidden h-[450px] ${aspectRatio === '9:16' ? 'aspect-[9/16]' : 'aspect-[16/9]'}`}>
                   {generatingImages[obj.id] ? (
                     <div className="flex flex-col items-center gap-4">
                       <div className="w-16 h-16 border-4 border-indigo-600/20 border-t-indigo-600 rounded-full animate-spin"></div>
@@ -458,14 +466,24 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
                       )}
                     </>
                   )}
+                  <div className="absolute top-6 right-6 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => window.open(generatedImages[obj.id], '_blank')} className="p-3 bg-white/10 backdrop-blur-md rounded-xl text-white hover:bg-indigo-600 transition-all">
+                      <ExternalLink className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => handleCopy(obj.imagePrompt, `prompt-${obj.id}`)} className="p-3 bg-white/10 backdrop-blur-md rounded-xl text-white hover:bg-indigo-600 transition-all">
+                      <Copy className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
                 <div className="p-8 border-t border-white/10 bg-black/40 space-y-5">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-black text-indigo-400 uppercase tracking-widest">{obj.persona}</span>
-                    <button onClick={() => handleCopy(obj.imagePrompt, `prompt-${obj.id}`)} className="text-[10px] font-black text-gray-400 hover:text-white flex items-center gap-2 uppercase tracking-widest transition-all">
-                      {copied === `prompt-${obj.id}` ? <CheckCircle className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-                      Copiar Prompt
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-indigo-600/20 flex items-center justify-center text-indigo-400 font-black text-xs">
+                        {obj.cena === 'principal' ? '⭐️' : '👤'}
+                      </div>
+                      <span className="text-[11px] font-black text-indigo-400 uppercase tracking-widest">{obj.persona}</span>
+                    </div>
+                    <span className="px-3 py-1 bg-white/5 rounded-full text-[9px] font-bold text-gray-500 uppercase tracking-widest">{obj.title}</span>
                   </div>
 
                   {Array.isArray(obj.scenes) && obj.scenes.length > 0 && (
