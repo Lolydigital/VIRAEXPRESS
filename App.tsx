@@ -60,58 +60,40 @@ const App: React.FC = () => {
 
   const handleLogin = async (email: string, password?: string) => {
     try {
+      console.log("DEBUG: Iniciando login para", email);
       // 1. Autenticação Real no Supabase
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: email.toLowerCase(),
-        password: password || '123456', // Senha padrão se não informada
+        password: password || '123456',
       });
 
       if (authError) {
+        console.error("Auth Error:", authError);
         throw new Error("E-mail ou senha incorretos. Verifique seus dados de compra.");
       }
 
-      // 2. Busca o Perfil (Plano, Créditos, Role)
+      // 2. Busca o Perfil
       const { data: profile, error: profError } = await supabase
         .from('profiles')
         .select('*')
         .eq('email', email.toLowerCase())
-        .single();
+        .maybeSingle();
 
       if (profError || !profile) {
-        throw new Error("Perfil não encontrado no banco de dados.");
+        console.error("Profile Error:", profError);
+        throw new Error("Perfil não encontrado. O acesso é liberado automaticamente após a compra.");
       }
 
       if (profile.status !== 'active') {
-        throw new Error("Acesso bloqueado ou cancelado.");
+        throw new Error("Seu acesso está inativo ou foi cancelado.");
       }
 
-      // 3. Reset Mensal Automático (Lazy Reset)
-      let finalProfile = { ...profile };
-      const now = new Date();
-      const lastLogin = profile.last_login ? new Date(profile.last_login) : null;
+      // 3. Atualiza o último login em background (não bloqueia o login)
+      supabase.from('profiles').update({ last_login: Date.now() }).eq('id', profile.id).then();
 
-      if (lastLogin && (now.getMonth() !== lastLogin.getMonth() || now.getFullYear() !== lastLogin.getFullYear())) {
-        console.log("DEBUG: Iniciando reset mensal de créditos...");
-        finalProfile.credits_used = 0;
-        finalProfile.image_credits_used = 0;
-        await supabase.from('profiles').update({
-          credits_used: 0,
-          image_credits_used: 0,
-          last_login: now.getTime()
-        }).eq('id', profile.id);
-      } else {
-        // Apenas atualiza o último login
-        await supabase.from('profiles').update({ last_login: now.getTime() }).eq('id', profile.id);
-      }
-
-      // 4. Garantia de Cotas Iniciais (Especialmente para o Free Bait)
-      if (profile.plan === 'Free' && (profile.image_credits_total === 0 || profile.image_credits_total === undefined)) {
-        finalProfile.image_credits_total = 4;
-        await supabase.from('profiles').update({ image_credits_total: 4 }).eq('id', profile.id);
-      }
-
-      setUser(finalProfile as UserProfile);
+      setUser(profile as UserProfile);
     } catch (err: any) {
+      console.error("Erro completo no login:", err);
       alert(err.message);
     }
   };
