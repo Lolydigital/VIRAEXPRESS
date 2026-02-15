@@ -234,7 +234,22 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
                     {t.niches.map(n => <option key={n} value={n} className="bg-[#0F172A]">{n}</option>)}
                   </select>
                 ) : (
-                  <input type="text" placeholder="..." value={customNiche} onChange={(e) => setCustomNiche(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-6 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                  <div className="relative group">
+                    <input
+                      type="text"
+                      placeholder={t.manualNichePlaceholder || "Digite seu nicho..."}
+                      value={customNiche}
+                      onChange={(e) => setCustomNiche(e.target.value)}
+                      className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-6 pr-14 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-medium"
+                    />
+                    <button
+                      onClick={() => isListening ? stopListening() : startListening(language === 'PT' ? 'pt-BR' : 'en-US')}
+                      className={`absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-all ${isListening ? 'bg-red-500/20 text-red-400 animate-pulse' : 'text-gray-500 hover:text-indigo-400 hover:bg-white/5'}`}
+                      title={isListening ? t.micListening : t.manualNiche}
+                    >
+                      <Mic className={`w-5 h-5 ${isListening ? 'scale-110' : ''}`} />
+                    </button>
+                  </div>
                 )}
               </div>
               <div className="space-y-2">

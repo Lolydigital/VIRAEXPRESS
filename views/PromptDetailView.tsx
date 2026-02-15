@@ -263,6 +263,14 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
     document.body.removeChild(link);
   };
 
+  const removeWatermark = (id: string) => {
+    setWatermarkedImages(prev => {
+      const newState = { ...prev };
+      delete newState[id];
+      return newState;
+    });
+  };
+
   const saveAction = async () => {
     if (prompts && !isSaving) {
       setIsSaving(true);
@@ -343,21 +351,24 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[
-              { label: t.hookScore || 'Gancho', val: prompts?.viral_score?.hook || 0, color: 'bg-emerald-500', emoji: '🪝' },
-              { label: t.retentionScore || 'Retenção', val: prompts?.viral_score?.retention || 0, color: 'bg-blue-500', emoji: '⏱️' },
-              { label: t.ctaScore || 'CTA', val: prompts?.viral_score?.cta || 0, color: 'bg-indigo-500', emoji: '📢' },
-              { label: t.trendScore || 'Trend', val: prompts?.viral_score?.total ? Math.min(100, prompts.viral_score.total + 5) : 95, color: 'bg-pink-500', emoji: '🔥' }
+              { label: t.hookScore || 'Gancho Viral', val: prompts?.viral_score?.hook || 0, color: 'from-emerald-500 to-teal-400', emoji: '🪝' },
+              { label: t.retentionScore || 'Retenção', val: prompts?.viral_score?.retention || 0, color: 'from-blue-500 to-indigo-400', emoji: '⏱️' },
+              { label: t.ctaScore || 'Força do CTA', val: prompts?.viral_score?.cta || 0, color: 'from-indigo-500 to-purple-400', emoji: '📢' },
+              { label: t.trendScore || 'Potencial Trend', val: prompts?.viral_score?.total ? Math.min(100, prompts.viral_score.total + 5) : 95, color: 'from-pink-500 to-rose-400', emoji: '🔥' }
             ].map(s => (
-              <div key={s.label} className="bg-black/20 p-6 rounded-[2rem] border border-white/5 space-y-4">
-                <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-gray-500">
+              <div key={s.label} className="bg-black/40 p-6 rounded-[2.5rem] border border-white/10 space-y-4 shadow-xl">
+                <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-gray-400">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm">{s.emoji}</span>
+                    <span className="text-sm scale-125">{s.emoji}</span>
                     <span>{s.label}</span>
                   </div>
-                  <span className="text-white">{s.val}%</span>
+                  <span className="text-white bg-white/10 px-2 py-1 rounded-lg">{s.val}%</span>
                 </div>
-                <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                  <div className={`h-full ${s.color} shadow-[0_0_15px_rgba(0,0,0,0.5)] transition-all duration-1000`} style={{ width: `${s.val}%` }}></div>
+                <div className="h-3 bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/5">
+                  <div
+                    className={`h-full bg-gradient-to-r ${s.color} rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(79,70,229,0.4)]`}
+                    style={{ width: `${s.val}%` }}
+                  ></div>
                 </div>
               </div>
             ))}
@@ -378,7 +389,11 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
               <button onClick={() => loadContent("Mude o cenário para algo more inusitado")} className="px-5 py-2.5 bg-indigo-500/10 border border-indigo-500/30 rounded-xl text-[10px] font-black uppercase tracking-widest text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all">
                 Mudar Cenário
               </button>
-              <button onClick={() => loadContent("Remova logotipos, textos e marcas visíveis da imagem")} className="px-5 py-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-[10px] font-black uppercase tracking-widest text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all">
+              <button onClick={() => {
+                loadContent("Remova logotipos, textos e marcas visíveis da imagem. Gere uma imagem limpa e profissional.");
+                // Também remove visualmente as marcas atuais
+                Object.keys(generatedImages).forEach(id => removeWatermark(id));
+              }} className="px-5 py-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-[10px] font-black uppercase tracking-widest text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all">
                 Remover Marcas
               </button>
             </div>
@@ -481,12 +496,31 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
                     <button onClick={() => window.open(generatedImages[obj.id], '_blank')} className="p-3 bg-white/10 backdrop-blur-md rounded-xl text-white hover:bg-indigo-600 transition-all">
                       <ExternalLink className="w-4 h-4" />
                     </button>
-                    <button onClick={() => handleCopy(obj.imagePrompt, `prompt-${obj.id}`)} className="p-3 bg-white/10 backdrop-blur-md rounded-xl text-white hover:bg-indigo-600 transition-all">
-                      <Copy className="w-4 h-4" />
-                    </button>
                   </div>
                 </div>
-                <div className="p-8 border-t border-white/10 bg-black/40 space-y-5">
+
+                {/* AÇÕES DA IMAGEM (COPIAR E DOWNLOAD) */}
+                <div className="px-8 pt-6 flex gap-3">
+                  <button
+                    onClick={() => handleCopy(obj.imagePrompt, `prompt-${obj.id}`)}
+                    className="flex-1 bg-[#1E293B] hover:bg-[#2D3B4F] border border-white/10 rounded-2xl py-4 flex flex-col items-center justify-center gap-1 transition-all active:scale-95 group/btn"
+                  >
+                    <div className="flex items-center gap-2">
+                      {copied === `prompt-${obj.id}` ? <CheckCircle className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-indigo-400" />}
+                      <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">COPIAR</span>
+                    </div>
+                    <span className="text-[11px] font-black uppercase tracking-widest text-indigo-400">PROMPT</span>
+                  </button>
+
+                  <button
+                    onClick={() => downloadImage(obj.id)}
+                    className="aspect-square bg-[#1E293B] hover:bg-[#2D3B4F] border border-white/10 rounded-2xl p-4 flex items-center justify-center transition-all active:scale-95 text-gray-400 hover:text-white"
+                  >
+                    <DownloadCloud className="w-8 h-8" />
+                  </button>
+                </div>
+
+                <div className="p-8 space-y-5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-indigo-600/20 flex items-center justify-center text-indigo-400 font-black text-xs">
