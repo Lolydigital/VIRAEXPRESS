@@ -60,7 +60,6 @@ const App: React.FC = () => {
 
   const handleLogin = async (email: string, password?: string) => {
     try {
-      console.log("DEBUG: Iniciando login para", email);
       // 1. Autenticação Real no Supabase
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: email.toLowerCase(),
@@ -68,7 +67,6 @@ const App: React.FC = () => {
       });
 
       if (authError) {
-        console.error("Auth Error:", authError);
         throw new Error("E-mail ou senha incorretos. Verifique seus dados de compra.");
       }
 
@@ -80,7 +78,6 @@ const App: React.FC = () => {
         .maybeSingle();
 
       if (profError || !profile) {
-        console.error("Profile Error:", profError);
         throw new Error("Perfil não encontrado. O acesso é liberado automaticamente após a compra.");
       }
 
@@ -88,12 +85,11 @@ const App: React.FC = () => {
         throw new Error("Seu acesso está inativo ou foi cancelado.");
       }
 
-      // 3. Atualiza o último login em background (não bloqueia o login)
+      // 3. Atualiza o último login em background
       supabase.from('profiles').update({ last_login: Date.now() }).eq('id', profile.id).then();
 
       setUser(profile as UserProfile);
     } catch (err: any) {
-      console.error("Erro completo no login:", err);
       alert(err.message);
     }
   };
