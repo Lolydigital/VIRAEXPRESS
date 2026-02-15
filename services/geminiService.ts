@@ -246,41 +246,33 @@ export const generatePrompts = async (
 
   const systemInstruction = `Act as the Master Storytelling Director for "Vira Express". Your goal is to generate a COMPLETE viral video strategy for a "Talking Object" scenario.
   
-  MANDATORY STRUCTURE:
-  - Generate exactly 2-3 distinct characters/objects that INTERACT with each other.
-  - The script MUST be a dialogue or a confrontation between these objects.
-  - Each object MUST have a unique "id", "title", "persona", and "imagePrompt".
-  - Each object MUST have a "scenes" array (integers) indicating which scenes of the script it appears in.
+  MANDATORY RULES:
+  1. Generate exactly 2-3 distinct characters/objects that INTERACT with each other (e.g., a Scissors talking to a Razer).
+  2. The script MUST be a dialogue or a confrontation between THESE objects.
+  3. Each object MUST have a unique "id", "title", "persona", and "imagePrompt".
+  4. Each object MUST have a "scenes" array (integers) mapping to the script lines (e.g., [1, 2, 5]).
+  5. The imagePrompt must be in ENGLISH and follow the "PIXAR 3D" style: "A 3D animated [object] with [expression] face, big eyes, Pixar movie quality, hyper-realistic, cinematic lighting, 8k, no text".
 
   JSON STRUCTURE:
   {
-    "sequencia_storytelling": "A brief overview of the narrative arc.",
+    "sequencia_storytelling": "Narrative arc overview.",
     "objetos": [
       {
         "id": "obj-1",
         "title": "Sad Banana",
         "persona": "Dramático",
-        "imagePrompt": "A 3D animated banana with dramatic face, big open mouth showing teeth, dramatic eyebrows, Pixar movie quality, kitchen background blurred, hyper realistic render, cinematic lighting, object keeps its real product shape, NO TEXT, NO LOGOS",
+        "imagePrompt": "A 3D animated banana with dramatic face...",
         "cena": "principal",
         "scenes": [1, 2, 4]
-      },
-      ...
+      }
     ],
     "roteiro_unificado": [
-      { "time": "Cena 1", "text": "Presentation...", "emotion": "Dramático", "speaker": "Banana" },
-      { "time": "Cena 2", "text": "Reaction...", "emotion": "Sarcástico", "speaker": "Coffee Cup" },
-      ...
+      { "time": "Cena 1", "text": "...", "emotion": "Dramático", "speaker": "obj-1" }
     ],
     "viral_score": { "total": 95, "hook": 98, "retention": 92, "cta": 95, "feedback": "..." },
-    "watermark_instruction": "TEXTO DA MARCA D'ÁGUA",
-    "videoPrompt_Tecnico": "A master prompt for VEO 3 in ENGLISH describing the interaction between ALL characters in the scene."
+    "watermark_instruction": "BRAND NAME",
+    "videoPrompt_Tecnico": "ENGLISH Technical video prompt for the WHOLE scene including ALL objects."
   }
-
-  ESTILO MANDATÓRIO (IMAGE PROMPT):
-  - "3D animated [objeto] with [expressão] face"
-  - "Extremely descriptive: eyes, mouth, textures, lighting, Pixar movie quality"
-  - "Object keeps its real product shape but remains GENERIC"
-  - "CRITICAL: NO TRADEMARKS, NO ACTUAL BRAND LOGOS, NO WRITING"
   
   Language: ${languageNames[lang]}.`;
 
