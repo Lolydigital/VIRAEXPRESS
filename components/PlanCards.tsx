@@ -35,9 +35,12 @@ export const PlanCards: React.FC<PlanCardsProps> = ({ currentPlan, creditsUsed, 
     };
 
     const creditsRemaining = creditsTotal - creditsUsed;
-    const shouldShowUpgrade = currentPlan === 'Free' || creditsRemaining <= 5;
 
-    if (!shouldShowUpgrade || loading) return null;
+    if (loading) return (
+        <div className="w-full h-64 flex items-center justify-center">
+            <RefreshCcw className="w-10 h-10 animate-spin text-indigo-500" />
+        </div>
+    );
 
     return (
         <div className="bg-[#0F172A] border border-white/10 rounded-[4rem] p-10 md:p-20 space-y-12 shadow-[0_50px_100px_rgba(0,0,0,0.5)] relative overflow-hidden group">
@@ -62,8 +65,8 @@ export const PlanCards: React.FC<PlanCardsProps> = ({ currentPlan, creditsUsed, 
                         <div
                             key={plan.id}
                             className={`bg-[#1E293B]/80 backdrop-blur-xl border-2 rounded-[3rem] p-10 md:p-12 space-y-8 transition-all hover:scale-105 relative overflow-hidden ${isPro
-                                    ? 'border-indigo-600 shadow-[0_30px_60px_rgba(79,70,229,0.3)] ring-4 ring-indigo-500/10'
-                                    : 'border-white/10 hover:border-white/20'
+                                ? 'border-indigo-600 shadow-[0_30px_60px_rgba(79,70,229,0.3)] ring-4 ring-indigo-500/10'
+                                : 'border-white/10 hover:border-white/20'
                                 }`}
                         >
                             {isPro && (
@@ -117,8 +120,8 @@ export const PlanCards: React.FC<PlanCardsProps> = ({ currentPlan, creditsUsed, 
                                     target="_blank"
                                     rel="noreferrer"
                                     className={`w-full py-6 rounded-2xl font-black text-sm md:text-base uppercase tracking-[0.2em] flex items-center justify-center gap-4 transition-all active:scale-95 ${isPro
-                                            ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-2xl shadow-indigo-600/40'
-                                            : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white'
+                                        ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-2xl shadow-indigo-600/40'
+                                        : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white'
                                         }`}
                                 >
                                     ASSINAR AGORA

@@ -52,12 +52,12 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
         console.log('DEBUG: [PromptDetail] Restored saved images from DB');
       }
 
-      // Only generate images for principal objects that don't have saved images
+      // Auto generate images for all objects that don't have saved images
       if (Array.isArray(restoredPrompts.objetos)) {
         const imageCreditsLeft = (user.image_credits_total || 0) - (user.image_credits_used || 0);
         let availableCredits = imageCreditsLeft;
         restoredPrompts.objetos.forEach((obj: any) => {
-          if (obj.cena === 'principal' && !idea?.savedImages?.[obj.id]) {
+          if (!idea?.savedImages?.[obj.id]) {
             if (availableCredits > 0 || user.role === 'admin') {
               handleImageGen(obj.id, obj.imagePrompt);
               availableCredits--;
@@ -92,11 +92,9 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
         let availableCredits = imageCreditsTotal;
 
         pResult.objetos.forEach(obj => {
-          if (obj.cena === 'principal') {
-            if (availableCredits > 0 || user.role === 'admin') {
-              handleImageGen(obj.id, obj.imagePrompt);
-              availableCredits--;
-            }
+          if (availableCredits > 0 || user.role === 'admin') {
+            handleImageGen(obj.id, obj.imagePrompt);
+            availableCredits--;
           }
         });
       } else {
@@ -373,6 +371,17 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
               </div>
             ))}
           </div>
+
+          {/* FEEDBACK TÉCNICO VIRAL */}
+          {prompts?.viral_score?.feedback && (
+            <div className="bg-indigo-600/10 border border-indigo-500/20 rounded-[2rem] p-8 space-y-3">
+              <div className="flex items-center gap-3">
+                <Zap className="w-5 h-5 text-indigo-400" />
+                <h4 className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Potencial de Viralização</h4>
+              </div>
+              <p className="text-gray-300 text-sm font-medium leading-relaxed italic">"{prompts.viral_score.feedback}"</p>
+            </div>
+          )}
         </section>
 
         {/* AJUSTES E REFINAMENTO */}
@@ -503,18 +512,18 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
                 <div className="px-8 pt-6 flex gap-3">
                   <button
                     onClick={() => handleCopy(obj.imagePrompt, `prompt-${obj.id}`)}
-                    className="flex-1 bg-[#1E293B] hover:bg-[#2D3B4F] border border-white/10 rounded-2xl py-4 flex flex-col items-center justify-center gap-1 transition-all active:scale-95 group/btn"
+                    className="flex-1 bg-[#1E293B]/80 hover:bg-[#2D3B4F] border border-white/5 rounded-2xl py-5 flex flex-col items-center justify-center gap-1 transition-all active:scale-95 group/btn shadow-lg"
                   >
                     <div className="flex items-center gap-2">
                       {copied === `prompt-${obj.id}` ? <CheckCircle className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-indigo-400" />}
                       <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">COPIAR</span>
                     </div>
-                    <span className="text-[11px] font-black uppercase tracking-widest text-indigo-400">PROMPT</span>
+                    <span className="text-[12px] font-black uppercase tracking-widest text-white/90">PROMPT</span>
                   </button>
 
                   <button
                     onClick={() => downloadImage(obj.id)}
-                    className="aspect-square bg-[#1E293B] hover:bg-[#2D3B4F] border border-white/10 rounded-2xl p-4 flex items-center justify-center transition-all active:scale-95 text-gray-400 hover:text-white"
+                    className="aspect-square bg-[#1E293B]/80 hover:bg-[#2D3B4F] border border-white/5 rounded-2xl p-5 flex items-center justify-center transition-all active:scale-95 text-indigo-400 hover:text-white shadow-lg"
                   >
                     <DownloadCloud className="w-8 h-8" />
                   </button>
@@ -653,12 +662,16 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
           </div>
         </section>
 
-        {/* PLAN UPGRADE CARDS */}
-        <PlanCards
-          currentPlan={user.plan}
-          creditsUsed={user.image_credits_used || 0}
-          creditsTotal={user.image_credits_total || 0}
-        />
+        {/* SEÇÃO DE PLANOS PROMINENTE (SÓ MOSTRA SE PRECISAR) */}
+        {(user.plan === 'Free' || (user.image_credits_total - user.image_credits_used) < 5) && (
+          <section id="upgrade-section">
+            <PlanCards
+              currentPlan={user.plan}
+              creditsUsed={user.image_credits_used || 0}
+              creditsTotal={user.image_credits_total || 0}
+            />
+          </section>
+        )}
 
         {/* MEU VÍDEO PRONTO */}
         <section className="bg-white/5 border border-white/10 rounded-[3rem] md:rounded-[4rem] p-10 md:p-16 space-y-12">
@@ -696,7 +709,16 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
         </section>
 
         {/* FLOATING FOOTER */}
-        <div className="fixed bottom-0 md:bottom-10 left-1/2 -translate-x-1/2 w-full max-w-5xl px-6 pb-8 md:pb-0 z-[100] space-y-8">
+        <div className="fixed bottom-0 md:bottom-10 left-1/2 -translate-x-1/2 w-full max-w-6xl px-6 pb-8 md:pb-0 z-[100] space-y-6">
+          {(user.plan === 'Free' || user.image_credits_total - user.image_credits_used < 10) && (
+            <a
+              href="#upgrade-section"
+              className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl flex items-center justify-center gap-3 text-[11px] uppercase tracking-[0.2em] shadow-[0_15px_40px_rgba(37,99,235,0.4)] border border-white/10 group transition-all"
+            >
+              <Zap className="w-4 h-4 fill-current group-hover:scale-125 transition-transform" />
+              ASSINE AGORA OS NOSSOS PLANOS
+            </a>
+          )}
           <div className="bg-[#1E293B]/90 backdrop-blur-3xl border border-white/20 p-4 md:p-6 rounded-[2.5rem] md:rounded-full flex gap-4 md:gap-6 shadow-[0_40px_100px_rgba(0,0,0,1)] ring-1 ring-white/10">
             <button onClick={() => navigate('/dashboard')} className="flex-1 py-5 md:py-6 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full font-black text-[10px] md:text-[13px] uppercase tracking-[0.2em] text-white transition-all active:scale-95 shadow-lg">
               {t.dashboardButton}
