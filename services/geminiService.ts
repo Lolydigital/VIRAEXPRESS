@@ -269,7 +269,17 @@ export const generatePrompts = async (
     "roteiro_unificado": [
       { "time": "Cena 1", "text": "...", "emotion": "Dramático", "speaker": "obj-1" }
     ],
-    "viral_score": { "total": 95, "hook": 98, "retention": 92, "cta": 95, "feedback": "..." },
+    "viral_score": { 
+      "total": 95, 
+      "hook": 98, 
+      "retention": 92, 
+      "cta": 95, 
+      "feedback": "...",
+      "reason": "Why it will go viral",
+      "audience": "Target audience",
+      "suggested_cta": "What the user should ask viewers to do",
+      "hashtags": ["tag1", "tag2"]
+    },
     "watermark_instruction": "BRAND NAME",
     "videoPrompt_Tecnico": "ENGLISH Technical video prompt for the WHOLE scene including ALL objects."
   }

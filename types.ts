@@ -70,6 +70,10 @@ export interface ViralScore {
   retention: number;
   cta: number;
   feedback: string;
+  reason?: string;
+  audience?: string;
+  suggested_cta?: string;
+  hashtags?: string[];
 }
 
 export interface PromptSet {

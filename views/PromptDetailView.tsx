@@ -374,12 +374,39 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
 
           {/* FEEDBACK TÉCNICO VIRAL */}
           {prompts?.viral_score?.feedback && (
-            <div className="bg-indigo-600/10 border border-indigo-500/20 rounded-[2rem] p-8 space-y-3">
+            <div className="bg-indigo-600/10 border border-indigo-500/20 rounded-[2rem] p-8 space-y-6">
               <div className="flex items-center gap-3">
                 <Zap className="w-5 h-5 text-indigo-400" />
-                <h4 className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Potencial de Viralização</h4>
+                <h4 className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Análise Estratégica de Viralização</h4>
               </div>
-              <p className="text-gray-300 text-sm font-medium leading-relaxed italic">"{prompts.viral_score.feedback}"</p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <span className="text-[9px] font-black text-indigo-400/60 uppercase tracking-widest">Motivo do Potencial</span>
+                    <p className="text-gray-300 text-sm font-medium leading-relaxed italic">"{prompts.viral_score.reason || prompts.viral_score.feedback}"</p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[9px] font-black text-indigo-400/60 uppercase tracking-widest">Público Alvo</span>
+                    <p className="text-gray-300 text-sm font-bold">{prompts.viral_score.audience || 'Geral / TikTok Trends'}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <span className="text-[9px] font-black text-indigo-400/60 uppercase tracking-widest">Sugestão de CTA</span>
+                    <p className="text-emerald-400 text-sm font-black uppercase tracking-tight">{prompts.viral_score.suggested_cta || 'Curta e Siga para mais!'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[9px] font-black text-indigo-400/60 uppercase tracking-widest">Hashtags Sugeridas</span>
+                    <div className="flex flex-wrap gap-2">
+                      {(prompts.viral_score.hashtags || ['#viral', '#objetosfalantes', '#ViraExpress']).map(tag => (
+                        <span key={tag} className="text-[10px] bg-white/5 border border-white/10 px-2 py-1 rounded-lg text-gray-400 font-bold">{tag}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </section>
@@ -663,15 +690,13 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
         </section>
 
         {/* SEÇÃO DE PLANOS PROMINENTE (SÓ MOSTRA SE PRECISAR) */}
-        {(user.plan === 'Free' || (user.image_credits_total - user.image_credits_used) < 5) && (
-          <section id="upgrade-section">
-            <PlanCards
-              currentPlan={user.plan}
-              creditsUsed={user.image_credits_used || 0}
-              creditsTotal={user.image_credits_total || 0}
-            />
-          </section>
-        )}
+        <section id="upgrade-section">
+          <PlanCards
+            currentPlan={user.plan}
+            creditsUsed={user.image_credits_used || 0}
+            creditsTotal={user.image_credits_total || 0}
+          />
+        </section>
 
         {/* MEU VÍDEO PRONTO */}
         <section className="bg-white/5 border border-white/10 rounded-[3rem] md:rounded-[4rem] p-10 md:p-16 space-y-12">
