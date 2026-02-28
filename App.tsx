@@ -90,7 +90,7 @@ const App: React.FC = () => {
       let images = profile.image_credits_total;
       let scripts = profile.credits_total;
 
-      if (profile.plan === 'Free' && images !== 4) { images = 4; needsUpdate = true; }
+      if (profile.plan === 'Free' && images !== 9) { images = 9; needsUpdate = true; }
       if (profile.plan === 'Basic' && (images !== 30 || scripts !== 9999)) { images = 30; scripts = 9999; needsUpdate = true; }
       if (profile.plan === 'Professional' && (images !== 100 || scripts !== 9999)) { images = 100; scripts = 9999; needsUpdate = true; }
       if (profile.plan === 'Enterprise' && (images !== 9999 || scripts !== 9999)) { images = 9999; scripts = 9999; needsUpdate = true; }

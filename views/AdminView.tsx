@@ -126,7 +126,7 @@ export const AdminView: React.FC<{ user: UserProfile }> = ({ user }) => {
                     plan: newUserPlan,
                     credits_total: newUserPlan === 'Professional' ? 9999 : 50,
                     credits_used: 0,
-                    image_credits_total: planConfig?.image_quota || 4,
+                    image_credits_total: planConfig?.image_quota || 9,
                     image_credits_used: 0,
                     status: 'active',
                     role: 'user'

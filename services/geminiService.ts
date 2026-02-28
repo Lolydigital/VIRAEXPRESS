@@ -248,10 +248,13 @@ export const generatePrompts = async (
   
   MANDATORY RULES:
   1. Generate exactly 2-3 distinct characters/objects that INTERACT with each other (e.g., a Scissors talking to a Razer).
-  2. The script MUST be a dialogue or a confrontation between THESE objects.
+  2. The script MUST be a dialogue or a confrontation between THESE objects based on the chosen PERSONA/TONE.
   3. Each object MUST have a unique "id", "title", "persona", and "imagePrompt".
   4. Each object MUST have a "scenes" array (integers) mapping to the script lines (e.g., [1, 2, 5]).
-  5. The imagePrompt must be in ENGLISH and follow the "PIXAR 3D" style: "A 3D animated [object] with [expression] face, big eyes, Pixar movie quality, hyper-realistic, cinematic lighting, 8k, no text".
+  5. The imagePrompt must be in ENGLISH and follow the "PIXAR 3D" style: "A 3D animated [object] facing forward, looking at camera, with [expression/personality] face, big eyes, Pixar movie quality, hyper-realistic, cinematic lighting, 8k, no text".
+  6. The script MUST be short, suitable for a video of 8-15 seconds (approx 2-4 lines of dialogue total).
+  7. The "videoPrompt_Tecnico" MUST follow this EXACT format: "Crie um vídeo animado estilo Pixar com [personagem principal]. DIÁLOGO EM [IDIOMA]: [roteiro unificado das falas]". 
+     Example for Portuguese: "Crie um vídeo animado estilo Pixar com uma cebola brava. DIÁLOGO EM PORTUGUÊS: 'Você acha que eu nasci pra chorar? Toda santa noite é a mesma coisa!'"
 
   JSON STRUCTURE:
   {
@@ -281,14 +284,14 @@ export const generatePrompts = async (
       "hashtags": ["tag1", "tag2"]
     },
     "watermark_instruction": "BRAND NAME",
-    "videoPrompt_Tecnico": "ENGLISH Technical video prompt for the WHOLE scene including ALL objects."
+    "videoPrompt_Tecnico": "Full Grok Imagine Video prompt following rule #6."
   }
   
   Language: ${languageNames[lang]}.`;
 
   const userPromptText = refinementCommand
     ? `ADJUST: "${refinementCommand}". CONTEXT: ${JSON.stringify(previousResult)}. GEN OBJECTS(MAX: ${maxObjects}).`
-    : `STRATEGY: ${idea.title}. DESC: ${idea.description}. PERSONA: ${selectedPersona?.name}. PLAN: ${plan}. GEN OBJECTS(MAX: ${maxObjects}).`;
+    : `STRATEGY: ${idea.title}. DESC: ${idea.description}. PERSONA: ${selectedPersona?.name} (${selectedPersona?.trait}). PLAN: ${plan}. GEN OBJECTS(MAX: ${maxObjects}).`;
 
   const promptFinal = `${userPromptText} \n\nRETURN ONLY VALID JSON. NO MARKDOWN. NO COMMENTS. NO EXTRA TEXT.\n\nSYSTEM INSTRUCTION: ${systemInstruction}`;
 

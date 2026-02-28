@@ -196,4 +196,16 @@ export interface Translation {
   upgradeNow: string;
   micNotSupported: string;
   micListening: string;
+
+  // Plan Cards
+  perMonth: string;
+  imagesPerMonth: string;
+  unlimitedScripts: string;
+  prioritySupport: string;
+  earlyAccess: string;
+  subscribeNow: string;
+  mostPopular: string;
+  creditsExhausted: string;
+  boostResults: string;
+  choosePlanDescription: string;
 }

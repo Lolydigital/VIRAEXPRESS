@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Zap, Check, ExternalLink, RefreshCcw } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { PlanConfig } from '../types';
+import { PlanConfig, Translation } from '../types';
 
 interface PlanCardsProps {
     currentPlan: string;
     creditsUsed: number;
     creditsTotal: number;
+    t: Translation;
 }
 
-export const PlanCards: React.FC<PlanCardsProps> = ({ currentPlan, creditsUsed, creditsTotal }) => {
+export const PlanCards: React.FC<PlanCardsProps> = ({ currentPlan, creditsUsed, creditsTotal, t }) => {
     const [plans, setPlans] = useState<PlanConfig[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -51,10 +52,10 @@ export const PlanCards: React.FC<PlanCardsProps> = ({ currentPlan, creditsUsed, 
                     <Zap className="w-12 h-12 text-indigo-400 fill-indigo-400/20" />
                 </div>
                 <h3 className="text-4xl md:text-6xl font-black text-white uppercase italic tracking-tighter leading-none">
-                    {creditsRemaining <= 0 ? 'CRÉDITOS ESGOTADOS!' : 'Aumente seus Resultados!'}
+                    {creditsRemaining <= 0 ? t.creditsExhausted : t.boostResults}
                 </h3>
                 <p className="text-base md:text-xl text-gray-400 font-medium uppercase tracking-widest">
-                    Escolha um plano para continuar gerando conteúdo viral
+                    {t.choosePlanDescription}
                 </p>
             </div>
 
@@ -71,15 +72,15 @@ export const PlanCards: React.FC<PlanCardsProps> = ({ currentPlan, creditsUsed, 
                         >
                             {isPro && (
                                 <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-black uppercase px-6 py-2 rounded-b-2xl tracking-[0.2em] shadow-xl">
-                                    MAIS POPULAR
+                                    {t.mostPopular}
                                 </div>
                             )}
 
                             <div className="text-center space-y-2 pt-4">
                                 <h4 className="text-2xl font-black text-white uppercase tracking-tighter italic">{plan.plan_name}</h4>
                                 <div className="flex items-baseline justify-center gap-2">
-                                    <span className="text-6xl font-black text-white italic tracking-tighter">R$ {isPro ? '79' : '29'}</span>
-                                    <span className="text-sm text-gray-500 font-bold uppercase tracking-widest">/mês</span>
+                                    <span className="text-6xl font-black text-white italic tracking-tighter">R$ {Math.floor(plan.price)}</span>
+                                    <span className="text-sm text-gray-500 font-bold uppercase tracking-widest">{t.perMonth}</span>
                                 </div>
                             </div>
 
@@ -89,27 +90,27 @@ export const PlanCards: React.FC<PlanCardsProps> = ({ currentPlan, creditsUsed, 
                                         <Check className="w-4 h-4 text-emerald-400" />
                                     </div>
                                     <span className="text-sm md:text-base font-bold text-gray-300">
-                                        <strong className="text-white">{isPro ? '100' : '30'}</strong> imagens por mês
+                                        <strong className="text-white">{plan.image_quota}</strong> {t.imagesPerMonth}
                                     </span>
                                 </div>
                                 <div className="flex items-center gap-4">
                                     <div className="w-6 h-6 rounded-lg bg-emerald-500/20 flex items-center justify-center">
                                         <Check className="w-4 h-4 text-emerald-400" />
                                     </div>
-                                    <span className="text-sm md:text-base font-bold text-gray-300">Roteiros ilimitados</span>
+                                    <span className="text-sm md:text-base font-bold text-gray-300">{t.unlimitedScripts}</span>
                                 </div>
                                 <div className="flex items-center gap-4">
                                     <div className="w-6 h-6 rounded-lg bg-emerald-500/20 flex items-center justify-center">
                                         <Check className="w-4 h-4 text-emerald-400" />
                                     </div>
-                                    <span className="text-sm md:text-base font-bold text-gray-300">Suporte prioritário</span>
+                                    <span className="text-sm md:text-base font-bold text-gray-300">{t.prioritySupport}</span>
                                 </div>
                                 {isPro && (
                                     <div className="flex items-center gap-4">
                                         <div className="w-6 h-6 rounded-lg bg-emerald-500/20 flex items-center justify-center">
                                             <Check className="w-4 h-4 text-emerald-400" />
                                         </div>
-                                        <span className="text-sm md:text-base font-bold text-gray-300">Acesso antecipado</span>
+                                        <span className="text-sm md:text-base font-bold text-gray-300">{t.earlyAccess}</span>
                                     </div>
                                 )}
                             </div>
@@ -124,7 +125,7 @@ export const PlanCards: React.FC<PlanCardsProps> = ({ currentPlan, creditsUsed, 
                                         : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white'
                                         }`}
                                 >
-                                    ASSINAR AGORA
+                                    {t.subscribeNow}
                                     <ExternalLink className="w-5 h-5 opacity-50" />
                                 </a>
                             ) : (

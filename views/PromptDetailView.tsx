@@ -294,7 +294,7 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
 
   const flowTools = [
     { name: 'GEMINI', label: 'Roteiros com IA', icon: <Sparkles className="w-5 h-5" />, url: 'https://gemini.google.com', color: 'bg-blue-600/20 text-blue-400 border-blue-500/30' },
-    { name: 'VEO 3', label: 'Gerar vídeo com IA', icon: <Tv className="w-5 h-5" />, url: 'https://labs.google/veo', color: 'bg-indigo-600/20 text-indigo-400 border-indigo-500/30' },
+    { name: 'GROK', label: 'Gerar vídeo com IA', icon: <Tv className="w-5 h-5" />, url: 'https://x.com/i/grok', color: 'bg-indigo-600/20 text-indigo-400 border-indigo-500/30' },
     { name: 'CAPCUT', label: 'Editar vídeo', icon: <Scissors className="w-5 h-5" />, url: 'https://www.capcut.com', color: 'bg-gray-600/20 text-white border-white/20' },
     { name: 'REMOVE LOGO', label: 'Remover marca d\'água', icon: <Droplets className="w-5 h-5" />, url: 'https://watermarkremover.io', color: 'bg-cyan-600/20 text-cyan-400 border-cyan-500/30' }
   ];
@@ -654,7 +654,7 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
                 className="py-7 px-16 bg-white text-indigo-950 font-black rounded-[2rem] text-sm md:text-lg uppercase tracking-[0.2em] hover:scale-105 transition-all shadow-[0_20px_50px_rgba(255,255,255,0.2)] flex items-center gap-6 mx-auto active:scale-95 group/btn"
               >
                 {copied === 'veo' ? <CheckCircle className="w-8 h-8 text-emerald-600" /> : <Copy className="w-8 h-8 group-hover/btn:rotate-6 transition-transform" />}
-                {t.copyVideoPrompt || "COPIAR MASTER PROMPT"}
+                {t.copyVideoPrompt || "COPIAR PROMPT GROK"}
               </button>
             </div>
           </div>
@@ -666,7 +666,7 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10">
             {[
               { step: '1', title: t.stepImage, desc: t.stepImageDesc, icon: <ImageIcon className="w-8 h-8" />, url: 'https://gemini.google.com' },
-              { step: '2', title: t.stepVideo, desc: t.stepVideoDesc, icon: <Tv className="w-8 h-8" />, url: 'https://labs.google/veo' },
+              { step: '2', title: t.stepVideo, desc: t.stepVideoDesc, icon: <Tv className="w-8 h-8" />, url: 'https://x.com/i/grok' },
               { step: '3', title: t.stepAudio, desc: t.stepAudioDesc, icon: <Scissors className="w-8 h-8" />, url: 'https://www.capcut.com' },
               { step: '4', title: t.stepRemove, desc: t.stepRemoveDesc, icon: <Droplets className="w-8 h-8" />, url: 'https://watermarkremover.io' },
             ].map(item => (
@@ -695,6 +695,7 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
             currentPlan={user.plan}
             creditsUsed={user.image_credits_used || 0}
             creditsTotal={user.image_credits_total || 0}
+            t={t}
           />
         </section>
 
@@ -769,7 +770,7 @@ export const PromptDetailView: React.FC<{ user: UserProfile; t: Translation; lan
               <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter">Imagens Esgotadas!</h3>
               <p className="text-sm text-gray-400 font-medium">
                 {user.plan === 'Free'
-                  ? "Suas 4 imagens grátis acabaram! Quer gerar mais e dominar o TikTok?"
+                  ? "Suas 9 imagens grátis acabaram! Quer gerar mais e dominar o TikTok?"
                   : `Você atingiu o limite de ${user.image_credits_total} imagens do seu plano ${user.plan}.`}
               </p>
             </div>
