@@ -253,8 +253,15 @@ export const generatePrompts = async (
   4. Each object MUST have a "scenes" array (integers) mapping to the script lines (e.g., [1, 2, 5]).
   5. The imagePrompt must be in ENGLISH and follow the "PIXAR 3D" style: "A 3D animated [object] facing forward, looking at camera, with [expression/personality] face, big eyes, Pixar movie quality, hyper-realistic, cinematic lighting, 8k, no text".
   6. The script MUST be short, suitable for a video of 8-15 seconds (approx 2-4 lines of dialogue total).
-  7. The "videoPrompt_Tecnico" MUST follow this EXACT format: "Crie um vídeo animado estilo Pixar com [personagem principal]. DIÁLOGO EM [IDIOMA]: [roteiro unificado das falas]". 
-     Example for Portuguese: "Crie um vídeo animado estilo Pixar com uma cebola brava. DIÁLOGO EM PORTUGUÊS: 'Você acha que eu nasci pra chorar? Toda santa noite é a mesma coisa!'"
+  7. The "videoPrompt_Tecnico" MUST follow this EXACT format:
+     "Crie um vídeo animado estilo Pixar com [personagens].
+     Os personagens devem FALAR as frases em áudio sincronizado, com movimento de boca.
+     NÃO use balões de texto, NÃO escreva as falas na tela. Apenas áudio com os personagens falando.
+     Câmera alterna close-ups em quem está falando. Iluminação cinematográfica.
+     
+     DIÁLOGO EM [IDIOMA] (seguir ordem exata):
+     - [Personagem A]: '[fala 1]'
+     - [Personagem B]: '[fala 2]'"
 
   JSON STRUCTURE:
   {
