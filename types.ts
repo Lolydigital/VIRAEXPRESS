@@ -208,4 +208,6 @@ export interface Translation {
   creditsExhausted: string;
   boostResults: string;
   choosePlanDescription: string;
+  advancedMode: string;
+  customObjectsPlaceholder: string;
 }

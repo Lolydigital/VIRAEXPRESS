@@ -30,6 +30,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
   const [method, setMethod] = useState<'list' | 'manual'>('list');
   const [selectedNiche, setSelectedNiche] = useState(t.niches[0]);
   const [customNiche, setCustomNiche] = useState('');
+  const [customObjects, setCustomObjects] = useState('');
   const [ideas, setIdeas] = useState<ViralIdea[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -93,8 +94,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
 
     try {
       const finalNiche = method === 'list' ? selectedNiche : customNiche;
-      console.log(`DEBUG: [Dashboard] Chamando generateIdeas para niche: ${finalNiche} (isMore: ${isMore})`);
-      const result = await generateIdeas(finalNiche || 'viral talking objects', language, isMore);
+      const finalContext = method === 'manual' && customObjects ? `${finalNiche} (Objetos: ${customObjects})` : finalNiche;
+
+      console.log(`DEBUG: [Dashboard] Chamando generateIdeas para niche: ${finalContext} (isMore: ${isMore})`);
+      const result = await generateIdeas(finalContext || 'viral talking objects', language, isMore);
       console.log(`DEBUG: [Dashboard] Resultado recebido:`, result);
 
       if (result && Array.isArray(result)) {
@@ -222,7 +225,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
                 <ListChecks className="w-4 h-4 mr-2 inline" /> {t.chooseNiche}
               </button>
               <button onClick={() => setMethod('manual')} className={`flex-1 py-4 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all ${method === 'manual' ? 'bg-indigo-600 text-white border-indigo-400' : 'bg-black/20 text-gray-500 border-white/5'}`}>
-                <Edit3 className="w-4 h-4 mr-2 inline" /> {t.manualNiche}
+                <Edit3 className="w-4 h-4 mr-2 inline" /> {t.advancedMode || t.manualNiche}
               </button>
             </div>
 
@@ -234,21 +237,33 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ user, t, language,
                     {t.niches.map(n => <option key={n} value={n} className="bg-[#0F172A]">{n}</option>)}
                   </select>
                 ) : (
-                  <div className="relative group">
-                    <input
-                      type="text"
-                      placeholder={t.manualNichePlaceholder || "Digite seu nicho..."}
-                      value={customNiche}
-                      onChange={(e) => setCustomNiche(e.target.value)}
-                      className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-6 pr-14 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-medium"
-                    />
-                    <button
-                      onClick={() => isListening ? stopListening() : startListening(language === 'PT' ? 'pt-BR' : 'en-US')}
-                      className={`absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-all ${isListening ? 'bg-red-500/20 text-red-400 animate-pulse' : 'text-gray-500 hover:text-indigo-400 hover:bg-white/5'}`}
-                      title={isListening ? t.micListening : t.manualNiche}
-                    >
-                      <Mic className={`w-5 h-5 ${isListening ? 'scale-110' : ''}`} />
-                    </button>
+                  <div className="space-y-4">
+                    <div className="relative group">
+                      <input
+                        type="text"
+                        placeholder={t.manualNichePlaceholder || "Digite seu nicho..."}
+                        value={customNiche}
+                        onChange={(e) => setCustomNiche(e.target.value)}
+                        className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-6 pr-14 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-medium"
+                      />
+                      <button
+                        onClick={() => isListening ? stopListening() : startListening(language === 'PT' ? 'pt-BR' : 'en-US')}
+                        className={`absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-all ${isListening ? 'bg-red-500/20 text-red-400 animate-pulse' : 'text-gray-500 hover:text-indigo-400 hover:bg-white/5'}`}
+                        title={isListening ? t.micListening : t.manualNiche}
+                      >
+                        <Mic className={`w-5 h-5 ${isListening ? 'scale-110' : ''}`} />
+                      </button>
+                    </div>
+
+                    <div className="relative group">
+                      <input
+                        type="text"
+                        placeholder={t.customObjectsPlaceholder || "Objetos (opcional)..."}
+                        value={customObjects}
+                        onChange={(e) => setCustomObjects(e.target.value)}
+                        className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-6 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-medium"
+                      />
+                    </div>
                   </div>
                 )}
               </div>

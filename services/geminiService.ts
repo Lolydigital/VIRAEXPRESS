@@ -155,13 +155,21 @@ export const generateIdeas = async (niche: string, lang: Language, skipCache = f
     Style: Objects talking, sarcastic, exaggerated Pixar-style emotions.`;
   }
 
-  const prompt = `Express Idea Guru. Niche: "${niche}".
-${trendContext}
-Generate 10 viral "Talking Object" ideas.
-Rules: Interactive, sarcastic, viral/meme. No repetitions.
-Lang: ${languageNames[lang]}.
-RETURN ONLY A VALID JSON ARRAY. NO MARKDOWN. NO CODE BLOCKS. NO COMMENTS. NO EXTRA TEXT.
-Structure: [{"id": "uid", "title": "...", "description": "...", "emoji": "..."}]`;
+  const prompt = `Express Idea Guru. 
+  Target Niche: "${niche}".
+  ${trendContext ? `Contextual Info: ${trendContext}` : ''}
+  
+  TASK: Generate 10 viral "Talking Object" video ideas for this niche.
+  
+  RULES:
+  1. If the niche is custom or specific (e.g., "Criminal Lawyer" or "Fruit Stand"), first identify the most iconic and visual objects associated with it (e.g., gavel, handcuffs, scales for a lawyer).
+  2. Use these objects as the "talking protagonists" in your ideas.
+  3. Ideas must be interactive, sarcastic, viral/meme-oriented.
+  4. Ensure a variety of scenarios (e.g., objects arguing, complaining, or being wise).
+  5. Language: ${languageNames[lang]}.
+  
+  RETURN ONLY A VALID JSON ARRAY. NO MARKDOWN. NO CODE BLOCKS. NO COMMENTS. NO EXTRA TEXT.
+  Structure: [{"id": "uid", "title": "Title (Meme/Viral Style)", "description": "Short scenario description", "emoji": "..."}]`;
 
   try {
     const rawText = await callGeminiREST("gemini-2.0-flash", prompt, "Ideas", {

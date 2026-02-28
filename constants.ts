@@ -161,6 +161,8 @@ export const TRANSLATIONS: Record<Language, Translation> = {
     creditsExhausted: 'CRÉDITOS ESGOTADOS!',
     boostResults: 'Aumente seus Resultados!',
     choosePlanDescription: 'Escolha um plano para continuar gerando conteúdo viral',
+    advancedMode: 'Modo Avançado',
+    customObjectsPlaceholder: 'Objetos (opcional: martelo, balança...)',
   },
   EN: {
     title: 'ViraExpress',
@@ -253,6 +255,8 @@ export const TRANSLATIONS: Record<Language, Translation> = {
     creditsExhausted: 'CREDITS EXHAUSTED!',
     boostResults: 'Boost your Results!',
     choosePlanDescription: 'Choose a plan to keep generating viral content',
+    advancedMode: 'Advanced Mode',
+    customObjectsPlaceholder: 'Objects (optional: hammer, scale...)',
   },
   ES: {
     title: 'ViraExpress',
@@ -345,5 +349,7 @@ export const TRANSLATIONS: Record<Language, Translation> = {
     creditsExhausted: '¡CRÉDITOS AGOTADOS!',
     boostResults: '¡Aumenta tus Resultados!',
     choosePlanDescription: 'Elige um plan para seguir generando contenido viral',
+    advancedMode: 'Modo Avanzado',
+    customObjectsPlaceholder: 'Objetos (opcional: martillo, balanza...)',
   }
 };
