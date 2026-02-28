@@ -34,21 +34,39 @@ const PERSONAS_PT: Persona[] = [
   { id: 'sarcastic', name: 'O Café Sarcástico', emoji: '☕', description: 'Debochado e sincero sobre produtividade.', trait: 'Sarcástico, direto, usa gírias de cansaço corporativo.' },
   { id: 'angry_bill', name: 'O Boleto Bravo', emoji: '💸', description: 'Reclama que ninguém quer pagá-lo.', trait: 'Irritado, ansioso, voz apressada.' },
   { id: 'wise_vitamin', name: 'A Vitamina Sábia', emoji: '💊', description: 'Dá conselhos profundos sobre saúde.', trait: 'Sereno, voz profunda, autoritário mas gentil.' },
-  { id: 'gossip_makeup', name: 'A Make Fofoqueira', emoji: '💄', description: 'Conta segredos do nicho de beleza.', trait: 'Entusiasmado, fala rápido, usa "Miga" e "Babado".' }
+  { id: 'gossip_makeup', name: 'A Make Fofoqueira', emoji: '💄', description: 'Conta segredos do nicho de beleza.', trait: 'Entusiasmado, fala rápido, usa "Miga" e "Babado".' },
+  { id: 'needy', name: 'Carente / Abandonado', emoji: '😭', description: 'Implora por atenção e reclama de solidão.', trait: 'Carente, abandonado, implora por atenção, voz chorosa.' },
+  { id: 'anxious', name: 'Preocupado / Ansioso', emoji: '😰', description: 'Medo constante de ser usado errado.', trait: 'Preocupado, ansioso, medo de ser usado errado, fala rápido e trêmula.' },
+  { id: 'grumpy', name: 'Ranzinza / Mal-humorado', emoji: '🤬', trait: 'Ranzinza, mal-humorado, reclama de tudo, tom de bronca.', description: 'O clássico "pão ranzinza" que reclama de tudo.' },
+  { id: 'sad_depressed', name: 'Triste / Deprimido', emoji: '😢', description: 'Melancólico e sente-se esquecido.', trait: 'Triste, melancólico, sente-se esquecido, voz baixa e lenta.' },
+  { id: 'attention_seeker', name: 'Carente de Atenção', emoji: '🥺', description: 'Faz drama para ser o centro das atenções.', trait: 'Carente, quer ser o centro das atenções, faz drama.' },
+  { id: 'critical', name: 'Crítico / Exigente', emoji: '🧐', description: 'Superior e detalhista sobre como deve ser usado.', trait: 'Crítico, exigente, detalhista, tom de superioridade e correção.' }
 ];
 
 const PERSONAS_EN: Persona[] = [
   { id: 'sarcastic', name: 'Sarcastic Coffee', emoji: '☕', description: 'Mocking and sincere about productivity.', trait: 'Sarcastic, direct, uses corporate burnout slang.' },
   { id: 'angry_bill', name: 'Angry Bill', emoji: '💸', description: 'Complains that no one wants to pay him.', trait: 'Irritated, anxious, fast-paced voice.' },
   { id: 'wise_vitamin', name: 'Wise Vitamin', emoji: '💊', description: 'Gives deep advice about health.', trait: 'Serene, deep voice, authoritative but kind.' },
-  { id: 'gossip_makeup', name: 'Gossip Makeup', emoji: '💄', description: 'Tells secrets of the beauty niche.', trait: 'Enthusiastic, fast speaker, uses "Girlie" and "Tea".' }
+  { id: 'gossip_makeup', name: 'Gossip Makeup', emoji: '💄', description: 'Tells secrets of the beauty niche.', trait: 'Enthusiastic, fast speaker, uses "Girlie" and "Tea".' },
+  { id: 'needy', name: 'Needy / Abandoned', emoji: '😭', description: 'Begs for attention and complains about loneliness.', trait: 'Needy, abandoned, begs for attention, tearful voice.' },
+  { id: 'anxious', name: 'Worried / Anxious', emoji: '😰', description: 'Constant fear of being used wrong.', trait: 'Worried, anxious, fear of being used wrong, fast and shaky speech.' },
+  { id: 'grumpy', name: 'Grumpy / Ill-tempered', emoji: '🤬', trait: 'Grumpy, ill-tempered, complains about everything, scolding tone.', description: 'The classic "grumpy bread" that complains about everything.' },
+  { id: 'sad_depressed', name: 'Sad / Depressed', emoji: '😢', description: 'Melancholic and feels forgotten.', trait: 'Sad, melancholic, feels forgotten, low and slow voice.' },
+  { id: 'attention_seeker', name: 'Attention Seeking', emoji: '🥺', description: 'Makes drama to be the center of attention.', trait: 'Needy, wants to be the center of attention, creates drama.' },
+  { id: 'critical', name: 'Critical / Demanding', emoji: '🧐', description: 'Superior and detailed about how it should be used.', trait: 'Critical, demanding, detailed, tone of superiority and correction.' }
 ];
 
 const PERSONAS_ES: Persona[] = [
   { id: 'sarcastic', name: 'El Café Sarcástico', emoji: '☕', description: 'Sarcástico y sincero sobre la productividad.', trait: 'Sarcástico, directo, usa jerga de agotamiento corporativo.' },
   { id: 'angry_bill', name: 'La Factura Enojada', emoji: '💸', description: 'Se queja de que nadie quiere pagarla.', trait: 'Irritado, ansioso, voz apresurada.' },
   { id: 'wise_vitamin', name: 'La Vitamina Sabia', emoji: '💊', description: 'Da consejos profundos sobre salud.', trait: 'Sereno, voz profunda, autoritario pero gentil.' },
-  { id: 'gossip_makeup', name: 'El Maquillaje Chismoso', emoji: '💄', description: 'Cuenta secretos del nicho de belleza.', trait: 'Entusiasta, habla rápido, usa "Amiga" y "Chisme".' }
+  { id: 'gossip_makeup', name: 'El Maquillaje Chismoso', emoji: '💄', description: 'Cuenta secretos del nicho de belleza.', trait: 'Entusiasta, habla rápido, usa "Amiga" y "Chisme".' },
+  { id: 'needy', name: 'Necesitado / Abandonado', emoji: '😭', description: 'Suplica atención y se queja de la soledad.', trait: 'Necesitado, abandonado, suplica atención, voz llorosa.' },
+  { id: 'anxious', name: 'Preocupado / Ansioso', emoji: '😰', description: 'Miedo constante a ser usado incorrectamente.', trait: 'Preocupado, ansioso, miedo a ser usado incorrectamente, habla rápida y temblorosa.' },
+  { id: 'grumpy', name: 'Gruñón / Malhumorado', emoji: '🤬', trait: 'Gruñón, malhumorado, se queja de todo, tono de regaño.', description: 'El clásico "pan gruñón" que se queja de todo.' },
+  { id: 'sad_depressed', name: 'Triste / Deprimido', emoji: '😢', description: 'Melancólico y se siente olvidado.', trait: 'Triste, melancólico, se siente olvidado, voz baja y lenta.' },
+  { id: 'attention_seeker', name: 'Necesitado de Atención', emoji: '🥺', description: 'Hace drama para ser el centro de atención.', trait: 'Necesitado, quiere ser el centro de atención, crea drama.' },
+  { id: 'critical', name: 'Crítico / Exigente', emoji: '🧐', description: 'Superior y detallista sobre cómo debe usarse.', trait: 'Crítico, exigente, detallista, tono de superioridad y corrección.' }
 ];
 
 export const TRANSLATIONS: Record<Language, Translation> = {
