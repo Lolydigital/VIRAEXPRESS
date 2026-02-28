@@ -261,13 +261,15 @@ export const generatePrompts = async (
   4. Each object MUST have a "scenes" array (integers) mapping to the script lines (e.g., [1, 2, 5]).
   5. The imagePrompt must be in ENGLISH and follow the "PIXAR 3D" style: "A 3D animated [object] facing forward, looking at camera, with [expression/personality] face, big eyes, Pixar movie quality, hyper-realistic, cinematic lighting, 8k, no text".
   6. The script MUST be short, suitable for a video of 8-15 seconds (approx 2-4 lines of dialogue total).
-  7. The "videoPrompt_Tecnico" MUST follow this EXACT format:
+  7. The "videoPrompt_Tecnico" MUST be a master prompt for Grok Imagine Video. 
+     Use EXTREME NEGATIVE CONSTRAINTS to avoid speech balloons.
+     Format EXACTLY like this:
      "Crie um vídeo animado estilo Pixar com [personagens].
-     Os personagens devem FALAR as frases em áudio sincronizado, com movimento de boca.
-     NÃO use balões de texto, NÃO escreva as falas na tela. Apenas áudio com os personagens falando.
+     PROIBIDO: Não use balões de texto, não use legendas, não escreva nada na tela. Zero texto visual.
+     Apenas áudio sincronizado com movimento de boca (lip-sync).
      Câmera alterna close-ups em quem está falando. Iluminação cinematográfica.
      
-     DIÁLOGO EM [IDIOMA] (seguir ordem exata):
+     DIÁLOGO EM [IDIOMA]:
      - [Personagem A]: '[fala 1]'
      - [Personagem B]: '[fala 2]'"
 
